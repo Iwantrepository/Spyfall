@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Spyfall</string>
+
+
+    <string name="write_file">Записать файл</string>
+    <string name="read_file">Прочесть файл</string>
+    <string name="write_file_sd">Записать файл на SD</string>
+    <string name="read_file_sd">Прочесть файл с SD</string>
+
+
+    <string name="new_game">Новая игра</string>
+    <string name="help">Help</string>
+
+    <string name="locations">Меню локаций</string>
+    <string name="add_location">Добавить локацию</string>
+    <string name="add_starter_pack">Добавить стартовый пак</string>
+    <string name="reset_pool_flags">Достать локации из пула</string>
+    <string name="wipe_dir">Удалить все локации</string>
+    <string name="refresh_locations">Обновить списки файлов</string>
+    <string name="upload_locations">Подгрузить локации</string>
+</resources>
