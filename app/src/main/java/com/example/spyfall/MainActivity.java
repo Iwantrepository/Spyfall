@@ -38,22 +38,17 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static android.Manifest.permission.MANAGE_DOCUMENTS;
-import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
-
-
 
 public class MainActivity extends AppCompatActivity {
+
+    public final static int REQUEST_CODE_LOCATIONS = 1;
+    public final static int REQUEST_CODE_NEW_LOCATION = 2;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -107,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -131,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent  locations = new Intent(this, locations_list.class);
                 locations.putExtra("str_list", str_list);
                 locations.putExtra("path", path);
-                startActivity(locations);
+                startActivityForResult(locations, REQUEST_CODE_LOCATIONS);
                 break;
 
             case R.id.add_location:
@@ -141,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent  add_locations = new Intent(this, new_location_form.class);
                 add_locations.putExtra("path", path);
-                startActivity(add_locations);
+                startActivityForResult(add_locations, REQUEST_CODE_NEW_LOCATION);
 
                 break;
 
@@ -212,6 +206,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 refresh_loc_list();
                 break;
+            case REQUEST_CODE_NEW_LOCATION:
+                refresh_loc_list();
+                break;
+
+            case REQUEST_CODE_LOCATIONS:
+                refresh_loc_list();
+            break;
         }
     }
 

@@ -46,6 +46,7 @@ public class locations_list extends AppCompatActivity {
             case R.id.wipe_dir:
                 Toast.makeText(getApplicationContext(), "WIPE" , Toast.LENGTH_SHORT).show();
                 wipeDir();
+                finish();
                 break;
 
             default:
@@ -81,7 +82,7 @@ public class locations_list extends AppCompatActivity {
     {
         for (int i = 0; i<str_list.length; i++)
         {
-            File dir = getFilesDir();
+            //File dir = getFilesDir();
             File file = new File(path, str_list[i]);
             boolean deleted = file.delete();
         }
