@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
     public final static int REQUEST_CODE_LOCATIONS = 1;
     public final static int REQUEST_CODE_NEW_LOCATION = 2;
+
+    public final static int REQUEST_CODE_UPLOAD_LOCATIONS = 10;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -159,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 myFileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 myFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 myFileIntent.setType("text/plain");
-                startActivityForResult(myFileIntent, 10);
+                startActivityForResult(myFileIntent, REQUEST_CODE_UPLOAD_LOCATIONS);
                 break;
 
             default:
@@ -172,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 10:
+            case REQUEST_CODE_UPLOAD_LOCATIONS:
                 if(resultCode == RESULT_OK)
                 {
                     if(null != data) { // checking empty selection
@@ -200,7 +203,8 @@ public class MainActivity extends AppCompatActivity {
                             //Toast.makeText(getApplicationContext(), pathFromToUpload+"/"+filename , Toast.LENGTH_SHORT).show();
 
 
-                            copyFileOrDirectory(pathFromToUpload+"/"+filename, path);
+                            //copyFileOrDirectory(pathFromToUpload+"/"+filename, path);
+                            copyFileOrDirectory(filename, path);
                         }
                     }
                 }
@@ -843,6 +847,72 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i<8; i++)
         {
             ispressed[i] = false;
+        }
+    }
+/*
+    public void copyFileOrDirectory(String srcDir, String dstDir) {
+
+        srcDir = srcDir.split("/")[1];
+        srcDir = Environment.getExternalStorageState();
+        //srcDir = getApplicationContext().getFileStreamPath(srcDir).getPath();
+
+
+        Toast.makeText(getApplicationContext(),  srcDir  , Toast.LENGTH_SHORT).show();
+
+
+        java.io.File file = new File(srcDir);
+
+        //File file = new File(srcDir);
+        String data;
+
+        if(isExternalStorageReadable())
+        {
+            //Toast.makeText(getApplicationContext(), "Читаемо" , Toast.LENGTH_SHORT).show();
+            if(file.exists())
+            {
+                StringBuilder sb = new StringBuilder();
+                try{
+                    FileInputStream fis = new FileInputStream(file);
+
+                    if(fis != null)
+                    {
+                        InputStreamReader isr = new InputStreamReader(fis);
+                        BufferedReader buff =  new BufferedReader(isr);
+
+                        String line = null;
+                        while((line = buff.readLine()) != null)
+                        {
+                            sb.append(line+'\n');
+                        }
+                        fis.close();
+
+                        data = sb.toString();
+                        Toast.makeText(getApplicationContext(), data , Toast.LENGTH_SHORT).show();
+
+                    }else{
+                        Toast.makeText(getApplicationContext(), "FileInputStream = null" , Toast.LENGTH_SHORT).show();
+                    }
+                }catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+
+            }else{
+                Toast.makeText(getApplicationContext(), "Файла не существует (выбирайте файлы напрямую из памяти телефона)" , Toast.LENGTH_LONG).show();
+            }
+        }else{
+            Toast.makeText(getApplicationContext(), "Хранилище не читаемо" , Toast.LENGTH_LONG).show();
+        }
+    }*/
+
+    boolean isExternalStorageReadable()
+    {
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+        || Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState()))
+        {
+            return true;
+        }else{
+            return false;
         }
     }
 
