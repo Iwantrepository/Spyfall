@@ -94,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
-
-
         //int permission = ActivityCompat.checkSelfPermission(activity, STORAGE_SERVICE);
         int permission = ContextCompat.checkSelfPermission(activity , READ_EXTERNAL_STORAGE);
 
@@ -217,57 +215,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static void copyFileOrDirectory(String srcDir, String dstDir) {
-
-        try {
-            File src = new File(srcDir);
-            File dst = new File(dstDir, src.getName());
-
-            if (src.isDirectory()) {
-
-                String files[] = src.list();
-                int filesLength = files.length;
-                for (int i = 0; i < filesLength; i++) {
-                    String src1 = (new File(src, files[i]).getPath());
-                    String dst1 = dst.getPath();
-                    copyFileOrDirectory(src1, dst1);
-
-                }
-            } else {
-                copyFile(src, dst);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
-        if (!destFile.getParentFile().exists())
-            destFile.getParentFile().mkdirs();
-
-        FileChannel source = null;
-        FileChannel destination = null;
-
-
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
-
-            if (!destFile.exists()) {
-                destFile.createNewFile();
-            }
-
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        } finally {
-            if (source != null) {
-                source.close();
-            }
-            if (destination != null) {
-                destination.close();
-            }
-        }
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -278,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
 
         pathFromToUpload = Environment.getExternalStorageDirectory().toString();// + "/Spyfall";   //Для телефонов
         path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";    //Для компа (и для поздних версий андройда)
-        Toast.makeText(getApplicationContext(), path , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), path , Toast.LENGTH_SHORT).show();
 
         locsWithoutPool = (TextView) findViewById(R.id.locsWithoutPool);
 
@@ -356,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(is_game_worked)
                 {
-                    if(gamers > 1)
+                    if(gamers > 2)
                     {
                         boolean is_started = game_prepare(gamers);
                         if(is_started)
@@ -687,12 +634,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    final String LOG_TAG = "myLogs";
-    final String FILENAME = "test.txt";
-    final String DIR_SD = "MyFiles";
-    final String FILENAME_SD = "fileSD";
-
-
     boolean writeFile(String filename, String input) {
         File fileName = new File(filename);
 
@@ -901,6 +842,57 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i<8; i++)
         {
             ispressed[i] = false;
+        }
+    }
+
+    public static void copyFileOrDirectory(String srcDir, String dstDir) {
+
+        try {
+            File src = new File(srcDir);
+            File dst = new File(dstDir, src.getName());
+
+            if (src.isDirectory()) {
+
+                String files[] = src.list();
+                int filesLength = files.length;
+                for (int i = 0; i < filesLength; i++) {
+                    String src1 = (new File(src, files[i]).getPath());
+                    String dst1 = dst.getPath();
+                    copyFileOrDirectory(src1, dst1);
+
+                }
+            } else {
+                copyFile(src, dst);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        if (!destFile.getParentFile().exists())
+            destFile.getParentFile().mkdirs();
+
+        FileChannel source = null;
+        FileChannel destination = null;
+
+
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+
+            if (!destFile.exists()) {
+                destFile.createNewFile();
+            }
+
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        } finally {
+            if (source != null) {
+                source.close();
+            }
+            if (destination != null) {
+                destination.close();
+            }
         }
     }
 
