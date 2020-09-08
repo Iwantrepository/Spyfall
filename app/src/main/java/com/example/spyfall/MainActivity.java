@@ -133,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.add_location:
                 //Toast.makeText(getApplicationContext(), "Функция временно отключена", Toast.LENGTH_LONG).show();
-                //Toast.makeText(getApplicationContext(), "test.txt (шаблон локации) создан по пути "+path, Toast.LENGTH_LONG).show();
                 //writeFile(path+"/test.txt", "Loc\nr1\nr2\nr3\nr4\nr5\nr6\nr7");
 
                 Intent  add_locations = new Intent(this, new_location_form.class);
@@ -203,8 +202,8 @@ public class MainActivity extends AppCompatActivity {
                             //Toast.makeText(getApplicationContext(), pathFromToUpload+"/"+filename , Toast.LENGTH_SHORT).show();
 
 
-                            //copyFileOrDirectory(pathFromToUpload+"/"+filename, path);
-                            copyFileOrDirectory(filename, path);
+                            copyFileOrDirectory(pathFromToUpload+"/"+filename, path);
+                            //copyFileOrDirectory(filename, path);
                         }
                     }
                 }
