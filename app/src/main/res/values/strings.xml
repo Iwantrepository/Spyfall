@@ -18,4 +18,5 @@
     <string name="wipe_dir">Удалить все локации</string>
     <string name="refresh_locations">Обновить списки файлов</string>
     <string name="upload_locations">Подгрузить локации</string>
+    <string name="party_config">Настройка партии</string>
 </resources>

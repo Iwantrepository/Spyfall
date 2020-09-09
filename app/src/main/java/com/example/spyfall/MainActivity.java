@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     public final static int REQUEST_CODE_LOCATIONS = 1;
     public final static int REQUEST_CODE_NEW_LOCATION = 2;
+    public final static int REQUEST_CODE_PARTY_CONFIG = 3;
 
     public final static int REQUEST_CODE_UPLOAD_LOCATIONS = 10;
 
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     String[] str_list;
     String path;
     String pathFromToUpload;
+    String dataConfig;
 
     String[] loc = new String[8];
     String[] prof = new String[8];
@@ -70,11 +73,17 @@ public class MainActivity extends AppCompatActivity {
     Button button_reset;
     Button button_start;
 
+    List<Integer> spyList = new ArrayList<Integer>();
+
+
+    ImageView spyImage;
+
     boolean game_started = false;
     boolean is_game_worked = true;
     int gamers = 0;
+    int spys = 1;
     int lastLocs = 0;
-    int spyNum = 0;
+    int gamersFromConfig = 0;
 
     boolean isNeedPoolLoc = true;
 
@@ -118,7 +127,11 @@ public class MainActivity extends AppCompatActivity {
     {
         switch (item.getItemId())
         {
-            case R.id.refresh_locations:
+            case R.id.party_config:
+                Intent partyConfig = new Intent(this, PartyConfig.class);
+                partyConfig.putExtra("path", path);
+                startActivityForResult(partyConfig, REQUEST_CODE_PARTY_CONFIG);
+
                 refresh_loc_list();
                 break;
 
@@ -214,6 +227,15 @@ public class MainActivity extends AppCompatActivity {
 
             case REQUEST_CODE_LOCATIONS:
                 refresh_loc_list();
+                break;
+
+            case REQUEST_CODE_PARTY_CONFIG:
+                //Toast.makeText(getApplicationContext(), "Возврат от настройки партии" , Toast.LENGTH_SHORT).show();
+                if (data == null) {return;}
+                String strList = data.getStringExtra("strList");
+                //Toast.makeText(getApplicationContext(), strList , Toast.LENGTH_SHORT).show();
+                dataConfig = strList;
+                parceConfig(strList);
             break;
         }
     }
@@ -228,7 +250,12 @@ public class MainActivity extends AppCompatActivity {
 
         pathFromToUpload = Environment.getExternalStorageDirectory().toString();// + "/Spyfall";   //Для телефонов
         path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";    //Для компа (и для поздних версий андройда)
-        //Toast.makeText(getApplicationContext(), path , Toast.LENGTH_SHORT).show();
+
+
+        spyImage = (ImageView) findViewById(R.id.imageViewSpy);
+        int imageSpyRes = getResources().getIdentifier("@mipmap/ic_launcher_foreground", null, this.getPackageName());
+        spyImage.setImageResource(imageSpyRes);
+        spyImage.setAlpha((float) 0 );
 
         locsWithoutPool = (TextView) findViewById(R.id.locsWithoutPool);
 
@@ -259,6 +286,41 @@ public class MainActivity extends AppCompatActivity {
             prof[i] = Integer.toString(i+1);
             ispressed[i] = false;
         }
+
+        dataConfig = readFile(path+"/config");
+        String configPath = path+"/config";
+
+        if(dataConfig == null)
+        {
+            //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
+            File buff = new File(configPath);
+            try {
+                buff.createNewFile();
+                if(writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8"))
+                {
+                    dataConfig = readFile(configPath);
+                    Toast.makeText(getApplicationContext(), "Файл настроек создан" , Toast.LENGTH_SHORT).show();
+                    if(dataConfig != null)
+                    {
+                        if(!parceConfig(dataConfig));
+                        parceConfig(readFile(configPath));
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек" , Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек" , Toast.LENGTH_SHORT).show();
+                }
+            } catch (IOException e) {
+                Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек" , Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        }else{
+            //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
+            if(!parceConfig(dataConfig));
+            parceConfig(readFile(configPath));
+        }
+
+        parceConfig(dataConfig);
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
@@ -308,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     if(gamers > 2)
                     {
-                        boolean is_started = game_prepare(gamers);
+                        boolean is_started = game_prepare(gamers, spys);
                         if(is_started)
                         {
                             game_started = true;
@@ -319,7 +381,19 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                     }else{
-                        Toast.makeText(getApplicationContext(), "Мало игроков для начала игры" , Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "Мало игроков для начала игры" , Toast.LENGTH_SHORT).show();
+                        if(gamersFromConfig > 2){
+                            gamers = gamersFromConfig;
+                            boolean is_started = game_prepare(gamers, spys);
+                            if(is_started)
+                            {
+                                game_started = true;
+                                button_start.setVisibility(View.GONE);
+                                //Toast.makeText(getApplicationContext(), "Запущена игра на " + gamers + " игроков" , Toast.LENGTH_SHORT).show();
+                            }else{
+                                //
+                            }
+                        }
                     }
                 }else{
                     Toast.makeText(getApplicationContext(), "Обнаружены критические неполадки" , Toast.LENGTH_SHORT).show();
@@ -337,6 +411,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[0] = true;
@@ -345,6 +421,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[0]);
                         buttons[0].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[0]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -366,6 +444,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[1] = true;
@@ -374,6 +454,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[1]);
                         buttons[1].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[1]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -394,6 +476,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[2] = true;
@@ -402,6 +486,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[2]);
                         buttons[2].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[2]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -422,6 +508,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[3] = true;
@@ -430,6 +518,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[3]);
                         buttons[3].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[3]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -450,6 +540,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[4] = true;
@@ -458,6 +550,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[4]);
                         buttons[4].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[4]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -478,6 +572,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[5] = true;
@@ -486,6 +582,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[5]);
                         buttons[5].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[5]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -506,6 +604,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[6] = true;
@@ -514,6 +614,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[6]);
                         buttons[6].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[6]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -534,6 +636,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewLoc.setText("Локация");
                         textViewProf.setText("Профессия");
                         button_reset.setVisibility(View.VISIBLE);
+
+                        hideSpy();
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                         ispressed[7] = true;
@@ -542,6 +646,8 @@ public class MainActivity extends AppCompatActivity {
                         textViewProf.setText(prof[7]);
                         buttons[7].setBackgroundColor(Color.parseColor("#ff8080"));
                         button_reset.setVisibility(View.GONE);
+
+                        showSpy(prof[7]);
                     }
                 }else{
                     for (int i = 0; i < 8; i++)
@@ -639,8 +745,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    boolean game_prepare (int gamers_v)
+    boolean game_prepare (int gamers_v, int spys_v)
     {
+        if(spys_v > gamers_v)
+            spys_v = gamers_v;
+
         if(str_list.length == 0)
         {
             Toast.makeText(getApplicationContext(), "Отсутствуют файлы локаций" , Toast.LENGTH_SHORT).show();
@@ -682,7 +791,7 @@ public class MainActivity extends AppCompatActivity {
             String loc_name = str_list_for_game[loc_num];
             locToPool = loc_name;
 
-            String res = readFile(path+"/"+loc_name);
+            String res = readFile(path+"/"+loc_name).replaceAll("\r","");
             String []res_list = res.split("\n");
 
             if(res_list.length<8)
@@ -708,17 +817,20 @@ public class MainActivity extends AppCompatActivity {
             for(int i = 1; i < res_list.length; i++)
                 if(!res_list[i].isEmpty())
                     prep_list.add(res_list[i]);
+
             Collections.shuffle(prep_list);
-            List final_list = prep_list.subList(0, gamers_v-1);
-            final_list.add("Шпион");
+            List final_list = prep_list.subList(0, gamers_v-spys_v);
+            for(int i = 0; i < spys_v; i++)
+                final_list.add("Шпион");
             Collections.shuffle(final_list);
 
-
+            spyList.clear();
             for(int i = 0; i < final_list.size(); i++) {
                 loc[i] = res_list[0].substring(1);
                 prof[i] = (String) final_list.get(i);
                 if (prof[i] == "Шпион") {
-                    spyNum = i;
+                    //Toast.makeText(getApplicationContext(), Integer.toString(i) , Toast.LENGTH_SHORT).show();
+                    spyList.add(i);
                     loc[i] = "Узнай, где мы";
                 }
             }
@@ -730,9 +842,9 @@ public class MainActivity extends AppCompatActivity {
 
     boolean tryAddLocToPool(int id)
     {
-        if(isNeedPoolLoc && (id != spyNum))
+        if(isNeedPoolLoc && !(spyList.contains(id)))
         {
-            //Toast.makeText(getApplicationContext(), "Локация помечена как отыгранная" , Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Локация помечена как отыгранная " + spyList.toString() , Toast.LENGTH_SHORT).show();
             lastLocs --;
             isNeedPoolLoc = false;
 
@@ -905,5 +1017,66 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Хранилище не читаемо", Toast.LENGTH_LONG).show();
             return null;
         }
+    }
+
+    void showSpy (String role){
+        if(role == "Шпион"){
+            spyImage.setAlpha((float) 0.3);
+            locsWithoutPool.setVisibility(View.GONE);
+        }
+    }
+
+    void hideSpy (){
+        spyImage.setAlpha((float) 0);
+        locsWithoutPool.setVisibility(View.VISIBLE);
+    }
+
+    boolean parceConfig(String data){
+        String[] dataList = data.split("\n");
+        if(dataList.length<9){
+            resetConfig();
+            return false;
+        }
+        spys = Integer.parseInt(dataList[0]);
+
+        String name;
+        for (int i = 0; i < 8; i++)
+        {
+            name = dataList[i+1];
+            if(name.startsWith("+")){
+                //good
+            }else if(name.startsWith("-")) {
+                //good
+            }else{
+                resetConfig();
+                return false;
+            }
+        }
+
+        int idx = 0;
+        gamersFromConfig = 0;
+        for(int i = 1; i < 9; i++)
+        {
+            if(dataList[i].startsWith("+")) {
+                buttons[idx].setText(dataList[i].substring(1));
+                idx++;
+                gamersFromConfig++;
+            }
+        }
+
+        for(int i = idx+1; i < 9; i++)
+        {
+            buttons[i-1].setText(Integer.toString(i));
+            //buttons[i-1].setText("");
+        }
+
+        return true;
+    }
+
+    boolean resetConfig()
+    {
+        writeFile(path, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8");
+        Toast.makeText(getApplicationContext(), "В файле настроек обнаружена критическая ошибка. Файл настроек пересоздан" , Toast.LENGTH_SHORT).show();
+        return true;
     }
 }
