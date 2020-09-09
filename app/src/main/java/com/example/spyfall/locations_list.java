@@ -44,7 +44,7 @@ public class locations_list extends AppCompatActivity {
         switch (item.getItemId())
         {
             case R.id.wipe_dir:
-                Toast.makeText(getApplicationContext(), "WIPE" , Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "WIPE" , Toast.LENGTH_SHORT).show();
                 wipeDir();
                 finish();
                 break;

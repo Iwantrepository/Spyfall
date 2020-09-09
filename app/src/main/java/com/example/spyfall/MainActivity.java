@@ -202,8 +202,7 @@ public class MainActivity extends AppCompatActivity {
                             //Toast.makeText(getApplicationContext(), pathFromToUpload+"/"+filename , Toast.LENGTH_SHORT).show();
 
 
-                            copyFileOrDirectory(pathFromToUpload+"/"+filename, path);
-                            //copyFileOrDirectory(filename, path);
+                            copyFile(pathFromToUpload+"/"+filename, path);
                         }
                     }
                 }
@@ -638,52 +637,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    boolean writeFile(String filename, String input) {
-        File fileName = new File(filename);
 
-        if (!fileName.exists()) {
-            try {
-                fileName.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-        try {
-            FileWriter f = new FileWriter(fileName);
-            f.write(input);
-            f.flush();
-            f.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    String readFile(String filename) {
-        File fileName = new File(filename);
-        String buf = "";
-        if (fileName.exists()) {
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new FileReader(new File(filename)));
-                while ((line = in.readLine()) != null) stringBuilder.append(line+"\n");
-            } catch (FileNotFoundException e) {
-                //
-            } catch (IOException e) {
-                //
-            }
-
-            return stringBuilder.toString();
-        }else{
-            Toast.makeText(getApplicationContext(), filename+" нечитаем" , Toast.LENGTH_SHORT).show();
-            return "";
-        }
-    }
 
     boolean game_prepare (int gamers_v)
     {
@@ -848,61 +802,28 @@ public class MainActivity extends AppCompatActivity {
             ispressed[i] = false;
         }
     }
-/*
-    public void copyFileOrDirectory(String srcDir, String dstDir) {
 
-        srcDir = srcDir.split("/")[1];
-        srcDir = Environment.getExternalStorageState();
-        //srcDir = getApplicationContext().getFileStreamPath(srcDir).getPath();
+    public boolean copyFile(String srcFile, String dstDir) {
 
+        String dstFileName = srcFile.split("/")[srcFile.split("/").length-1];
 
-        Toast.makeText(getApplicationContext(),  srcDir  , Toast.LENGTH_SHORT).show();
-
-
-        java.io.File file = new File(srcDir);
-
-        //File file = new File(srcDir);
-        String data;
-
-        if(isExternalStorageReadable())
+        String fileData = readFile(srcFile);
+        if(fileData != null)
         {
-            //Toast.makeText(getApplicationContext(), "Читаемо" , Toast.LENGTH_SHORT).show();
-            if(file.exists())
+            boolean res = writeFile(dstDir+"/"+dstFileName, fileData);
+            if(res)
             {
-                StringBuilder sb = new StringBuilder();
-                try{
-                    FileInputStream fis = new FileInputStream(file);
-
-                    if(fis != null)
-                    {
-                        InputStreamReader isr = new InputStreamReader(fis);
-                        BufferedReader buff =  new BufferedReader(isr);
-
-                        String line = null;
-                        while((line = buff.readLine()) != null)
-                        {
-                            sb.append(line+'\n');
-                        }
-                        fis.close();
-
-                        data = sb.toString();
-                        Toast.makeText(getApplicationContext(), data , Toast.LENGTH_SHORT).show();
-
-                    }else{
-                        Toast.makeText(getApplicationContext(), "FileInputStream = null" , Toast.LENGTH_SHORT).show();
-                    }
-                }catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-
+                //Toast.makeText(getApplicationContext(), "Файл записан" , Toast.LENGTH_SHORT).show();
+                return true;
             }else{
-                Toast.makeText(getApplicationContext(), "Файла не существует (выбирайте файлы напрямую из памяти телефона)" , Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Файл не записан" , Toast.LENGTH_SHORT).show();
+                return false;
             }
         }else{
-            Toast.makeText(getApplicationContext(), "Хранилище не читаемо" , Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Файл не прочитан" , Toast.LENGTH_SHORT).show();
+            return false;
         }
-    }*/
+    }
 
     boolean isExternalStorageReadable()
     {
@@ -915,55 +836,74 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static void copyFileOrDirectory(String srcDir, String dstDir) {
+    boolean writeFile(String filename, String input) {
+        File fileName = new File(filename);
+
+        if (!fileName.exists()) {
+            try {
+                fileName.createNewFile();
+            } catch (IOException e) {
+                Toast.makeText(getApplicationContext(), "Файл не может быть создан" , Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                return false;
+            }
+        }
 
         try {
-            File src = new File(srcDir);
-            File dst = new File(dstDir, src.getName());
-
-            if (src.isDirectory()) {
-
-                String files[] = src.list();
-                int filesLength = files.length;
-                for (int i = 0; i < filesLength; i++) {
-                    String src1 = (new File(src, files[i]).getPath());
-                    String dst1 = dst.getPath();
-                    copyFileOrDirectory(src1, dst1);
-
-                }
-            } else {
-                copyFile(src, dst);
-            }
+            FileWriter f = new FileWriter(fileName);
+            f.write(input);
+            f.flush();
+            f.close();
         } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Ошибка записи" , Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
-        if (!destFile.getParentFile().exists())
-            destFile.getParentFile().mkdirs();
+    String readFile(String filename) {
 
-        FileChannel source = null;
-        FileChannel destination = null;
+        java.io.File file = new File(filename);
+        String data;
 
+        if (isExternalStorageReadable()) {
+            if (file.exists()) {
+                StringBuilder sb = new StringBuilder();
+                try {
+                    FileInputStream fis = new FileInputStream(file);
 
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
+                    if (fis != null) {
+                        InputStreamReader isr = new InputStreamReader(fis);
+                        BufferedReader buff = new BufferedReader(isr);
 
-            if (!destFile.exists()) {
-                destFile.createNewFile();
+                        String line = null;
+                        while ((line = buff.readLine()) != null) {
+                            sb.append(line + '\n');
+                        }
+                        fis.close();
+
+                        data = sb.toString();
+                        //Toast.makeText(getApplicationContext(), "Прочитано:\n"data , Toast.LENGTH_SHORT).show();
+                        return data;
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), "FileInputStream = null", Toast.LENGTH_SHORT).show();
+                        return null;
+                    }
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Exception", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    return null;
+                }
+
+            } else {
+                Toast.makeText(getApplicationContext(), "Файла не существует (возможно выбран относительный путь)", Toast.LENGTH_LONG).show();
+                return null;
             }
-
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        } finally {
-            if (source != null) {
-                source.close();
-            }
-            if (destination != null) {
-                destination.close();
-            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Хранилище не читаемо", Toast.LENGTH_LONG).show();
+            return null;
         }
     }
-
 }
