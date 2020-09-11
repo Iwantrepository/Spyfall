@@ -54,6 +54,20 @@
                     android:orientation="horizontal">
 
                         <Button
+                            android:id="@+id/buttonCreatePack"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Создать пак" />
+
+                        <Button
+                            android:id="@+id/buttonCheckPool"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Выбрать пул" />
+
+                        <Button
                             android:id="@+id/buttonCheckAll"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

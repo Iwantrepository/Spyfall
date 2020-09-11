@@ -48,6 +48,7 @@ public class locations_list extends AppCompatActivity {
 
     ArrayList<String> str_list;
     String path;
+    String pathExternalStorage;
 
     ArrayAdapter<String> listAdapter;
 
@@ -58,6 +59,8 @@ public class locations_list extends AppCompatActivity {
     Button buttonGetFromPool;
     Button buttonDeleteChecked;
     Button buttonSetToPool;
+    Button buttonCreatePack;
+    Button buttonCheckPool;
 
 
 
@@ -101,6 +104,8 @@ public class locations_list extends AppCompatActivity {
         buttonGetFromPool = (Button) findViewById(R.id.buttonGetFromPool);
         buttonDeleteChecked = (Button) findViewById(R.id.buttonDeleteChecked);
         buttonSetToPool = (Button) findViewById(R.id.buttonSetToPool);
+        buttonCreatePack = (Button) findViewById(R.id.buttonCreatePack);
+        buttonCheckPool = (Button) findViewById(R.id.buttonCheckPool);
 
         str_list = new ArrayList<String>();
 
@@ -112,6 +117,7 @@ public class locations_list extends AppCompatActivity {
                 str_list.add(str_arr[j]);
             }
             path = (String) arguments.get("path");
+            pathExternalStorage = (String) arguments.get("pathFromToUpload");
         }
 
         listView = (ListView) findViewById(R.id.locationsListView);
@@ -162,6 +168,20 @@ public class locations_list extends AppCompatActivity {
             }
         });
 
+        buttonCheckPool.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for(int i = 0; i < listView.getCount(); i++)
+                {
+                    String data = readFile(path+"/"+listView.getItemAtPosition(i));
+                    if(data.startsWith("+"))
+                        listView.setItemChecked(i, true);
+                    else
+                        listView.setItemChecked(i, false);
+                }
+            }
+        });
+
         buttonCheckAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -191,7 +211,7 @@ public class locations_list extends AppCompatActivity {
                         String buf = readFile(path + "/" + listView.getItemAtPosition(i).toString());
                         writeFile(path + "/" + listView.getItemAtPosition(i).toString(), "-" + buf.substring(1));
 
-                        listView.setItemChecked(i, false);
+                        //listView.setItemChecked(i, false);
                     }
                 }
                 listAdapter.notifyDataSetChanged();
@@ -207,7 +227,7 @@ public class locations_list extends AppCompatActivity {
                 {
                     AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
                     alert.setTitle("Внимание");
-                    alert.setMessage("Вы действительно хотите удалить выбранные локации?");
+                    alert.setMessage("Вы действительно хотите удалить выбранные локации?\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -242,10 +262,47 @@ public class locations_list extends AppCompatActivity {
                         String buf = readFile(path + "/" + listView.getItemAtPosition(i).toString());
                         writeFile(path + "/" + listView.getItemAtPosition(i).toString(), "+" + buf.substring(1));
 
-                        listView.setItemChecked(i, false);
+                        //listView.setItemChecked(i, false);
                     }
                 }
                 listAdapter.notifyDataSetChanged();
+            }
+        });
+
+        buttonCreatePack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final SparseBooleanArray checked = listView.getCheckedItemPositions();
+                if(listView.getCheckedItemCount() > 0)
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
+                    alert.setTitle("Создание пака");
+                    alert.setMessage("Выбранные локации будут скопированы в /SpyfallPack в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
+                    alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //
+                        }
+                    });
+                    alert.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            File dir = new File(pathExternalStorage+"/SpyfallPack");
+                            dir.mkdir();
+
+                            for (int j = listView.getAdapter().getCount() - 1; j >= 0; j--) {
+                                if (checked.get(j)) {
+                                    String buf = readFile(path+"/"+listView.getItemAtPosition(j));
+                                    writeFile(pathExternalStorage+"/SpyfallPack/"+listView.getItemAtPosition(j), buf);
+                                }
+                            }
+                            listAdapter.notifyDataSetChanged();
+                        }
+                    });
+                    alert.create();
+                    alert.show();
+                }
             }
         });
 

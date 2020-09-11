@@ -134,18 +134,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.locations:
-                //Toast.makeText(getApplicationContext(), "Пока что нет локаций, дядь", Toast.LENGTH_SHORT).show();
                 refresh_loc_list();
                 Intent  locations = new Intent(this, locations_list.class);
                 locations.putExtra("str_list", str_list);
                 locations.putExtra("path", path);
+                locations.putExtra("pathFromToUpload",pathFromToUpload);
                 startActivityForResult(locations, REQUEST_CODE_LOCATIONS);
                 break;
 
             case R.id.add_location:
-                //Toast.makeText(getApplicationContext(), "Функция временно отключена", Toast.LENGTH_LONG).show();
-                //writeFile(path+"/test.txt", "Loc\nr1\nr2\nr3\nr4\nr5\nr6\nr7");
-
                 Intent  add_locations = new Intent(this, new_location_form.class);
                 add_locations.putExtra("path", path);
                 startActivityForResult(add_locations, REQUEST_CODE_NEW_LOCATION);
