@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -13,6 +14,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.loader.content.CursorLoader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -192,30 +198,31 @@ public class MainActivity extends AppCompatActivity {
                 {
                     if(null != data) { // checking empty selection
                         String []fileList;
+                        Uri[] uriList;
                         if(null != data.getClipData()) { // checking multiple selection or not
                             fileList = new String[data.getClipData().getItemCount()];
+                            uriList = new Uri[data.getClipData().getItemCount()];
                             for(int i = 0; i < data.getClipData().getItemCount(); i++) {
                                 Uri uri = data.getClipData().getItemAt(i).getUri();
+
                                 fileList[i] = uri.getPath();
+                                uriList[i] = uri;
                             }
                         } else {
                             fileList = new String[1];
+                            uriList = new Uri[1];
                             Uri uri = data.getData();
+
                             fileList[0] = uri.getPath();
+                            uriList[0] = uri;
                         }
 
-                        for (int i=0; i< fileList.length; i++)
+
+                        for (int i=0; i< uriList.length; i++)
                         {
-                            String filename ;
-                            String list[] = fileList[i].split(":");
-                            filename = list[list.length-1];
-                            //list = filename.split("/");
-                            //filename = list[list.length-1];
-
-                            //Toast.makeText(getApplicationContext(), pathFromToUpload+"/"+filename , Toast.LENGTH_SHORT).show();
-
-
-                            copyFile(pathFromToUpload+"/"+filename, path);
+                            if(uriList[i] != null){
+                                copyFile(uriList[i], path);
+                            }
                         }
                     }
                 }
@@ -248,8 +255,8 @@ public class MainActivity extends AppCompatActivity {
 
         verifyStoragePermissions(this);
 
-        pathFromToUpload = Environment.getExternalStorageDirectory().toString();// + "/Spyfall";   //Для телефонов
-        path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";    //Для компа (и для поздних версий андройда)
+        pathFromToUpload = Environment.getExternalStorageDirectory().toString();// + "/Spyfall";   //Внешнее хранилище
+        path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";    //Выделенное внутреннее хранилище
 
 
         spyImage = (ImageView) findViewById(R.id.imageViewSpy);
@@ -937,6 +944,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean copyFile(Uri srcUri, String dstDir) {
+
+        String dstFileName = getFileName(srcUri);
+        //Toast.makeText(getApplicationContext(), dstFileName , Toast.LENGTH_SHORT).show();
+
+        String fileData = readFile(srcUri);
+        if(fileData != null)
+        {
+            boolean res = writeFile(dstDir+"/"+dstFileName, fileData);
+            if(res)
+            {
+                //Toast.makeText(getApplicationContext(), "Файл записан" , Toast.LENGTH_SHORT).show();
+                return true;
+            }else{
+                Toast.makeText(getApplicationContext(), "Файл не записан" , Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }else{
+            Toast.makeText(getApplicationContext(), "Файл не прочитан" , Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+
     boolean isExternalStorageReadable()
     {
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
@@ -1010,9 +1063,41 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } else {
-                Toast.makeText(getApplicationContext(), "Файла не существует (возможно выбран относительный путь)", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Файла не существует", Toast.LENGTH_LONG).show();
                 return null;
             }
+        } else {
+            Toast.makeText(getApplicationContext(), "Хранилище не читаемо", Toast.LENGTH_LONG).show();
+            return null;
+        }
+    }
+
+    String readFile(Uri uri) {
+
+        String data;
+
+        if (isExternalStorageReadable()) {
+                StringBuilder sb = new StringBuilder();
+                try {
+                    //InputStreamReader isr = new InputStreamReader(fis);
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                    InputStreamReader isr = new InputStreamReader(inputStream);
+                    BufferedReader buff = new BufferedReader(isr);
+
+                    String line = null;
+                    while ((line = buff.readLine()) != null) {
+                        sb.append(line + '\n');
+                    }
+
+                    data = sb.toString();
+                    //Toast.makeText(getApplicationContext(), "Прочитано:\n"+data , Toast.LENGTH_SHORT).show();
+                    return data;
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Exception", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    return null;
+                }
+
         } else {
             Toast.makeText(getApplicationContext(), "Хранилище не читаемо", Toast.LENGTH_LONG).show();
             return null;
@@ -1079,4 +1164,5 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "В файле настроек обнаружена критическая ошибка. Файл настроек пересоздан" , Toast.LENGTH_SHORT).show();
         return true;
     }
+
 }
