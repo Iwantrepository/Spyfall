@@ -11,10 +11,11 @@
     tools:ignore="ExtraText"
     tools:context=".locations_list">
 
+        <!-- TOOLBAR
         <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
-
+        -->
 
         <LinearLayout
             android:layout_width="match_parent"

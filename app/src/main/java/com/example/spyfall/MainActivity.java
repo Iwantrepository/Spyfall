@@ -163,10 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 refresh_loc_list();
                 break;
 
-            case R.id.reset_pool_flags:
-                tryRemovePoolFlags();
-                break;
-
             case R.id.upload_locations:
                 myFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 myFileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -854,28 +850,6 @@ public class MainActivity extends AppCompatActivity {
 
         if(gamers == countPressed())
             updateLocCounter();
-        return true;
-    }
-
-    boolean tryRemovePoolFlags()
-    {
-        for (int i = 0; i<str_list.length; i++)
-        {
-            if(readFile(path+"/"+str_list[i]).startsWith("+"))
-            {
-                String res = readFile(path+"/"+str_list[i]);
-                res = "-" + res.substring(1);
-                if(writeFile(path+"/"+str_list[i], res))
-                {
-                    //Toast.makeText(getApplicationContext(), "Файл " + str_list[i] + " не был записан. Удаление флагов остановлено" , Toast.LENGTH_SHORT).show();
-                    //Почему-то запись происходит, но сыпятся ошибки
-                    //return false;
-                }
-            }
-        }
-        lastLocs = str_list.length;
-        updateLocCounter();
-
         return true;
     }
 

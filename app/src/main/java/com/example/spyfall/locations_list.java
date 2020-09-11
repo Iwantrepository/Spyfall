@@ -61,14 +61,14 @@ public class locations_list extends AppCompatActivity {
 
 
 
-
+/*      TOOLBAR
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.loc_menu_menu, menu);
         return super.onCreateOptionsMenu(menu);
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -202,15 +202,34 @@ public class locations_list extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                SparseBooleanArray checked = listView.getCheckedItemPositions();
-                for (int i = listView.getAdapter().getCount() - 1; i >= 0; i--) {
-                    if (checked.get(i)) {
-                        deleteFile(path, listView.getItemAtPosition(i).toString());
-                        str_list.remove(i);
-                        listView.setItemChecked(i, false);
-                    }
+                final SparseBooleanArray checked = listView.getCheckedItemPositions();
+                if(listView.getCheckedItemCount() > 0)
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
+                    alert.setTitle("Внимание");
+                    alert.setMessage("Вы действительно хотите удалить выбранные локации?");
+                    alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //
+                        }
+                    });
+                    alert.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            for (int j = listView.getAdapter().getCount() - 1; j >= 0; j--) {
+                                if (checked.get(j)) {
+                                    deleteFile(path, listView.getItemAtPosition(j).toString());
+                                    str_list.remove(j);
+                                    listView.setItemChecked(j, false);
+                                }
+                            }
+                            listAdapter.notifyDataSetChanged();
+                        }
+                    });
+                    alert.create();
+                    alert.show();
                 }
-                listAdapter.notifyDataSetChanged();
             }
         });
 

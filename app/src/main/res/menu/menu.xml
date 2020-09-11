@@ -17,10 +17,6 @@
         android:title="@string/add_starter_pack"/>
 
     <item
-        android:id="@+id/reset_pool_flags"
-        android:title="@string/reset_pool_flags"/>
-
-    <item
         android:id="@+id/upload_locations"
         android:title="@string/upload_locations"/>
 
