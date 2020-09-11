@@ -8,17 +8,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".locations_list"
-    tools:ignore="ExtraText">
+    tools:ignore="ExtraText"
+    tools:context=".locations_list">
 
         <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
 
-        <ListView
-            android:layout_height="match_parent"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:id="@+id/locations_list"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/buttonDeleteChecked"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Удалить локации" />
+
+                        <Button
+                            android:id="@+id/buttonGetFromPool"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Из пула" />
+
+                        <Button
+                            android:id="@+id/buttonSetToPool"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="В пул" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/buttonCheckAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Выбрать все" />
+
+                        <Button
+                            android:id="@+id/buttonUncheckAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Снять все" />
+                </LinearLayout>
+
+                <ListView
+                    android:id="@+id/locationsListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </ListView>
+
+        </LinearLayout>
 
 </LinearLayout>

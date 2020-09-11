@@ -14,10 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,24 +30,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.loader.content.CursorLoader;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
@@ -117,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_EXTERNAL_STORAGE
             );
         }
-
     }
 
     @Override
@@ -1057,7 +1049,7 @@ public class MainActivity extends AppCompatActivity {
                         return null;
                     }
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Exception", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Read exception " + e.toString(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                     return null;
                 }
@@ -1079,7 +1071,6 @@ public class MainActivity extends AppCompatActivity {
         if (isExternalStorageReadable()) {
                 StringBuilder sb = new StringBuilder();
                 try {
-                    //InputStreamReader isr = new InputStreamReader(fis);
                     InputStream inputStream = getContentResolver().openInputStream(uri);
                     InputStreamReader isr = new InputStreamReader(inputStream);
                     BufferedReader buff = new BufferedReader(isr);
@@ -1090,10 +1081,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     data = sb.toString();
-                    //Toast.makeText(getApplicationContext(), "Прочитано:\n"+data , Toast.LENGTH_SHORT).show();
                     return data;
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Exception", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Read exception " + e.toString(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                     return null;
                 }
