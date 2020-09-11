@@ -75,7 +75,7 @@ public class new_location_form extends AppCompatActivity {
                     writeFile(path + "/" + file + ".txt", result);
                     Toast.makeText(getApplicationContext(), "Создание локации\n"+result , Toast.LENGTH_SHORT).show();
 
-                    editFileName.setText("");
+                    editFileName.setText(getNextFileName(file));
                     editLocName.setText("");
                     editRole1.setText("");
                     editRole2.setText("");
@@ -84,10 +84,30 @@ public class new_location_form extends AppCompatActivity {
                     editRole5.setText("");
                     editRole6.setText("");
                     editRole7.setText("");
+
+                    editLocName.requestFocus();
                 }
             }
 
         });
+    }
+
+    String getNextFileName(String filename){
+        String buf = filename;
+        if(filename.contains(" "))
+        {
+            String strNum = filename.substring(filename.lastIndexOf(" ")+1);
+            int num = Integer.parseInt(strNum);
+            buf = filename.substring(0, filename.lastIndexOf(" "))+" ";
+            buf += Integer.toString(num+1);
+            //Toast.makeText(getApplicationContext(),  Integer.toString(num), Toast.LENGTH_SHORT).show();
+            filename = buf;
+        }else{
+            filename += " 1";
+        }
+
+
+        return filename;
     }
 
     void writeFile(String filename, String input) {
