@@ -12,8 +12,11 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class new_location_form extends AppCompatActivity {
+
+    String path = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,8 @@ public class new_location_form extends AppCompatActivity {
                 else
                 {
                     String file = editFileName.getText().toString().replace(".txt", "");
+                    //file = file.replaceAll("[0-9]+", "");
+                    file = file.replaceAll(" ", "");
                     String result = "";
                     result += editLocName.getText().toString() + "\n";
                     result += editRole1.getText().toString() + "\n";
@@ -65,17 +70,20 @@ public class new_location_form extends AppCompatActivity {
                     result += editRole6.getText().toString() + "\n";
                     result += editRole7.getText().toString();
 
-
-                    String path = "";
                     Bundle arguments = getIntent().getExtras();
                     if(arguments!=null){
                         path = (String) arguments.get("path");
                     }
 
-                    writeFile(path + "/" + file + ".txt", result);
-                    Toast.makeText(getApplicationContext(), "Создание локации\n"+result , Toast.LENGTH_SHORT).show();
+                    file = getNextFileName(file);
+                    //Toast.makeText(getApplicationContext(), "Создание файла "+file , Toast.LENGTH_SHORT).show();
 
-                    editFileName.setText(getNextFileName(file));
+                    writeFile(path + "/" + file + ".txt", result);
+
+
+                    Toast.makeText(getApplicationContext(), file+":\n"+result , Toast.LENGTH_SHORT).show();
+
+                    //editFileName.setText();
                     editLocName.setText("");
                     editRole1.setText("");
                     editRole2.setText("");
@@ -94,18 +102,43 @@ public class new_location_form extends AppCompatActivity {
 
     String getNextFileName(String filename){
         String buf = filename;
-        if(filename.contains(" "))
-        {
-            String strNum = filename.substring(filename.lastIndexOf(" ")+1);
-            int num = Integer.parseInt(strNum);
-            buf = filename.substring(0, filename.lastIndexOf(" "))+" ";
-            buf += Integer.toString(num+1);
-            //Toast.makeText(getApplicationContext(),  Integer.toString(num), Toast.LENGTH_SHORT).show();
-            filename = buf;
-        }else{
-            filename += " 1";
-        }
 
+        if(Pattern.matches("[A-zА-я]+", buf))
+        {
+            File fileCheck = new File(path + "/" + buf + ".txt");
+            if(fileCheck.exists())
+            {
+                filename = getNextFileName(filename+"1");
+            }else{
+                //
+            }
+        }else{
+
+            if(Pattern.matches("[A-zА-я]+[0-9]+", buf))
+            {
+
+                File fileCheck = new File(path + "/" + buf + ".txt");
+                if(!fileCheck.exists())
+                {
+                    //
+                }else{
+                    String fileBuf = filename;
+                    String letters = filename.replaceAll("[0-9]+", "");
+                    filename = fileBuf;
+                    String digits = filename.replaceAll("[^0-9]+", "");
+
+                    buf = letters+Integer.toString(Integer.parseInt(digits)+1);
+
+                    fileCheck = new File(path + "/" + buf + ".txt");
+                    if(fileCheck.exists())
+                    {
+                        buf = getNextFileName(buf);
+                    }
+                }
+            }
+
+            filename = buf;
+        }
 
         return filename;
     }
