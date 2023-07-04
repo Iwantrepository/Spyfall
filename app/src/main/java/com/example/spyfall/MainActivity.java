@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public final static int REQUEST_CODE_UPLOAD_LOCATIONS = 10;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
+    private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     Button button_reset;
     Button button_start;
 
-    List<Integer> spyList = new ArrayList<Integer>();
+    List<Integer> spyList = new ArrayList<>();
 
 
     ImageView spyImage;
@@ -930,6 +930,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("Range")
     public String getFileName(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
