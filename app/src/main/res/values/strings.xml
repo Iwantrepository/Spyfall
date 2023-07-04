@@ -19,4 +19,5 @@
     <string name="refresh_locations">Обновить списки файлов</string>
     <string name="upload_locations">Подгрузить локации</string>
     <string name="party_config">Настройка партии</string>
+    <string name="info_bar">infobar</string>
 </resources>

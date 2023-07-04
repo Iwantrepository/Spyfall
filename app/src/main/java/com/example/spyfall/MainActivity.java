@@ -45,12 +45,14 @@ import java.util.List;
 
 import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
     public final static int REQUEST_CODE_LOCATIONS = 1;
     public final static int REQUEST_CODE_NEW_LOCATION = 2;
     public final static int REQUEST_CODE_PARTY_CONFIG = 3;
+    public final static int REQUEST_CODE_INFO_BAR = 4;
 
     public final static int REQUEST_CODE_UPLOAD_LOCATIONS = 10;
 
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
-        //int permission = ActivityCompat.checkSelfPermission(activity, STORAGE_SERVICE);
+//        int permission = ActivityCompat.checkSelfPermission(activity, STORAGE_SERVICE);
         int permission = ContextCompat.checkSelfPermission(activity , READ_EXTERNAL_STORAGE);
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
@@ -126,6 +128,58 @@ public class MainActivity extends AppCompatActivity {
     {
         switch (item.getItemId())
         {
+            case R.id.info_bar:
+                Intent infoBar = new Intent(this, infoBar.class);
+
+//
+//
+//                int permission = ContextCompat.checkSelfPermission(this , WRITE_EXTERNAL_STORAGE);
+//                if (permission != PackageManager.PERMISSION_GRANTED) {
+//                    ActivityCompat.requestPermissions(
+//                            this,
+//                            PERMISSIONS_STORAGE,
+//                            REQUEST_EXTERNAL_STORAGE
+//                    );
+//                }
+//
+//                ActivityCompat.requestPermissions(
+//                        this,
+//                        PERMISSIONS_STORAGE,
+//                        REQUEST_EXTERNAL_STORAGE
+//                );
+//
+//                String path1, path2;
+//
+//                path1 = Environment.getDataDirectory() + "/Spyfall";
+//                path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Spyfall";
+//
+//
+//                path1 = Environment.getDataDirectory().toString();
+//                path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/Spyfall";
+//
+////                File file = new File(Environment.getExternalStoragePublicDirectory("Spyfall"));
+//                writeFile(path2+"/starter_pack_1.txt", "Университет\nПрогульщик\nПодлиза\nОтличник\nПофигист\nИдущий на красный диплом\nПреподаватель\nПостоянно ест");
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+                infoBar.putExtra("path", path);
+                infoBar.putExtra("pathFromToUpload", pathFromToUpload);
+                startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
+
+//                refresh_loc_list();
+                break;
+
             case R.id.party_config:
                 Intent partyConfig = new Intent(this, PartyConfig.class);
                 partyConfig.putExtra("path", path);
@@ -241,8 +295,21 @@ public class MainActivity extends AppCompatActivity {
 
         verifyStoragePermissions(this);
 
-        pathFromToUpload = Environment.getExternalStorageDirectory().toString();// + "/Spyfall";   //Внешнее хранилище
-        path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";    //Выделенное внутреннее хранилище
+
+        File dir = null ;
+        String FolderName = "Spyfall";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            dir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+ "/"+FolderName );
+            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
+        } else {
+            dir = new File(Environment.getExternalStorageDirectory() + "/"+FolderName);
+            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
+        }
+        dir.mkdirs();
+
+        path = dir.toString();
+        pathFromToUpload = dir.toString();
 
 
         spyImage = (ImageView) findViewById(R.id.imageViewSpy);
