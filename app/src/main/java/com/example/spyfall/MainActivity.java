@@ -43,9 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -131,44 +129,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.info_bar:
                 Intent infoBar = new Intent(this, infoBar.class);
 
-//
-//
-//                int permission = ContextCompat.checkSelfPermission(this , WRITE_EXTERNAL_STORAGE);
-//                if (permission != PackageManager.PERMISSION_GRANTED) {
-//                    ActivityCompat.requestPermissions(
-//                            this,
-//                            PERMISSIONS_STORAGE,
-//                            REQUEST_EXTERNAL_STORAGE
-//                    );
-//                }
-//
-//                ActivityCompat.requestPermissions(
-//                        this,
-//                        PERMISSIONS_STORAGE,
-//                        REQUEST_EXTERNAL_STORAGE
-//                );
-//
-//                String path1, path2;
-//
-//                path1 = Environment.getDataDirectory() + "/Spyfall";
-//                path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Spyfall";
-//
-//
-//                path1 = Environment.getDataDirectory().toString();
-//                path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/Spyfall";
-//
-////                File file = new File(Environment.getExternalStoragePublicDirectory("Spyfall"));
-//                writeFile(path2+"/starter_pack_1.txt", "Университет\nПрогульщик\nПодлиза\nОтличник\nПофигист\nИдущий на красный диплом\nПреподаватель\nПостоянно ест");
-//
-//
-//
-
-
-
-
-
-
-
 
 
 
@@ -176,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 infoBar.putExtra("path", path);
                 infoBar.putExtra("pathFromToUpload", pathFromToUpload);
                 startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
+                startActivity(infoBar);
 
 //                refresh_loc_list();
                 break;
@@ -258,21 +219,18 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
-                        for (int i=0; i< uriList.length; i++)
-                        {
-                            if(uriList[i] != null){
-                                copyFile(uriList[i], path);
+                        for (Uri uri : uriList) {
+                            if (uri != null) {
+                                copyFile(uri, path);
                             }
                         }
                     }
                 }
                 refresh_loc_list();
                 break;
-            case REQUEST_CODE_NEW_LOCATION:
-                refresh_loc_list();
-                break;
 
             case REQUEST_CODE_LOCATIONS:
+            case REQUEST_CODE_NEW_LOCATION:
                 refresh_loc_list();
                 break;
 
@@ -282,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 String strList = data.getStringExtra("strList");
                 //Toast.makeText(getApplicationContext(), strList , Toast.LENGTH_SHORT).show();
                 dataConfig = strList;
-                parceConfig(strList);
+                parseConfig(strList);
             break;
         }
     }
@@ -296,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         verifyStoragePermissions(this);
 
 
-        File dir = null ;
+        File dir;
         String FolderName = "Spyfall";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -362,8 +320,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Файл настроек создан" , Toast.LENGTH_SHORT).show();
                     if(dataConfig != null)
                     {
-                        if(!parceConfig(dataConfig));
-                        parceConfig(readFile(configPath));
+                        if(!parseConfig(dataConfig))
+                            parseConfig(readFile(configPath));
                     }else{
                         Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек" , Toast.LENGTH_SHORT).show();
                     }
@@ -376,11 +334,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }else{
             //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
-            if(!parceConfig(dataConfig));
-            parceConfig(readFile(configPath));
+            if(!parseConfig(dataConfig))
+                parseConfig(readFile(configPath));
         }
 
-        parceConfig(dataConfig);
+        parseConfig(dataConfig);
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
@@ -425,6 +383,8 @@ public class MainActivity extends AppCompatActivity {
         button_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                refresh_loc_list();
 
                 if(is_game_worked)
                 {
@@ -598,20 +558,16 @@ public class MainActivity extends AppCompatActivity {
         }else{
 
             int locs = 0;
-            for (int i = 0; i<str_list.length; i++)
-            {
-                if(readFile(path+"/"+str_list[i]).startsWith("-"))
-                {
-                    locs+=1;
+            for (String s : str_list) {
+                if (readFile(path + "/" + s).startsWith("-")) {
+                    locs += 1;
                 }
             }
             String[] str_list_for_game = new String[locs];
             int j = 0;
-            for (int i = 0; i<str_list.length; i++)
-            {
-                if(readFile(path+"/"+str_list[i]).startsWith("-"))
-                {
-                    str_list_for_game[j] = str_list[i];
+            for (String s : str_list) {
+                if (readFile(path + "/" + s).startsWith("-")) {
+                    str_list_for_game[j] = s;
                     j++;
                 }
             }
@@ -669,7 +625,7 @@ public class MainActivity extends AppCompatActivity {
             for(int i = 0; i < final_list.size(); i++) {
                 loc[i] = res_list[0].substring(1);
                 prof[i] = (String) final_list.get(i);
-                if (prof[i] == "Шпион") {
+                if (prof[i].equals("Шпион")) {
                     //Toast.makeText(getApplicationContext(), Integer.toString(i) , Toast.LENGTH_SHORT).show();
                     spyList.add(i);
                     loc[i] = "Узнай, где мы";
@@ -805,13 +761,8 @@ public class MainActivity extends AppCompatActivity {
 
     boolean isExternalStorageReadable()
     {
-        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-        || Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState()))
-        {
-            return true;
-        }else{
-            return false;
-        }
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState());
     }
 
     boolean writeFile(String filename, String input) {
@@ -857,7 +808,7 @@ public class MainActivity extends AppCompatActivity {
 
                         String line = null;
                         while ((line = buff.readLine()) != null) {
-                            sb.append(line + '\n');
+                            sb.append(line + "\n");
                         }
                         fis.close();
 
@@ -870,7 +821,7 @@ public class MainActivity extends AppCompatActivity {
                         return null;
                     }
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Read exception " + e.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Read exception " + e, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                     return null;
                 }
@@ -904,7 +855,7 @@ public class MainActivity extends AppCompatActivity {
                     data = sb.toString();
                     return data;
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Read exception " + e.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Read exception " + e, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                     return null;
                 }
@@ -916,7 +867,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void showSpy (String role){
-        if(role == "Шпион"){
+        if(role.equals("Шпион")){
             spyImage.setAlpha((float) 0.3);
             locsWithoutPool.setVisibility(View.GONE);
         }
@@ -927,7 +878,7 @@ public class MainActivity extends AppCompatActivity {
         locsWithoutPool.setVisibility(View.VISIBLE);
     }
 
-    boolean parceConfig(String data){
+    boolean parseConfig(String data){
         String[] dataList = data.split("\n");
         if(dataList.length<9){
             resetConfig();
