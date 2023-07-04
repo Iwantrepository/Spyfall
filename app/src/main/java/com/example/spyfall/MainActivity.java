@@ -651,7 +651,7 @@ public class MainActivity extends AppCompatActivity {
     void resetGameButtons()
     {
         for (int i = 0; i < 8; i++)
-            buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
+            buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
         game_started = false;
         gamers = 0;
         button_start.setVisibility(View.VISIBLE);
