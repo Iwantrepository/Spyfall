@@ -45,12 +45,14 @@ import java.util.List;
 
 import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
     public final static int REQUEST_CODE_LOCATIONS = 1;
     public final static int REQUEST_CODE_NEW_LOCATION = 2;
     public final static int REQUEST_CODE_PARTY_CONFIG = 3;
+    public final static int REQUEST_CODE_INFO_BAR = 4;
 
     public final static int REQUEST_CODE_UPLOAD_LOCATIONS = 10;
 
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
-        //int permission = ActivityCompat.checkSelfPermission(activity, STORAGE_SERVICE);
+//        int permission = ActivityCompat.checkSelfPermission(activity, STORAGE_SERVICE);
         int permission = ContextCompat.checkSelfPermission(activity , READ_EXTERNAL_STORAGE);
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
@@ -120,11 +122,64 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId())
         {
+            case R.id.info_bar:
+                Intent infoBar = new Intent(this, infoBar.class);
+
+//
+//
+//                int permission = ContextCompat.checkSelfPermission(this , WRITE_EXTERNAL_STORAGE);
+//                if (permission != PackageManager.PERMISSION_GRANTED) {
+//                    ActivityCompat.requestPermissions(
+//                            this,
+//                            PERMISSIONS_STORAGE,
+//                            REQUEST_EXTERNAL_STORAGE
+//                    );
+//                }
+//
+//                ActivityCompat.requestPermissions(
+//                        this,
+//                        PERMISSIONS_STORAGE,
+//                        REQUEST_EXTERNAL_STORAGE
+//                );
+//
+//                String path1, path2;
+//
+//                path1 = Environment.getDataDirectory() + "/Spyfall";
+//                path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Spyfall";
+//
+//
+//                path1 = Environment.getDataDirectory().toString();
+//                path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/Spyfall";
+//
+////                File file = new File(Environment.getExternalStoragePublicDirectory("Spyfall"));
+//                writeFile(path2+"/starter_pack_1.txt", "Университет\nПрогульщик\nПодлиза\nОтличник\nПофигист\nИдущий на красный диплом\nПреподаватель\nПостоянно ест");
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+                infoBar.putExtra("path", path);
+                infoBar.putExtra("pathFromToUpload", pathFromToUpload);
+                startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
+
+//                refresh_loc_list();
+                break;
+
             case R.id.party_config:
                 Intent partyConfig = new Intent(this, PartyConfig.class);
                 partyConfig.putExtra("path", path);
@@ -240,8 +295,21 @@ public class MainActivity extends AppCompatActivity {
 
         verifyStoragePermissions(this);
 
-        pathFromToUpload = Environment.getExternalStorageDirectory().toString();// + "/Spyfall";   //Внешнее хранилище
-        path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";    //Выделенное внутреннее хранилище
+
+        File dir = null ;
+        String FolderName = "Spyfall";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            dir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+ "/"+FolderName );
+            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
+        } else {
+            dir = new File(Environment.getExternalStorageDirectory() + "/"+FolderName);
+            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
+        }
+        dir.mkdirs();
+
+        path = dir.toString();
+        pathFromToUpload = dir.toString();
 
 
         spyImage = (ImageView) findViewById(R.id.imageViewSpy);
@@ -394,262 +462,43 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        buttons[0].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
+//Поведение 8 кнопок
+        for (int i = 0; i < 8; i++){
+            int finalI = i;
+            buttons[finalI].setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
 
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
+                    if(game_started){ // Действие кнопки во время игры
+                        if(motionEvent.getAction() == MotionEvent.ACTION_UP){
+                            textViewLoc.setText("Локация");
+                            textViewProf.setText("Профессия");
+                            button_reset.setVisibility(View.VISIBLE);
 
-                        hideSpy();
+                            hideSpy();
+                        }
+                        if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                            ispressed[finalI] = true;
+                            tryAddLocToPool(finalI);
+                            textViewLoc.setText(loc[finalI]);
+                            textViewProf.setText(prof[finalI]);
+                            buttons[finalI].setBackgroundColor(getResources().getColor(R.color.colorButtonPlayOpened, null));
+                            button_reset.setVisibility(View.GONE);
+
+                            showSpy(prof[finalI]);
+                        }
+                    }else{ // Выбор количества игроков до начала игры
+                        for (int j = 0; j < 8; j++)
+                            buttons[j].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
+
+
+                        buttons[finalI].setBackgroundColor(getResources().getColor(R.color.colorButtonPlayersSet, null));
+                        gamers = finalI + 1;
                     }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[0] = true;
-                        tryAddLocToPool(0);
-                        textViewLoc.setText(loc[0]);
-                        textViewProf.setText(prof[0]);
-                        buttons[0].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[0]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[0].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 1;
+                    return false;
                 }
-                return false;
-            }
-        });
-
-
-        buttons[1].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[1] = true;
-                        tryAddLocToPool(1);
-                        textViewLoc.setText(loc[1]);
-                        textViewProf.setText(prof[1]);
-                        buttons[1].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[1]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[1].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 2;
-                }
-                return false;
-            }
-        });
-
-        buttons[2].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[2] = true;
-                        tryAddLocToPool(2);
-                        textViewLoc.setText(loc[2]);
-                        textViewProf.setText(prof[2]);
-                        buttons[2].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[2]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[2].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 3;
-                }
-                return false;
-            }
-        });
-
-        buttons[3].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[3] = true;
-                        tryAddLocToPool(3);
-                        textViewLoc.setText(loc[3]);
-                        textViewProf.setText(prof[3]);
-                        buttons[3].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[3]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[3].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 4;
-                }
-                return false;
-            }
-        });
-
-        buttons[4].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[4] = true;
-                        tryAddLocToPool(4);
-                        textViewLoc.setText(loc[4]);
-                        textViewProf.setText(prof[4]);
-                        buttons[4].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[4]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[4].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 5;
-                }
-                return false;
-            }
-        });
-
-        buttons[5].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[5] = true;
-                        tryAddLocToPool(5);
-                        textViewLoc.setText(loc[5]);
-                        textViewProf.setText(prof[5]);
-                        buttons[5].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[5]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[5].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 6;
-                }
-                return false;
-            }
-        });
-
-        buttons[6].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[6] = true;
-                        tryAddLocToPool(6);
-                        textViewLoc.setText(loc[6]);
-                        textViewProf.setText(prof[6]);
-                        buttons[6].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[6]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[6].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 7;
-                }
-                return false;
-            }
-        });
-
-        buttons[7].setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(game_started){
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                        textViewLoc.setText("Локация");
-                        textViewProf.setText("Профессия");
-                        button_reset.setVisibility(View.VISIBLE);
-
-                        hideSpy();
-                    }
-                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        ispressed[7] = true;
-                        tryAddLocToPool(7);
-                        textViewLoc.setText(loc[7]);
-                        textViewProf.setText(prof[7]);
-                        buttons[7].setBackgroundColor(Color.parseColor("#ff8080"));
-                        button_reset.setVisibility(View.GONE);
-
-                        showSpy(prof[7]);
-                    }
-                }else{
-                    for (int i = 0; i < 8; i++)
-                        buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
-                    buttons[7].setBackgroundColor(Color.parseColor("#8080ff"));
-                    gamers = 8;
-                }
-                return false;
-            }
-        });
+            });
+        }
 
 
 
@@ -797,12 +646,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             for (int i = 0; i < 8; i++)
-                buttons[i].setBackgroundColor(Color.parseColor("#80ff82"));
+                buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonPlayClosed, null));
 
             for(int i = gamers_v; i<8; i++)
             {
                 buttons[i].setEnabled(false);
-                buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
+                buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
             }
 
             ArrayList<String> prep_list = new ArrayList<String>();
@@ -869,7 +718,7 @@ public class MainActivity extends AppCompatActivity {
     void resetGameButtons()
     {
         for (int i = 0; i < 8; i++)
-            buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
+            buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
         game_started = false;
         gamers = 0;
         button_start.setVisibility(View.VISIBLE);
