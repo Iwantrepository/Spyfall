@@ -2,6 +2,7 @@ package com.example.spyfall;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class PartyConfig extends AppCompatActivity {
     TextView[] textViewButton;
     Button buttonSaveConfig;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,237 +169,43 @@ public class PartyConfig extends AppCompatActivity {
             }
         });
 
-        switchButton[0].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[0].isChecked()) {
-                    onOffGamer(0, true);
-                }else{
-                    onOffGamer(0, false);
+
+        for(int i=0; i<switchButton.length; i++){
+            int finalI = i;
+            switchButton[i].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if(switchButton[finalI].isChecked()) {
+                        onOffGamer(finalI, true);
+                    }else{
+                        onOffGamer(finalI, false);
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        switchButton[1].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[1].isChecked()) {
-                    onOffGamer(1, true);
-                }else{
-                    onOffGamer(1, false);
+        for(int i=0; i<switchButton.length; i++){
+
+
+            int finalI = i;
+            editTextTextPersonNameButton[i].addTextChangedListener(new TextWatcher() {
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    setName(finalI, s.toString());
                 }
-            }
-        });
 
-        switchButton[2].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[2].isChecked()) {
-                    onOffGamer(2, true);
-                }else{
-                    onOffGamer(2, false);
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 }
-            }
-        });
 
-        switchButton[3].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[3].isChecked()) {
-                    onOffGamer(3, true);
-                }else{
-                    onOffGamer(3, false);
+                @Override
+                public void onTextChanged(CharSequence s, int start,
+                                          int before, int count) {
+                    if(s.length() != finalI)
+                        setName(finalI, "");
                 }
-            }
-        });
-
-        switchButton[4].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[4].isChecked()) {
-                    onOffGamer(4, true);
-                }else{
-                    onOffGamer(4, false);
-                }
-            }
-        });
-
-        switchButton[5].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[5].isChecked()) {
-                    onOffGamer(5, true);
-                }else{
-                    onOffGamer(5, false);
-                }
-            }
-        });
-
-        switchButton[6].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[6].isChecked()) {
-                    onOffGamer(6, true);
-                }else{
-                    onOffGamer(6, false);
-                }
-            }
-        });
-
-        switchButton[7].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(switchButton[7].isChecked()) {
-                    onOffGamer(7, true);
-                }else{
-                    onOffGamer(7, false);
-                }
-            }
-        });
-
-        editTextTextPersonNameButton[0].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(0, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(0, "");
-            }
-        });
-
-        editTextTextPersonNameButton[1].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(1, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(1, "");
-            }
-        });
-
-        editTextTextPersonNameButton[2].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(2, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(2, "");
-            }
-        });
-
-        editTextTextPersonNameButton[3].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(3, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(3, "");
-            }
-        });
-
-        editTextTextPersonNameButton[4].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(4, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(4, "");
-            }
-        });
-
-        editTextTextPersonNameButton[5].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(5, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(5, "");
-            }
-        });
-
-        editTextTextPersonNameButton[6].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(6, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(6, "");
-            }
-        });
-
-        editTextTextPersonNameButton[7].addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setName(7, s.toString());
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if(s.length() != 0)
-                    setName(7, "");
-            }
-        });
+            });
+        }
 
     }
 
