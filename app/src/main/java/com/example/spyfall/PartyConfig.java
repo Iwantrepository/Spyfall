@@ -141,6 +141,8 @@ public class PartyConfig extends AppCompatActivity {
                     intent.putExtra("strList", res);
                     writeFile(path, res);
                     setResult(RESULT_OK, intent);
+
+                    Toast.makeText(getApplicationContext(), "Настройки сохранены" , Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }
