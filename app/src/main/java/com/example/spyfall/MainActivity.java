@@ -133,6 +133,35 @@ public class MainActivity extends AppCompatActivity {
                 infoBar.putExtra("pathFromToUpload", pathFromToUpload);
                 startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
 
+
+
+                Toast.makeText(getApplicationContext(), "Добавлены наборы тестовых локаций ", Toast.LENGTH_LONG).show();
+
+
+                writeFile(path+"/pack.txt", "1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/pack1.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/pack2.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/pack3.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/pack4.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/pack5.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
+
+                writeFile(path+"/aralen.txt",  "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/aralen1.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/aralen2.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/aralen3.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/aralen4.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/aralen5.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+
+                writeFile(path+"/ratong.txt",  "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/ratong1.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/ratong2.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/ratong3.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/ratong4.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                writeFile(path+"/ratong5.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
+                refresh_loc_list();
+
+
+
 //                refresh_loc_list();
                 break;
 
