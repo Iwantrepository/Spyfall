@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -39,9 +41,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import android.provider.DocumentsContract;
+import android.content.ContentUris;
+import android.provider.MediaStore;
+import java.io.StringWriter;
+
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
@@ -186,11 +195,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.upload_locations:
-                myFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                myFileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                myFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                myFileIntent.setType("text/plain");
-                startActivityForResult(myFileIntent, REQUEST_CODE_UPLOAD_LOCATIONS);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Инструкция")
+                        .setMessage("1) Через проводник выберите нужно вам количество локаций\n2) Нажмите \"поделиться\"\n3) Выберите приложение \"" + getApplicationContext().getApplicationInfo().loadLabel(getPackageManager()).toString() + "\"")
+                ;
+                builder.create().show();
+
+//                myFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+//                myFileIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+//                myFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+//                myFileIntent.setType("text/plain");
+//                startActivityForResult(myFileIntent, REQUEST_CODE_UPLOAD_LOCATIONS);
                 break;
 
             default:
@@ -367,6 +383,25 @@ public class MainActivity extends AppCompatActivity {
         textViewProf = (TextView) findViewById(R.id.textViewProf);
 
 
+
+        Intent intent = getIntent();
+        if (intent!=null){
+            String action = intent.getAction();
+            String type = intent.getType();
+
+            logString += action + "\n" + type + "\n";
+
+            if(Intent.ACTION_SEND.equals(action) && type != null){
+                if(type.equalsIgnoreCase("text/plain")){
+                    handleTextData(intent);
+                }
+            }
+            if(Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null){
+                handleMutlipleTextData(intent);
+            }
+        }
+
+
         button_reset.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -436,6 +471,8 @@ public class MainActivity extends AppCompatActivity {
                             }else{
                                 //
                             }
+                        }else{
+                            Toast.makeText(getApplicationContext(), "Мало игроков" , Toast.LENGTH_SHORT).show();
                         }
                     }
                 }else{
@@ -500,6 +537,93 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
+    private void handleMutlipleTextData(Intent intent) {
+        ArrayList <Uri> texDataArray = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (texDataArray != null){
+
+            int counter = 0;
+
+            for(Uri uri : texDataArray){
+                String dataPath = uri.getLastPathSegment();
+                dataPath = dataPath.substring(dataPath.lastIndexOf(":")+1, dataPath.length());
+                dataPath = Environment.getExternalStorageDirectory().toString() + "/" + dataPath;
+
+                if(uri != null){
+
+                    String text = null;
+                    try {
+                        InputStream inputStream = getContentResolver().openInputStream(uri);
+                        text = getStringFromInputStream(inputStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (!text.isEmpty()) {
+                        logString += "!!! TEXT !!!: " + text + "\n";
+
+                        String fileName = uri.getPath();
+                        fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
+
+                        if (uri != null) {
+                            logString += "!!! Filename: " + fileName + "\n";
+                            logString += "Path: " + path + "\n";
+
+                            writeFile(path + "/" + fileName, text);
+
+//                        Toast.makeText(getApplicationContext(), "Локация загружена", Toast.LENGTH_SHORT).show();
+                            refresh_loc_list();
+                        }
+
+                        counter++;
+                        refresh_loc_list();
+                    }
+                }
+            }
+            Toast.makeText(getApplicationContext(), "Загружено локаций: " + String.valueOf(counter), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleTextData(Intent intent) {
+        Uri textdata = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        String text = null;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(textdata);
+            text = getStringFromInputStream(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!text.isEmpty()) {
+            logString += "!!! TEXT !!!: " + text + "\n";
+
+            String fileName = textdata.getPath();
+            fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
+
+            if (textdata != null) {
+                logString += "!!! Filename: " + fileName + "\n";
+                logString += "Path: " + path + "\n";
+
+                writeFile(path + "/" + fileName, text);
+
+                Toast.makeText(getApplicationContext(), "Локация загружена", Toast.LENGTH_SHORT).show();
+                refresh_loc_list();
+            }
+        }
+    }
+
+
+/**=============================================================================================================================**/
+
+    public static String getStringFromInputStream(InputStream stream) throws IOException {
+        int n = 0;
+        char[] buffer = new char[1024 * 4];
+        InputStreamReader reader = new InputStreamReader(stream, "UTF8");
+        StringWriter writer = new StringWriter();
+        while (-1 != (n = reader.read(buffer))) writer.write(buffer, 0, n);
+        return writer.toString();
+    }
+
+/**=============================================================================================================================**/
 
     private void refresh_loc_list() {
 

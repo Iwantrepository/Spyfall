@@ -7,201 +7,219 @@
     android:layout_height="match_parent"
     tools:context=".new_location_form">
 
-    <LinearLayout
-        android:id="@+id/field"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp"
-        android:gravity="bottom"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/textViewFileName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Название файла"
-                android:textAlignment="center"
-                android:textColor="#000000"
-                android:textSize="36sp" />
+            <LinearLayout
+                android:id="@+id/field"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textViewFileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Название файла"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="36sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextFileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Название файла"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textViewLocName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Название локации"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="36sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextLocationName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Название локации"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textViewRoles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Описание ролей"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="36sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль1"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль2"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль3"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль4"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль5"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль6"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editTextPersonName7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Роль7"
+                        android:inputType="textLongMessage"
+                        android:textAlignment="center" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MyAwesomeStyle"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/buttonNewLoc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Добавить локацию"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/editTextFileName"
-                android:hint="Название файла"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textViewLocName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Название локации"
-                android:textAlignment="center"
-                android:textColor="#000000"
-                android:textSize="36sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/editTextLocationName"
-                android:hint="Название локации"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textViewRoles"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Описание ролей"
-                android:textAlignment="center"
-                android:textColor="#000000"
-                android:textSize="36sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName1"
-                android:hint="Роль1"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName2"
-                android:hint="Роль2"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName3"
-                android:hint="Роль3"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName4"
-                android:hint="Роль4"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName5"
-                android:hint="Роль5"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName6"
-                android:hint="Роль6"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/editTextPersonName7"
-                android:hint="Роль7"
-                android:textAlignment="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textLongMessage"/>
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/MyAwesomeStyle"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonNewLoc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Добавить локацию"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-
-    </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
