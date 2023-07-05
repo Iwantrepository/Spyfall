@@ -151,7 +151,25 @@ public class locations_list extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getApplicationContext(), readFile(path+"/"+str_list.get(i)) , Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), readFile(path+"/"+str_list.get(i)) , Toast.LENGTH_SHORT).show();
+
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+
+                String buf = readFile(path+"/"+str_list.get(i));
+                String head = buf.substring(1, buf.indexOf("\n"));
+                String body = buf.substring(buf.indexOf("\n"));
+                    builder.setTitle(head)
+                    .setMessage(body)
+//                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+////                                Toast.makeText(locations_list.this,"Нажата кнопка 'OK'",Toast.LENGTH_SHORT).show();
+//                            }
+//                        })
+                ;
+                builder.create().show();
+
 
                 if (listView.isItemChecked(i)){
                     listView.setItemChecked(i,false);

@@ -25,6 +25,7 @@ public class infoBar extends AppCompatActivity {
 
         TextView textView_info = (TextView) findViewById(R.id.textView_info);
         textView_info.setText("Path: " + path+"\n"
-                +"PathFromToUpload: "+pathFromToUpload);
+                +"PathFromToUpload: "+pathFromToUpload+"\n"
+                +"Version: " + BuildConfig.VERSION_NAME);
     }
 }

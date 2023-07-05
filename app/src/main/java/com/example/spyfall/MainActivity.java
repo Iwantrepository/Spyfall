@@ -129,14 +129,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.info_bar:
                 Intent infoBar = new Intent(this, infoBar.class);
 
-
-
-
-
                 infoBar.putExtra("path", path);
                 infoBar.putExtra("pathFromToUpload", pathFromToUpload);
                 startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
-                startActivity(infoBar);
 
 //                refresh_loc_list();
                 break;
