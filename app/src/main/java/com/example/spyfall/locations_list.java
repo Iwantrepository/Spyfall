@@ -42,6 +42,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
 
 public class locations_list extends AppCompatActivity {
 
@@ -50,6 +55,7 @@ public class locations_list extends AppCompatActivity {
     ArrayList<String> str_list;
     String path;
     String pathExternalStorage;
+    String pathToEx;
 
     ArrayAdapter<String> listAdapter;
 
@@ -62,6 +68,9 @@ public class locations_list extends AppCompatActivity {
     Button buttonSetToPool;
     Button buttonCreatePack;
     Button buttonCheckPool;
+    Button buttonPacks;
+
+    String dirName;
 
 
 
@@ -108,6 +117,7 @@ public class locations_list extends AppCompatActivity {
         buttonSetToPool = (Button) findViewById(R.id.buttonSetToPool);
         buttonCreatePack = (Button) findViewById(R.id.buttonCreatePack);
         buttonCheckPool = (Button) findViewById(R.id.buttonCheckPool);
+        buttonPacks = (Button) findViewById(R.id.buttonPacks);
 
         str_list = new ArrayList<String>();
 
@@ -120,12 +130,13 @@ public class locations_list extends AppCompatActivity {
             }
             path = (String) arguments.get("path");
             pathExternalStorage = (String) arguments.get("pathFromToUpload");
+            pathToEx = (String) arguments.get("pathToEx");
         }
 
         listView = (ListView) findViewById(R.id.locationsListView);
 
         listAdapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_single_choice, str_list){ //simple_list_item_multiple_choice
+            android.R.layout.simple_list_item_multiple_choice, str_list){ //simple_list_item_multiple_choice //simple_list_item_single_choice
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -289,15 +300,32 @@ public class locations_list extends AppCompatActivity {
             }
         });
 
+
         buttonCreatePack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                new File(pathToEx).mkdirs();
                 final SparseBooleanArray checked = listView.getCheckedItemPositions();
                 if(listView.getCheckedItemCount() > 0)
                 {
+                    dirName = "SpyfallPack";
+                    boolean isDirNotEx = false;
+                    int nameTry = 1;
+
+                    while(!isDirNotEx){
+                        File dirBuf = new File(pathToEx+"/" + dirName + String.valueOf(nameTry));
+
+                        if(!dirBuf.isDirectory()){
+                            isDirNotEx = true;
+                            dirName = dirName + String.valueOf(nameTry);
+                        }
+                        nameTry++;
+                    }
+
                     AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
                     alert.setTitle("Создание пака");
-                    alert.setMessage("Выбранные локации будут скопированы в /SpyfallPack в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
+                    alert.setMessage("Выбранные локации будут скопированы в /" + dirName + " в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -308,13 +336,13 @@ public class locations_list extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
-                            File dir = new File(pathExternalStorage+"/SpyfallPack");
+                            File dir = new File(pathToEx+"/"+dirName);
                             dir.mkdir();
 
                             for (int j = listView.getAdapter().getCount() - 1; j >= 0; j--) {
                                 if (checked.get(j)) {
                                     String buf = readFile(path+"/"+listView.getItemAtPosition(j));
-                                    writeFile(pathExternalStorage+"/SpyfallPack/"+listView.getItemAtPosition(j), buf);
+                                    writeFile(pathToEx+"/" + dirName + "/"+listView.getItemAtPosition(j), buf);
                                 }
                             }
                             listAdapter.notifyDataSetChanged();
@@ -325,6 +353,156 @@ public class locations_list extends AppCompatActivity {
                 }
             }
         });
+
+
+        buttonPacks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+
+
+                ArrayList<String> str_list_packs = str_list;
+//                str_list_packs.sort(Comparator.naturalOrder());
+
+
+
+                String prevs, nexts;
+                for(int i=0; i< str_list_packs.size()-1; i++){
+
+                    prevs = str_list_packs.get(i);
+                    nexts = str_list_packs.get(i+1);
+
+                    prevs.substring(0,prevs.indexOf(".txt"));
+
+
+                }
+
+
+
+
+
+                String[] prestrarr = new String[str_list.size()];
+
+                for (int i = 0; i < prestrarr.length; i++ ){
+                    prestrarr[i] =str_list.get(i);
+
+                    prevs = prestrarr[i];
+                    prevs = prevs.substring(0,prevs.indexOf(".txt"));
+
+                    while(Character.isDigit(prevs.charAt(prevs.length()-1))){
+                        prevs = prevs.substring(0, prevs.length()-1);
+                    }
+
+                    prestrarr[i] = prevs;
+                }
+
+                String[] strarr = Arrays.stream(prestrarr).distinct().toArray(String[]::new);
+
+                boolean[] mCheckedItems = new boolean[strarr.length];
+
+                for (int i = 0; i < strarr.length; i++ ){
+                    mCheckedItems[i] =false;
+                }
+
+                builder.setTitle("Выбирай паки")
+                        .setCancelable(false)
+
+                        .setMultiChoiceItems(strarr, mCheckedItems,
+                                new DialogInterface.OnMultiChoiceClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which, boolean isChecked) {
+                                        mCheckedItems[which] = isChecked;
+                                    }
+                                })
+
+                        // Добавляем кнопки
+                        .setPositiveButton("Готово",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                        boolean isNeed = false;
+
+                                        for(int j = 0; j < listView.getCount(); j++)
+                                        {
+                                            isNeed = false;
+                                            for (int i = 0; i < strarr.length; i++) {
+                                                if (mCheckedItems[i]) {
+
+                                                    String listViewSample = (String) listView.getItemAtPosition(j);
+
+                                                    listViewSample = listViewSample.substring(0,listViewSample.indexOf(".txt"));
+
+                                                    while(Character.isDigit(listViewSample.charAt(listViewSample.length()-1))){
+                                                        listViewSample = listViewSample.substring(0, listViewSample.length()-1);
+                                                    }
+
+                                                    if (strarr[i].equals(listViewSample)){
+                                                        isNeed = true;
+                                                    }
+                                                }
+
+
+
+                                                if (isNeed){
+                                                    listView.setItemChecked(j, true);
+
+                                                    String data = readFile(path+"/"+listView.getItemAtPosition(j));
+
+                                                    if(data.startsWith("+")){
+                                                        String buf = readFile(path + "/" + listView.getItemAtPosition(j).toString());
+                                                        writeFile(path + "/" + listView.getItemAtPosition(j).toString(), "-" + buf.substring(1));
+                                                    }
+
+                                                }else{
+                                                    listView.setItemChecked(j, false);
+
+                                                    String data = readFile(path+"/"+listView.getItemAtPosition(j));
+
+                                                    if(data.startsWith("-")){
+                                                        String buf = readFile(path + "/" + listView.getItemAtPosition(j).toString());
+                                                        writeFile(path + "/" + listView.getItemAtPosition(j).toString(), "+" + buf.substring(1));
+                                                    }
+                                                }
+
+
+
+                                            }
+
+                                        }
+                                    }
+                                })
+
+                        .setNegativeButton("Отмена",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int id) {
+                                        dialog.cancel();
+
+                                    }
+
+                                });
+
+
+
+
+
+
+
+
+
+
+
+
+                ;
+                builder.create().show();
+            }
+        });
+
 
     }
 
