@@ -125,7 +125,7 @@ public class locations_list extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.locationsListView);
 
         listAdapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_multiple_choice, str_list){
+            android.R.layout.simple_list_item_single_choice, str_list){ //simple_list_item_multiple_choice
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
