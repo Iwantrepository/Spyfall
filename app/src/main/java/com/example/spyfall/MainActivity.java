@@ -47,6 +47,9 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    public final static int DEV_PASSCODE = 1638;
+
     public final static int REQUEST_CODE_LOCATIONS = 1;
     public final static int REQUEST_CODE_NEW_LOCATION = 2;
     public final static int REQUEST_CODE_PARTY_CONFIG = 3;
@@ -60,9 +63,16 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    int devCode;
+    boolean isDevOn;
+
+    Menu menuBox;
+
     String[] str_list;
     String path;
+    String pathToEx;
     String pathFromToUpload;
+    String logString;
     String dataConfig;
 
     String[] loc = new String[8];
@@ -117,8 +127,11 @@ public class MainActivity extends AppCompatActivity {
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+
+        menuBox = menu;
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -131,38 +144,9 @@ public class MainActivity extends AppCompatActivity {
 
                 infoBar.putExtra("path", path);
                 infoBar.putExtra("pathFromToUpload", pathFromToUpload);
+                infoBar.putExtra("logString", logString);
                 startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
 
-
-
-                Toast.makeText(getApplicationContext(), "Добавлены наборы тестовых локаций ", Toast.LENGTH_LONG).show();
-
-
-                writeFile(path+"/pack.txt", "1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/pack1.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/pack2.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/pack3.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/pack4.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/pack5.txt",   "pack\n1\n2\n3\n4\n5\n6\n7");
-
-                writeFile(path+"/aralen.txt",  "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/aralen1.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/aralen2.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/aralen3.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/aralen4.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/aralen5.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-
-                writeFile(path+"/ratong.txt",  "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/ratong1.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/ratong2.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/ratong3.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/ratong4.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                writeFile(path+"/ratong5.txt", "pack\n1\n2\n3\n4\n5\n6\n7");
-                refresh_loc_list();
-
-
-
-//                refresh_loc_list();
                 break;
 
             case R.id.party_config:
@@ -254,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case REQUEST_CODE_LOCATIONS:
+            case REQUEST_CODE_INFO_BAR:
             case REQUEST_CODE_NEW_LOCATION:
                 refresh_loc_list();
                 break;
@@ -278,20 +263,33 @@ public class MainActivity extends AppCompatActivity {
         verifyStoragePermissions(this);
 
 
+/*******************************************************/
+        logString = "";
+        devCode = 0;
+        isDevOn = false;
+/*******************************************************/
+
         File dir;
         String FolderName = "Spyfall";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             dir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+ "/"+FolderName );
-            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
+            logString += "StoragePick = DOCUMENT\n";
         } else {
             dir = new File(Environment.getExternalStorageDirectory() + "/"+FolderName);
-            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
+            logString += "StoragePick = EXTERNAL\n";
         }
         dir.mkdirs();
 
-        path = dir.toString();
+        pathToEx = dir.toString();
+        path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";
         pathFromToUpload = dir.toString();
+
+        logString += "pathToEx = " + pathToEx + "\n";
+        logString += "path = " + path + "\n";
+        logString += "pathFromToUpload = " + pathFromToUpload + "\n";
 
 
         spyImage = (ImageView) findViewById(R.id.imageViewSpy);
@@ -452,6 +450,19 @@ public class MainActivity extends AppCompatActivity {
             buttons[finalI].setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+
+                        devCode %= 1000;
+                        devCode *= 10;
+                        devCode += finalI+1;
+
+                        if(devCode == DEV_PASSCODE){
+                            Toast.makeText(getApplicationContext(), "DEV" , Toast.LENGTH_SHORT).show();
+                            isDevOn = true;
+                            menuBox.findItem(R.id.info_bar).setVisible(true);
+                        }
+                    }
 
                     if(game_started){ // Действие кнопки во время игры
                         if(motionEvent.getAction() == MotionEvent.ACTION_UP){
