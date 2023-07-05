@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 locations.putExtra("str_list", str_list);
                 locations.putExtra("path", path);
                 locations.putExtra("pathFromToUpload",pathFromToUpload);
+                locations.putExtra("pathToEx",pathToEx);
                 startActivityForResult(locations, REQUEST_CODE_LOCATIONS);
                 break;
 

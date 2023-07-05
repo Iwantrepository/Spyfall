@@ -55,6 +55,7 @@ public class locations_list extends AppCompatActivity {
     ArrayList<String> str_list;
     String path;
     String pathExternalStorage;
+    String pathToEx;
 
     ArrayAdapter<String> listAdapter;
 
@@ -68,6 +69,8 @@ public class locations_list extends AppCompatActivity {
     Button buttonCreatePack;
     Button buttonCheckPool;
     Button buttonPacks;
+
+    String dirName;
 
 
 
@@ -127,6 +130,7 @@ public class locations_list extends AppCompatActivity {
             }
             path = (String) arguments.get("path");
             pathExternalStorage = (String) arguments.get("pathFromToUpload");
+            pathToEx = (String) arguments.get("pathToEx");
         }
 
         listView = (ListView) findViewById(R.id.locationsListView);
@@ -296,15 +300,32 @@ public class locations_list extends AppCompatActivity {
             }
         });
 
+
         buttonCreatePack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                new File(pathToEx).mkdirs();
                 final SparseBooleanArray checked = listView.getCheckedItemPositions();
                 if(listView.getCheckedItemCount() > 0)
                 {
+                    dirName = "SpyfallPack";
+                    boolean isDirNotEx = false;
+                    int nameTry = 1;
+
+                    while(!isDirNotEx){
+                        File dirBuf = new File(pathToEx+"/" + dirName + String.valueOf(nameTry));
+
+                        if(!dirBuf.isDirectory()){
+                            isDirNotEx = true;
+                            dirName = dirName + String.valueOf(nameTry);
+                        }
+                        nameTry++;
+                    }
+
                     AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
                     alert.setTitle("Создание пака");
-                    alert.setMessage("Выбранные локации будут скопированы в /SpyfallPack в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
+                    alert.setMessage("Выбранные локации будут скопированы в /" + dirName + " в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -315,13 +336,13 @@ public class locations_list extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
-                            File dir = new File(pathExternalStorage+"/SpyfallPack");
+                            File dir = new File(pathToEx+"/"+dirName);
                             dir.mkdir();
 
                             for (int j = listView.getAdapter().getCount() - 1; j >= 0; j--) {
                                 if (checked.get(j)) {
                                     String buf = readFile(path+"/"+listView.getItemAtPosition(j));
-                                    writeFile(pathExternalStorage+"/SpyfallPack/"+listView.getItemAtPosition(j), buf);
+                                    writeFile(pathToEx+"/" + dirName + "/"+listView.getItemAtPosition(j), buf);
                                 }
                             }
                             listAdapter.notifyDataSetChanged();
