@@ -491,7 +491,7 @@ public class MainActivity extends AppCompatActivity {
                                 //
                             }
                         }else{
-                            Toast.makeText(getApplicationContext(), "Мало игроков" , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Мало игроков: " + String.valueOf(gamers) , Toast.LENGTH_SHORT).show();
                         }
                     }
                 }else{
@@ -897,7 +897,6 @@ public class MainActivity extends AppCompatActivity {
                 buttons[i].setBackground(getDrawable(R.drawable.button_back_off));
         }
         game_started = false;
-        gamers = 0;
         button_start.setVisibility(View.VISIBLE);
 
         for(int i = 0; i<8; i++)
