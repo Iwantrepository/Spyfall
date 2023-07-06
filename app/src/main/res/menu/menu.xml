@@ -10,18 +10,27 @@
         />
     <item
         android:id="@+id/party_config"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_party"
         android:title="@string/party_config"/>
 
     <item
-    android:id="@+id/locations"
-    android:title="@string/locations"/>
+        android:id="@+id/locations"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_locations"
+        android:title="@string/locations"/>
 
     <item
         android:id="@+id/add_location"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_locations_add"
         android:title="@string/add_location"/>
 
     <item
         android:id="@+id/upload_locations"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_locations_add"
+        android:visible="false"
         android:title="@string/upload_locations"/>
 
 </menu>

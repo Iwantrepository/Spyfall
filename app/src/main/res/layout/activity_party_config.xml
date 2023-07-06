@@ -168,243 +168,244 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:background="@drawable/text_edit_background"
+                    android:padding="10dp">
 
                     <EditText
                         android:id="@+id/editTextTextPersonNameButton1"
-                        android:layout_width="302dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
                         android:hint="Первый игрок"
                         android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
                         android:textAlignment="center" />
 
                     <Switch
                         android:id="@+id/switchButton1"
-                        android:layout_width="match_parent"
+                        android:layout_width="1dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:checked="false"
                         android:showText="false"
-                        android:textSize="8sp" />
+                        android:textSize="8sp"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:background="@drawable/text_edit_background"
+                    android:padding="10dp">
 
                     <EditText
                         android:id="@+id/editTextTextPersonNameButton2"
-                        android:layout_width="302dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
-                        android:hint="Второй игрок"
+                        android:hint="Первый игрок"
                         android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
                         android:textAlignment="center" />
 
                     <Switch
                         android:id="@+id/switchButton2"
-                        android:layout_width="match_parent"
+                        android:layout_width="1dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:checked="false"
                         android:showText="false"
-                        android:textSize="8sp" />
+                        android:textSize="8sp"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:background="@drawable/text_edit_background"
+                    android:padding="10dp">
 
                     <EditText
                         android:id="@+id/editTextTextPersonNameButton3"
-                        android:layout_width="302dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
-                        android:hint="Третий игрок"
+                        android:hint="Первый игрок"
                         android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
                         android:textAlignment="center" />
 
                     <Switch
                         android:id="@+id/switchButton3"
-                        android:layout_width="match_parent"
+                        android:layout_width="1dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:checked="false"
                         android:showText="false"
-                        android:textSize="8sp" />
+                        android:textSize="8sp"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 </LinearLayout>
 
-                <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/text_edit_background"
+                android:padding="10dp">
+
+                <EditText
+                    android:id="@+id/editTextTextPersonNameButton4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Первый игрок"
+                    android:inputType="textPersonName"
+                    android:textAlignment="center" />
 
-                    <EditText
-                        android:id="@+id/editTextTextPersonNameButton4"
-                        android:layout_width="302dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:hint="Четвертый игрок"
-                        android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
-                        android:textAlignment="center" />
+                <Switch
+                    android:id="@+id/switchButton4"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:showText="false"
+                    android:textSize="8sp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-                    <Switch
-                        android:id="@+id/switchButton4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textSize="8sp" />
+            </LinearLayout>
 
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/text_edit_background"
+                android:padding="10dp">
 
-                <LinearLayout
+                <EditText
+                    android:id="@+id/editTextTextPersonNameButton5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Первый игрок"
+                    android:inputType="textPersonName"
+                    android:textAlignment="center" />
 
-                    <EditText
-                        android:id="@+id/editTextTextPersonNameButton5"
-                        android:layout_width="302dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:hint="Пятый игрок"
-                        android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
-                        android:textAlignment="center" />
+                <Switch
+                    android:id="@+id/switchButton5"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:showText="false"
+                    android:textSize="8sp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-                    <Switch
-                        android:id="@+id/switchButton5"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textSize="8sp" />
+            </LinearLayout>
 
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/text_edit_background"
+                android:padding="10dp">
 
-                <LinearLayout
+                <EditText
+                    android:id="@+id/editTextTextPersonNameButton6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Первый игрок"
+                    android:inputType="textPersonName"
+                    android:textAlignment="center" />
 
-                    <EditText
-                        android:id="@+id/editTextTextPersonNameButton6"
-                        android:layout_width="302dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:hint="Шестой игрок"
-                        android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
-                        android:textAlignment="center" />
+                <Switch
+                    android:id="@+id/switchButton6"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:showText="false"
+                    android:textSize="8sp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-                    <Switch
-                        android:id="@+id/switchButton6"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textSize="8sp" />
+            </LinearLayout>
 
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/text_edit_background"
+                android:padding="10dp">
 
-                <LinearLayout
+                <EditText
+                    android:id="@+id/editTextTextPersonNameButton7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Первый игрок"
+                    android:inputType="textPersonName"
+                    android:textAlignment="center" />
 
-                    <EditText
-                        android:id="@+id/editTextTextPersonNameButton7"
-                        android:layout_width="302dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:hint="Седьмой игрок"
-                        android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
-                        android:textAlignment="center" />
+                <Switch
+                    android:id="@+id/switchButton7"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:showText="false"
+                    android:textSize="8sp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-                    <Switch
-                        android:id="@+id/switchButton7"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textSize="8sp" />
+            </LinearLayout>
 
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:background="@drawable/text_edit_background"
+                android:padding="10dp">
 
-                <LinearLayout
+                <EditText
+                    android:id="@+id/editTextTextPersonNameButton8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:textAlignment="center">
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Первый игрок"
+                    android:inputType="textPersonName"
+                    android:textAlignment="center" />
 
-                    <EditText
-                        android:id="@+id/editTextTextPersonNameButton8"
-                        android:layout_width="302dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:hint="Восьмой игрок"
-                        android:inputType="textPersonName"
-                        android:background="@drawable/text_edit_background"
-                        android:padding="10dp"
-                        android:textAlignment="center" />
+                <Switch
+                    android:id="@+id/switchButton8"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:showText="false"
+                    android:textSize="8sp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-                    <Switch
-                        android:id="@+id/switchButton8"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="false"
-                        android:showText="false"
-                        android:textSize="8sp" />
-
-                </LinearLayout>
+            </LinearLayout>
 
                 <LinearLayout
                     style="@style/MyAwesomeStyle"

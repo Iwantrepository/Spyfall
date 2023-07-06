@@ -142,11 +142,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onNewIntent(Intent intent) {
-        //
         super.onNewIntent(intent);
 
-//        Toast.makeText(getApplicationContext(), "!!!!!!!!!!! ", Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(), "INTENT", Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_LONG).show();
+        logString += "\n▼ INTENT ▼\n";
+        intentDisassembler(intent);
 
+
+    }
+
+    public void intentDisassembler(Intent intent){
         if (intent!=null){
             String action = intent.getAction();
             String type = intent.getType();
@@ -292,6 +298,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         verifyStoragePermissions(this);
+
+
+//        Intent intent2 = getIntent();
+//        Toast.makeText(getApplicationContext(), intent2.getAction() , Toast.LENGTH_SHORT).show();
+//        intentDisassembler(intent2);
+
 
 
 /*******************************************************/
