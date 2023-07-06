@@ -97,6 +97,8 @@ public class infoBar extends AppCompatActivity {
 
     public void SpyFirstLocs(View view) {
 
+        Toast.makeText(getApplicationContext(), "Добавлен набор первого издания ", Toast.LENGTH_LONG).show();
+
         writeFile(path+"/Spyfall_First1.txt", "Ресторан\nМузыкант\nПосетитель\nВышибала\nМетрдотель\nШеф-Повар\nОфициант\nКритик");
         writeFile(path+"/Spyfall_First2.txt", "Спа-Салон\nКлиент\nСтилист\nМассажист\nВизажист\nМаникюрщик\nКосметолог\nДерматолог");
         writeFile(path+"/Spyfall_First3.txt", "Отель\nБармен\nПостоялец\nГорничная\nШвейцар\nОхранник\nУправляющий\nПортье");

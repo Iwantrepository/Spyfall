@@ -38,10 +38,8 @@
                     android:id="@+id/buttonOldSixLoc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:onClick="buttonOldSixLoc"
                     android:text="Стартовый пак" />
-
             </LinearLayout>
 
         </TableRow>
@@ -50,12 +48,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
-            <Button
-                android:id="@+id/buttonSpyFirstLocs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="SpyFirstLocs"
-                android:text="Spy1" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonSpyFirstLocs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="SpyFirstLocs"
+                    android:text="Spy1" />
+            </LinearLayout>
+
         </TableRow>
 
         <TableRow
