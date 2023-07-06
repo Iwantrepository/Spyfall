@@ -140,6 +140,30 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public void onNewIntent(Intent intent) {
+        //
+        super.onNewIntent(intent);
+
+//        Toast.makeText(getApplicationContext(), "!!!!!!!!!!! ", Toast.LENGTH_LONG).show();
+
+        if (intent!=null){
+            String action = intent.getAction();
+            String type = intent.getType();
+
+            logString += action + "\n" + type + "\n";
+
+            if(Intent.ACTION_SEND.equals(action) && type != null){
+                if(type.equalsIgnoreCase("text/plain")){
+                    handleTextData(intent);
+                }
+            }
+            if(Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null){
+                handleMutlipleTextData(intent);
+            }
+        }
+    }
+
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -154,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
                 infoBar.putExtra("pathFromToUpload", pathFromToUpload);
                 infoBar.putExtra("logString", logString);
                 startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
+
+
 
                 break;
 
@@ -375,23 +401,6 @@ public class MainActivity extends AppCompatActivity {
         textViewProf = (TextView) findViewById(R.id.textViewProf);
 
 
-
-        Intent intent = getIntent();
-        if (intent!=null){
-            String action = intent.getAction();
-            String type = intent.getType();
-
-            logString += action + "\n" + type + "\n";
-
-            if(Intent.ACTION_SEND.equals(action) && type != null){
-                if(type.equalsIgnoreCase("text/plain")){
-                    handleTextData(intent);
-                }
-            }
-            if(Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null){
-                handleMutlipleTextData(intent);
-            }
-        }
 
 
         button_reset.setOnTouchListener(new View.OnTouchListener() {
