@@ -17,10 +17,6 @@
         android:title="@string/add_location"/>
 
     <item
-        android:id="@+id/add_starter_pack"
-        android:title="@string/add_starter_pack"/>
-
-    <item
         android:id="@+id/upload_locations"
         android:title="@string/upload_locations"/>
 

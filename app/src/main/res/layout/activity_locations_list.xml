@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
 
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_locations_list"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:ignore="ExtraText"
-    tools:context=".locations_list">
+    tools:context=".locations_list"
+    android:background="@drawable/app_background">
 
         <!-- TOOLBAR
         <include
@@ -19,85 +20,83 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <Button
+                    android:id="@+id/buttonPacks"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:rotation="8"
+                    android:text="Паки" />
 
-                        <Button
-                            android:id="@+id/buttonPacks"
-                            style="@style/Widget.AppCompat.Button.Colored"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:rotation="8"
-                            android:text="Packs" />
-
-                        <Button
-                            android:id="@+id/buttonDeleteChecked"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Удалить локации" />
-
-                        <Button
-                            android:id="@+id/buttonGetFromPool"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Из пула" />
-
-                        <Button
-                            android:id="@+id/buttonSetToPool"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="В пул" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <Button
+                    android:id="@+id/buttonDeleteChecked"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_trash"
+                    android:text="Удалить" />
 
-                        <Button
-                            android:id="@+id/buttonCreatePack"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Создать пак" />
+                <Button
+                    android:id="@+id/buttonGetFromPool"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Из пула" />
 
-                        <Button
-                            android:id="@+id/buttonCheckPool"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Выбрать пул" />
-
-                        <Button
-                            android:id="@+id/buttonCheckAll"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Выбрать все" />
-
-                        <Button
-                            android:id="@+id/buttonUncheckAll"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Снять все" />
-                </LinearLayout>
-
-                <ListView
-                    android:id="@+id/locationsListView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                </ListView>
+                <Button
+                    android:id="@+id/buttonSetToPool"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="В пул" />
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonCreatePack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Создать пак" />
+
+                <Button
+                    android:id="@+id/buttonCheckPool"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Выбрать пул" />
+
+                <Button
+                    android:id="@+id/buttonCheckAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Выбрать все" />
+
+                <Button
+                    android:id="@+id/buttonUncheckAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Снять все" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/locationsListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </ListView>
 
 </LinearLayout>

@@ -11,6 +11,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -40,6 +42,8 @@ public class PartyConfig extends AppCompatActivity {
     TextView[] textViewButton;
     Button buttonSaveConfig;
 
+    Animation scaleUp, scaleDown;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,9 @@ public class PartyConfig extends AppCompatActivity {
         if(arguments!=null){
             path = (String) arguments.get("path") + "/config";
         }
+
+        scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
+        scaleUp = AnimationUtils.loadAnimation(this,R.anim.scale_up);
 
         seekBarSpys = (SeekBar) findViewById(R.id.seekBarSpys);
         textViewSpys = (TextView) findViewById(R.id.textViewSpyNum);
@@ -129,9 +136,10 @@ public class PartyConfig extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                    //
+                    buttonSaveConfig.startAnimation(scaleDown);
                 }
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                    buttonSaveConfig.startAnimation(scaleUp);
                     String res = "";
                     for(int i=0; i<dataList.length; i++){
                         res+=dataList[i];

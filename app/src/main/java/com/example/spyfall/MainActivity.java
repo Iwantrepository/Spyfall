@@ -15,12 +15,13 @@ import android.os.Environment;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.OpenableColumns;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,14 +42,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import android.provider.DocumentsContract;
-import android.content.ContentUris;
-import android.provider.MediaStore;
 import java.io.StringWriter;
 
 
@@ -74,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     int devCode;
     boolean isDevOn;
+
+    Animation scaleUp, scaleDown;
 
     Menu menuBox;
 
@@ -183,17 +182,6 @@ public class MainActivity extends AppCompatActivity {
 
                 break;
 
-            case R.id.add_starter_pack:
-                Toast.makeText(getApplicationContext(), "Добавлено немножко стартовых локаций ", Toast.LENGTH_LONG).show();
-                writeFile(path+"/starter_pack_1.txt", "Университет\nПрогульщик\nПодлиза\nОтличник\nПофигист\nИдущий на красный диплом\nПреподаватель\nПостоянно ест");
-                writeFile(path+"/starter_pack_2.txt", "Школа\nКурит за школой\nСтароста\nХулиган\nОхранник\nУставший учитель\nДиректор\nОтличник");
-                writeFile(path+"/starter_pack_3.txt", "База террористов\nОбожает телеграмм\nКоординатор\nРазведчик\nЛюбитель ножей\nОтвечает за боезапас\nОтветственный за шифры\nБезответственный создатель бомб");
-                writeFile(path+"/starter_pack_4.txt", "Форум в интернете\nНедовольный комментатор\nМодератор\nЗадает глупые вопросы\nРугается с модератором\nПытается красиво оформить топик\nШибко умный участник форума\nТот, кто начал этот тред");
-                writeFile(path+"/starter_pack_5.txt", "Рок-концерт\nСтоит у самой колонки\nПытается прыгнуть в толпу\nПодпевает (кричит)\nГлавный голос сцены\nБэквокалист\nЗабытый за кулисами клавишник\nПьяный фанат");
-                writeFile(path+"/starter_pack_6.txt", "Церквушка окутанная коррупцией\nПоп\nНедовольный прихожанин\nТорговец свечками\nПлакальщица\nНелегально продает свечки\nОдержимая религией мать\nРебенок одержимой матери");
-                refresh_loc_list();
-                break;
-
             case R.id.upload_locations:
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -286,6 +274,9 @@ public class MainActivity extends AppCompatActivity {
         isDevOn = false;
 /*******************************************************/
 
+        scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
+        scaleUp = AnimationUtils.loadAnimation(this,R.anim.scale_up);
+
         File dir;
         String FolderName = "Spyfall";
 
@@ -334,8 +325,9 @@ public class MainActivity extends AppCompatActivity {
         button_reset = (Button) findViewById(R.id.button_reset);
         button_start = (Button) findViewById(R.id.button_start);
 
-        for (int i = 0; i < 8; i++)
-            buttons[i].setBackgroundColor(Color.parseColor("#dbdbdb"));
+        for (int i = 0; i < 8; i++) {
+            buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+        }
 
         for (int i = 0; i < 8; i++)
         {
@@ -408,9 +400,10 @@ public class MainActivity extends AppCompatActivity {
 
                     if(motionEvent.getAction() == MotionEvent.ACTION_UP){
                         button_reset.setTextColor(Color.parseColor("#000000"));
+                        button_reset.startAnimation(scaleDown);
                     }
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        //
+                        button_reset.startAnimation(scaleUp);
                     }
                 return false;
             }
@@ -438,10 +431,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         button_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+//                button_start.startAnimation(scaleUp);
                 refresh_loc_list();
 
                 if(is_game_worked)
@@ -490,6 +485,17 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onTouch(View view, MotionEvent motionEvent) {
 
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        buttons[finalI].startAnimation(scaleUp);
+                    }
+
+                    if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        buttons[finalI].startAnimation(scaleDown);
+                    }
+
+
+
+
+                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
 
                         devCode %= 1000;
                         devCode *= 10;
@@ -515,19 +521,20 @@ public class MainActivity extends AppCompatActivity {
                             tryAddLocToPool(finalI);
                             textViewLoc.setText(loc[finalI]);
                             textViewProf.setText(prof[finalI]);
-                            buttons[finalI].setBackgroundColor(getResources().getColor(R.color.colorButtonPlayOpened, null));
+                            buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
                             button_reset.setVisibility(View.GONE);
 
                             showSpy(prof[finalI]);
                         }
                     }else{ // Выбор количества игроков до начала игры
                         for (int j = 0; j < 8; j++)
-                            buttons[j].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
+                            buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
 
 
-                        buttons[finalI].setBackgroundColor(getResources().getColor(R.color.colorButtonPlayersSet, null));
+                        buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
                         gamers = finalI + 1;
                     }
+
                     return false;
                 }
             });
@@ -762,12 +769,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             for (int i = 0; i < 8; i++)
-                buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonPlayClosed, null));
+                buttons[i].setBackground(getDrawable(R.drawable.button_back_on));
 
             for(int i = gamers_v; i<8; i++)
             {
                 buttons[i].setEnabled(false);
-                buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
+                buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
             }
 
             ArrayList<String> prep_list = new ArrayList<String>();
@@ -834,7 +841,7 @@ public class MainActivity extends AppCompatActivity {
     void resetGameButtons()
     {
         for (int i = 0; i < 8; i++)
-            buttons[i].setBackgroundColor(getResources().getColor(R.color.colorButtonDefault, null));
+            buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
         game_started = false;
         gamers = 0;
         button_start.setVisibility(View.VISIBLE);
@@ -1028,7 +1035,7 @@ public class MainActivity extends AppCompatActivity {
 
     void showSpy (String role){
         if(role.equals("Шпион")){
-            spyImage.setAlpha((float) 0.3);
+            spyImage.setAlpha((float) 0.5);
             locsWithoutPool.setVisibility(View.GONE);
         }
     }
