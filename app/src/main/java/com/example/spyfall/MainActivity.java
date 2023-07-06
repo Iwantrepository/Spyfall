@@ -502,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
                         devCode += finalI+1;
 
                         if(devCode == DEV_PASSCODE){
-                            Toast.makeText(getApplicationContext(), "DEV" , Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), "DEV" , Toast.LENGTH_SHORT).show();
                             isDevOn = true;
                             menuBox.findItem(R.id.info_bar).setVisible(true);
                         }
