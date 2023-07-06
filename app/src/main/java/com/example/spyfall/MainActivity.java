@@ -104,6 +104,9 @@ public class MainActivity extends AppCompatActivity {
 
     boolean isNeedPoolLoc = true;
 
+    boolean isPrestartGamers = false;
+    int prestartGamers;
+
 
     boolean[] ispressed = new boolean[8];
 
@@ -408,6 +411,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         parseConfig(dataConfig);
+        prestartGamers = gamers;
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
@@ -476,8 +480,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }else{
                         //Toast.makeText(getApplicationContext(), "Мало игроков для начала игры" , Toast.LENGTH_SHORT).show();
-                        if(gamersFromConfig > 2){
-                            gamers = gamersFromConfig;
+                        if(gamers > 2){
                             boolean is_started = game_prepare(gamers, spys);
                             if(is_started)
                             {
@@ -529,15 +532,16 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    if(game_started){ // Действие кнопки во время игры
-                        if(motionEvent.getAction() == MotionEvent.ACTION_UP){
+
+                    if (game_started) { // Действие кнопки во время игры
+                        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                             textViewLoc.setText("Локация");
                             textViewProf.setText("Профессия");
                             button_reset.setVisibility(View.VISIBLE);
 
                             hideSpy();
                         }
-                        if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                             ispressed[finalI] = true;
                             tryAddLocToPool(finalI);
                             textViewLoc.setText(loc[finalI]);
@@ -547,13 +551,35 @@ public class MainActivity extends AppCompatActivity {
 
                             showSpy(prof[finalI]);
                         }
-                    }else{ // Выбор количества игроков до начала игры
-                        for (int j = 0; j < 8; j++)
-                            buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
+                    } else if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) { // Выбор количества игроков до начала игры
+                        if (isPrestartGamers) {
 
+                            if (prestartGamers == finalI+1) {
+                                for (int j = 0; j < 8; j++) {
+                                    buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
+                                }
+                                isPrestartGamers = false;
+                                gamers = gamersFromConfig;
+                            } else {
+                                for (int j = 0; j < 8; j++) {
+                                    buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
+                                }
 
-                        buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
-                        gamers = finalI + 1;
+                                buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
+                                prestartGamers = finalI + 1;
+                                gamers = prestartGamers;
+                            }
+
+                        } else {
+                            for (int j = 0; j < 8; j++) {
+                                buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
+                            }
+
+                            buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
+                            prestartGamers = finalI + 1;
+                            isPrestartGamers = true;
+                            gamers = prestartGamers;
+                        }
                     }
 
                     return false;
@@ -736,6 +762,10 @@ public class MainActivity extends AppCompatActivity {
 
     boolean game_prepare (int gamers_v, int spys_v)
     {
+        if(isPrestartGamers){
+            gamers_v = prestartGamers;
+        }
+
         if(spys_v > gamers_v)
             spys_v = gamers_v;
 
@@ -861,8 +891,11 @@ public class MainActivity extends AppCompatActivity {
 
     void resetGameButtons()
     {
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++) {
             buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+            if( (i+1 == prestartGamers) && isPrestartGamers)
+                buttons[i].setBackground(getDrawable(R.drawable.button_back_off));
+        }
         game_started = false;
         gamers = 0;
         button_start.setVisibility(View.VISIBLE);
@@ -1098,6 +1131,7 @@ public class MainActivity extends AppCompatActivity {
                 gamersFromConfig++;
             }
         }
+        gamers = gamersFromConfig;
 
         for(int i = idx+1; i < 9; i++)
         {
