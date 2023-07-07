@@ -12,6 +12,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.OpenableColumns;
@@ -27,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,6 +54,8 @@ import java.io.StringWriter;
 
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
+import com.google.android.material.circularreveal.CircularRevealHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -75,6 +81,13 @@ public class MainActivity extends AppCompatActivity {
     Animation scaleUp, scaleDown;
 
     Menu menuBox;
+
+
+
+
+    int mdata = 0;
+
+
 
     String[] str_list;
     String path;
@@ -118,6 +131,20 @@ public class MainActivity extends AppCompatActivity {
 
     Intent myFileIntent;
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+//        Toast.makeText(getApplicationContext(), "Saved " + String.valueOf(mdata) , Toast.LENGTH_SHORT).show();
+        mdata++;
+        outState.putInt("key", mdata);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        mdata = savedInstanceState.getInt("key");
+        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(mdata), Toast.LENGTH_SHORT).show();
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
