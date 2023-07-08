@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("JSON > saved", json);
         outState.putString("game_state", json);
 
-        Toast.makeText(getApplicationContext(), "Saved " + json, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Saved " + json, Toast.LENGTH_SHORT).show();
 
         super.onSaveInstanceState(outState);
     }
@@ -171,8 +171,35 @@ public class MainActivity extends AppCompatActivity {
         game_state = gson.fromJson(json, game_state.getClass());
 
 
-        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(game_state.mData), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(game_state.mData), Toast.LENGTH_SHORT).show();
         super.onRestoreInstanceState(savedInstanceState);
+
+
+
+
+
+
+
+        Toast.makeText(getApplicationContext(), "Saved time", Toast.LENGTH_SHORT).show();
+        for (int i = 0; i < 8; i++) {
+//            buttons[i].setBackground(getDrawable(R.drawable.button_back_on));
+
+            if(game_state.game_started){
+                button_start.setVisibility(View.GONE);
+
+                if(game_state.ispressed[i]) {
+                    buttons[i].setBackground(getDrawable(R.drawable.button_back_off));
+                }else{
+                    buttons[i].setBackground(getDrawable(R.drawable.button_back_on));
+                }
+                if(i > game_state.gamers) {
+                    buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+                    buttons[i].setEnabled(false);
+                }
+            }else {
+                buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+            }
+        }
     }
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -423,58 +450,58 @@ public class MainActivity extends AppCompatActivity {
         button_reset = (Button) findViewById(R.id.button_reset);
         button_start = (Button) findViewById(R.id.button_start);
 
-        for (int i = 0; i < 8; i++) {
-            buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
-        }
 
-        for (int i = 0; i < 8; i++)
-        {
-            game_state.loc[i] = Integer.toString(i+1);
-            game_state.prof[i] = Integer.toString(i+1);
-            game_state.ispressed[i] = false;
-        }
+        if (savedInstanceState != null){
+            //
+        }else {
+            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
 
-        game_state.dataConfig = readFile(game_state.path+"/config");
-        String configPath = game_state.path+"/config";
-
-        if(game_state.dataConfig == null)
-        {
-            //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
-            File buff = new File(configPath);
-            try {
-                buff.createNewFile();
-                if(writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8"))
-                {
-                    game_state.dataConfig = readFile(configPath);
-                    Toast.makeText(getApplicationContext(), "Файл настроек создан" , Toast.LENGTH_SHORT).show();
-                    if(game_state.dataConfig != null)
-                    {
-                        if(!parseConfig(game_state.dataConfig))
-                            parseConfig(readFile(configPath));
-                    }else{
-                        Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек" , Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек" , Toast.LENGTH_SHORT).show();
-                }
-            } catch (IOException e) {
-                Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек" , Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
+            for (int i = 0; i < 8; i++) {
+                buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
             }
-        }else{
-            //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
-            if(!parseConfig(game_state.dataConfig))
-                parseConfig(readFile(configPath));
-        }
 
-        parseConfig(game_state.dataConfig);
-        game_state.prestartGamers = game_state.gamers;
+            for (int i = 0; i < 8; i++) {
+                game_state.loc[i] = Integer.toString(i + 1);
+                game_state.prof[i] = Integer.toString(i + 1);
+                game_state.ispressed[i] = false;
+            }
+
+            game_state.dataConfig = readFile(game_state.path + "/config");
+            String configPath = game_state.path + "/config";
+
+            if (game_state.dataConfig == null) {
+                //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
+                File buff = new File(configPath);
+                try {
+                    buff.createNewFile();
+                    if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
+                        game_state.dataConfig = readFile(configPath);
+                        Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
+                        if (game_state.dataConfig != null) {
+                            if (!parseConfig(game_state.dataConfig))
+                                parseConfig(readFile(configPath));
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            } else {
+                //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
+                if (!parseConfig(game_state.dataConfig))
+                    parseConfig(readFile(configPath));
+            }
+
+            parseConfig(game_state.dataConfig);
+            game_state.prestartGamers = game_state.gamers;
+        }
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
-
-
-
 
         button_reset.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -564,7 +591,7 @@ public class MainActivity extends AppCompatActivity {
             buttons[finalI].setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
-
+                    
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                         buttons[finalI].startAnimation(scaleUp);
                     }
