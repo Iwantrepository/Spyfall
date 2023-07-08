@@ -18,6 +18,7 @@ import android.os.PersistableBundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -56,6 +57,8 @@ import java.io.StringWriter;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 import com.google.android.material.circularreveal.CircularRevealHelper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,8 +88,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    int mdata = 0;
+    class GameState {
+        public int mData = 0;
+    }
 
+    GameState game_state;
 
 
     String[] str_list;
@@ -134,15 +140,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
 //        Toast.makeText(getApplicationContext(), "Saved " + String.valueOf(mdata) , Toast.LENGTH_SHORT).show();
-        mdata++;
-        outState.putInt("key", mdata);
+        game_state.mData++;
+
+
+        GsonBuilder builder = new GsonBuilder().serializeNulls();
+        Gson gson = builder.create();
+        String json= gson.toJson(game_state).toString();
+        Log.i("JSON > saved", json);
+        outState.putString("game_state", json);
+
+        Toast.makeText(getApplicationContext(), "Saved " + json, Toast.LENGTH_SHORT).show();
+
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        mdata = savedInstanceState.getInt("key");
-        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(mdata), Toast.LENGTH_SHORT).show();
+        String json = savedInstanceState.getString("game_state");
+        Log.i("JSON > recieved", json);
+
+        Gson gson = new Gson();
+        game_state = gson.fromJson(json, game_state.getClass());
+
+
+        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(game_state.mData), Toast.LENGTH_SHORT).show();
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -337,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 /*******************************************************/
+        game_state = new GameState();
         logString = "";
         devCode = 0;
         isDevOn = false;
