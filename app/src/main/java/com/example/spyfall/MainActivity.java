@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Обработка развертывания
-        Toast.makeText(getApplicationContext(), "Saved time", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Saved time", Toast.LENGTH_SHORT).show();
         for (int i = 0; i < 8; i++) {
 //            buttons[i].setBackground(getDrawable(R.drawable.button_back_on));
 
@@ -203,6 +203,8 @@ public class MainActivity extends AppCompatActivity {
                     buttons[game_state.prestartGamers-1].setBackground(getDrawable(R.drawable.button_back_gold));
                 }
             }
+
+            parseConfig(game_state.dataConfig);
         }
     }
 
@@ -982,7 +984,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 8; i++) {
             buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
             if( (i+1 == game_state.prestartGamers) && game_state.isPrestartGamers)
-                buttons[i].setBackground(getDrawable(R.drawable.button_back_off));
+                buttons[i].setBackground(getDrawable(R.drawable.button_back_gold));
         }
         game_state.game_started = false;
         button_start.setVisibility(View.VISIBLE);
