@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+        // Обработка развертывания
         Toast.makeText(getApplicationContext(), "Saved time", Toast.LENGTH_SHORT).show();
         for (int i = 0; i < 8; i++) {
 //            buttons[i].setBackground(getDrawable(R.drawable.button_back_on));
@@ -198,6 +198,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }else {
                 buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+
+                if(game_state.isPrestartGamers){
+                    buttons[game_state.prestartGamers-1].setBackground(getDrawable(R.drawable.button_back_gold));
+                }
             }
         }
     }
@@ -649,7 +653,7 @@ public class MainActivity extends AppCompatActivity {
                                     buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
                                 }
 
-                                buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
+                                buttons[finalI].setBackground(getDrawable(R.drawable.button_back_gold));
                                 game_state.prestartGamers = finalI + 1;
                                 game_state.gamers = game_state.prestartGamers;
                             }
@@ -659,7 +663,7 @@ public class MainActivity extends AppCompatActivity {
                                 buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
                             }
 
-                            buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
+                            buttons[finalI].setBackground(getDrawable(R.drawable.button_back_gold));
                             game_state.prestartGamers = finalI + 1;
                             game_state.isPrestartGamers = true;
                             game_state.gamers = game_state.prestartGamers;
