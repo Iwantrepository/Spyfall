@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/app_background">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <RelativeLayout
+        android:id="@+id/gamefield"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_toLeftOf="@id/Buttons"
+        android:layout_alignParentLeft="true"
+         android:layout_width="match_parent"
+        >
+
+        <ImageView
+            android:id="@+id/imageViewSpy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/locsWithoutPool"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#12000000"
+            android:textSize="160sp" />
+
+        <TextView
+            android:id="@+id/textViewLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_margin="10dp"
+            android:fontFamily="sans-serif"
+            android:text="Локация"
+            android:textColor="#000000"
+            android:textSize="36sp" />
+
+        <Button
+            android:id="@+id/button_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            android:background="@drawable/button_others"
+            android:drawableLeft="@drawable/ic_cycle"
+            android:padding="10dp"
+            android:text=" Раздать локацию" />
+
+        <TextView
+            android:id="@+id/textViewProf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:translationY="-10dp"
+            android:translationX="10dp"
+            android:text="Роль"
+            android:textColor="#000000"
+            android:textSize="36sp" />
+
+
+        <Button
+            android:id="@+id/button_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:translationY="-10dp"
+            android:translationX="-10dp"
+            android:background="@drawable/button_others"
+            android:padding="10dp"
+            android:text="Начать игру" />
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/Buttons"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+
+        android:layout_marginBottom="0dp"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+
+        android:layout_alignParentRight="true"
+        >
+
+        <LinearLayout
+            style="@style/MyAwesomeStyle"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/button1"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="1" />
+
+            <Button
+                android:id="@+id/button2"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="2" />
+
+            <Button
+                android:id="@+id/button3"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="3" />
+
+            <Button
+                android:id="@+id/button4"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="4" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/MyAwesomeStyle"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/button5"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="5" />
+
+            <Button
+                android:id="@+id/button6"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="6" />
+
+            <Button
+                android:id="@+id/button7"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="7" />
+
+            <Button
+                android:id="@+id/button8"
+                style="@style/MyAwesomeStyle"
+                android:layout_margin="10dp"
+                android:text="8" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
