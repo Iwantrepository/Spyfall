@@ -207,7 +207,11 @@ public class MainActivity extends AppCompatActivity {
 
         }
         parseConfig(game_state.dataConfig);
+        if(game_state.isPrestartGamers){
+            game_state.gamers = game_state.prestartGamers;
+        }
         refresh_loc_list();
+
     }
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -407,6 +411,7 @@ public class MainActivity extends AppCompatActivity {
         game_state.isDevOn = false;
 /*******************************************************/
 
+
         scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
         scaleUp = AnimationUtils.loadAnimation(this,R.anim.scale_up);
 
@@ -461,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null){
             //
         }else {
-            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
 
             refresh_loc_list();
 
