@@ -22,5 +22,5 @@
     <string name="info_bar">***DEV***</string>
 
 
-    <string name="timer">" Таймер"</string>
+    <string name="timer">"0:00"</string>
 </resources>

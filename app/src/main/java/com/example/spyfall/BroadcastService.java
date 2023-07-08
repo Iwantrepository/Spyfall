@@ -11,20 +11,20 @@ import androidx.annotation.Nullable;
 
 public class BroadcastService extends Service {
     private String TAG = "BroadcastService";
-    public static final String COUNTDOWN_BR = "com.example.spyfall";
+    public static final String COUNTDOWN_BR = "com.example.spyfall.COUNTDOWN_BR";
     Intent intent = new Intent(COUNTDOWN_BR);
     CountDownTimer countDownTimer = null;
 
     SharedPreferences sharedPreferences;
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Log.i(TAG,"Starting timer...");
+
+    public void setTimer(){
+        Log.i(TAG,"Starting timer..." + getPackageName());
         sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
-        long millis = sharedPreferences.getLong("time",30000);
-        if (millis / 1000 == 0) {
-            millis = 30000;
-        }
+
+
+        long millis = sharedPreferences.getLong("timeSP2",3000);
+
+
         countDownTimer = new CountDownTimer(millis,1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -35,10 +35,23 @@ public class BroadcastService extends Service {
 
             @Override
             public void onFinish() {
-
+                Log.i(TAG,"Finish");
+                stopSelf();
             }
         };
         countDownTimer.start();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        setTimer();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
     }
 
     @Override

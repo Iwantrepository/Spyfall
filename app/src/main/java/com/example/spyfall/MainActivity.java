@@ -414,11 +414,6 @@ public class MainActivity extends AppCompatActivity {
 //        Toast.makeText(getApplicationContext(), intent2.getAction() , Toast.LENGTH_SHORT).show();
 //        intentDisassembler(intent2);
 
-        Intent intent = new Intent(this,BroadcastService.class);
-        startService(intent);
-        Log.i(TAG,"Started Service");
-
-
 
 /*******************************************************/
         game_state = new GameState();
@@ -577,35 +572,27 @@ public class MainActivity extends AppCompatActivity {
 
         //Timer
         buttonTimer.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitPrefEdits")
             public void onClick(View v){
 
 
+                if(isInTimer){
+                    stopService(new Intent(getApplicationContext(), BroadcastService.class));
+                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+                    isInTimer = false;
+                }else{
+//                    SharedPreferences sharedPreferences;
+//                    sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+//                    sharedPreferences.edit().putLong("timeSP2", 30000).apply();
+//                    Log.i(TAG, "Shared long: " + sharedPreferences.getLong("timeSP2", 9));
 
-//                if(isInTimer){
-//                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
-//                    timer.cancel();
-//                    timer.onFinish();
-//                    isInTimer = false;
-//                }else {
-//                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
-//                    isInTimer = true;
-//                    timer = new CountDownTimer(600000, 1000) {
-//
-//
-//                        public void onTick(long millisUntilFinished) {
-//                            int sec = (int) (millisUntilFinished / 1000);
-//                            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
-//
-//                        }
-//
-//                        public void onFinish() {
-//                            buttonTimer.setText(getResources().getString(R.string.timer));
-//                            isInTimer = false;
-//
-//                        }
-//                    };
-//                    timer.start();
-//                }
+                    Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+                    startService(intent);
+                    Log.i(TAG, "" + intent);
+                    Log.i(TAG, "Started Service" + getPackageName());
+                    isInTimer = true;
+                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+                }
 
             }
         });
@@ -750,7 +737,7 @@ public class MainActivity extends AppCompatActivity {
 /*============================================================================*/
 
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             //Update GUI
@@ -763,7 +750,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 //        registerReceiver(broadcastReceiver,new IntentFilter(BroadcastService.COUNTDOWN_BR));
 
-        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), RECEIVER_EXPORTED);
+        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
         Log.i(TAG,"Registered broadcast receiver");
     }
 
@@ -793,10 +780,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateGUI(Intent intent) {
         if (intent.getExtras() != null) {
-            long millisUntilFinished = intent.getLongExtra("countdown",30000);
+            long millisUntilFinished = intent.getLongExtra("countdown",90000);
+
+            Log.i(TAG,"" + intent);
             Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
 
-            buttonTimer.setText("" + millisUntilFinished / 1000);
+//            buttonTimer.setText("" + millisUntilFinished / 1000);
+
+            int sec = (int) (millisUntilFinished / 1000);
+            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
 
             SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
 

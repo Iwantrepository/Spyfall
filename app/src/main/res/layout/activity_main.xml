@@ -81,7 +81,7 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/button_others"
-        android:drawableLeft="@drawable/ic_timer_on"
+        android:drawableLeft="@drawable/ic_timer_off"
         android:padding="10dp"
         android:text="@string/timer" />
 
