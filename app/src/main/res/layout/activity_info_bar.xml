@@ -1,95 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".infoBar">
+    android:orientation="vertical">
 
-    <TableLayout
-        android:layout_width="409dp"
-        android:layout_height="729dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="1dp">
+    <LinearLayout
+        android:id="@+id/layoutPacks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-        <TableRow
+        <Button
+            android:id="@+id/buttonSpyFirstLocs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="SpyFirstLocs"
+            android:text="Spy1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonTestLocations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="testLocks"
+            android:text="TestLocs" />
+
+        <Button
+            android:id="@+id/buttonSound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="playSound"
+            android:text="Sound" />
+
+        <Button
+            android:id="@+id/buttonOldSixLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="buttonOldSixLoc"
+            android:text="Стартовый пак" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        </TableRow>
+            <TextView
+                android:id="@+id/textView_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="TEST"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+        </LinearLayout>
+    </ScrollView>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/buttonTestLocations"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="testLocks"
-                    android:text="TestLocs" />
-
-                <Button
-                    android:id="@+id/buttonOldSixLoc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="buttonOldSixLoc"
-                    android:text="Стартовый пак" />
-            </LinearLayout>
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/buttonSpyFirstLocs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="SpyFirstLocs"
-                    android:text="Spy1" />
-            </LinearLayout>
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" >
-
-                    <TextView
-                        android:id="@+id/textView_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:text="TEST"
-                        android:textAllCaps="false"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="normal|bold" />
-                </LinearLayout>
-            </ScrollView>
-
-        </TableRow>
-    </TableLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
