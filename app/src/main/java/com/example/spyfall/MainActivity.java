@@ -78,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    int devCode;
-    boolean isDevOn;
 
     Animation scaleUp, scaleDown;
 
@@ -90,50 +88,60 @@ public class MainActivity extends AppCompatActivity {
 
     class GameState {
         public int mData = 0;
+        String logString;
+
+        String[] str_list;
+        String path;
+        String pathToEx;
+        String pathFromToUpload;
+
+        String dataConfig;
+
+        String[] loc = new String[8];
+        String[] prof = new String[8];
+
+        int devCode;
+        boolean isDevOn;
+
+        boolean game_started = false;
+        boolean is_game_worked = true;
+        int gamers = 0;
+        int spys = 1;
+        int lastLocs = 0;
+        int gamersFromConfig = 0;
+
+        boolean isNeedPoolLoc = true;
+
+        boolean isPrestartGamers = false;
+        int prestartGamers;
+
+
+        boolean[] ispressed = new boolean[8];
+
+        List<Integer> spyList = new ArrayList<>();
+
+        String locToPool = "";
     }
 
     GameState game_state;
 
 
-    String[] str_list;
-    String path;
-    String pathToEx;
-    String pathFromToUpload;
-    String logString;
-    String dataConfig;
 
-    String[] loc = new String[8];
-    String[] prof = new String[8];
 
     Button[] buttons = new Button[8];
     Button button_reset;
     Button button_start;
 
-    List<Integer> spyList = new ArrayList<>();
 
 
     ImageView spyImage;
 
-    boolean game_started = false;
-    boolean is_game_worked = true;
-    int gamers = 0;
-    int spys = 1;
-    int lastLocs = 0;
-    int gamersFromConfig = 0;
 
-    boolean isNeedPoolLoc = true;
-
-    boolean isPrestartGamers = false;
-    int prestartGamers;
-
-
-    boolean[] ispressed = new boolean[8];
 
     TextView textViewLoc;
     TextView textViewProf;
     TextView locsWithoutPool;
 
-    String locToPool = "";
 
     Intent myFileIntent;
 
@@ -197,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        Toast.makeText(getApplicationContext(), "INTENT", Toast.LENGTH_LONG).show();
 //        Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_LONG).show();
-        logString += "\n▼ INTENT ▼\n";
+        game_state.logString += "\n▼ INTENT ▼\n";
         intentDisassembler(intent);
 
 
@@ -208,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
             String type = intent.getType();
 
-            logString += action + "\n" + type + "\n";
+            game_state.logString += action + "\n" + type + "\n";
 
             if(Intent.ACTION_SEND.equals(action) && type != null){
                 if(type.equalsIgnoreCase("text/plain")){
@@ -231,9 +239,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.info_bar:
                 Intent infoBar = new Intent(this, infoBar.class);
 
-                infoBar.putExtra("path", path);
-                infoBar.putExtra("pathFromToUpload", pathFromToUpload);
-                infoBar.putExtra("logString", logString);
+                infoBar.putExtra("path", game_state.path);
+                infoBar.putExtra("pathFromToUpload", game_state.pathFromToUpload);
+                infoBar.putExtra("logString", game_state.logString);
                 startActivityForResult(infoBar, REQUEST_CODE_INFO_BAR);
 
 
@@ -242,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.party_config:
                 Intent partyConfig = new Intent(this, PartyConfig.class);
-                partyConfig.putExtra("path", path);
+                partyConfig.putExtra("path", game_state.path);
                 startActivityForResult(partyConfig, REQUEST_CODE_PARTY_CONFIG);
 
                 refresh_loc_list();
@@ -251,16 +259,16 @@ public class MainActivity extends AppCompatActivity {
             case R.id.locations:
                 refresh_loc_list();
                 Intent  locations = new Intent(this, locations_list.class);
-                locations.putExtra("str_list", str_list);
-                locations.putExtra("path", path);
-                locations.putExtra("pathFromToUpload",pathFromToUpload);
-                locations.putExtra("pathToEx",pathToEx);
+                locations.putExtra("str_list", game_state.str_list);
+                locations.putExtra("path", game_state.path);
+                locations.putExtra("pathFromToUpload",game_state.pathFromToUpload);
+                locations.putExtra("pathToEx",game_state.pathToEx);
                 startActivityForResult(locations, REQUEST_CODE_LOCATIONS);
                 break;
 
             case R.id.add_location:
                 Intent  add_locations = new Intent(this, new_location_form.class);
-                add_locations.putExtra("path", path);
+                add_locations.putExtra("path", game_state.path);
                 startActivityForResult(add_locations, REQUEST_CODE_NEW_LOCATION);
 
                 break;
@@ -317,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
 
                         for (Uri uri : uriList) {
                             if (uri != null) {
-                                copyFile(uri, path);
+                                copyFile(uri, game_state.path);
                             }
                         }
                     }
@@ -336,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                 if (data == null) {return;}
                 String strList = data.getStringExtra("strList");
                 //Toast.makeText(getApplicationContext(), strList , Toast.LENGTH_SHORT).show();
-                dataConfig = strList;
+                game_state.dataConfig = strList;
                 parseConfig(strList);
             break;
         }
@@ -359,9 +367,9 @@ public class MainActivity extends AppCompatActivity {
 
 /*******************************************************/
         game_state = new GameState();
-        logString = "";
-        devCode = 0;
-        isDevOn = false;
+        game_state.logString = "";
+        game_state.devCode = 0;
+        game_state.isDevOn = false;
 /*******************************************************/
 
         scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
@@ -373,21 +381,21 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             dir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+ "/"+FolderName );
 //            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
-            logString += "StoragePick = DOCUMENT\n";
+            game_state.logString += "StoragePick = DOCUMENT\n";
         } else {
             dir = new File(Environment.getExternalStorageDirectory() + "/"+FolderName);
 //            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
-            logString += "StoragePick = EXTERNAL\n";
+            game_state.logString += "StoragePick = EXTERNAL\n";
         }
         dir.mkdirs();
 
-        pathToEx = dir.toString();
-        path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";
-        pathFromToUpload = dir.toString();
+        game_state.pathToEx = dir.toString();
+        game_state.path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";
+        game_state.pathFromToUpload = dir.toString();
 
-        logString += "pathToEx = " + pathToEx + "\n";
-        logString += "path = " + path + "\n";
-        logString += "pathFromToUpload = " + pathFromToUpload + "\n";
+        game_state.logString += "pathToEx = " + game_state.pathToEx + "\n";
+        game_state.logString += "path = " + game_state.path + "\n";
+        game_state.logString += "pathFromToUpload = " + game_state.pathFromToUpload + "\n";
 
 
         spyImage = (ImageView) findViewById(R.id.imageViewSpy);
@@ -421,15 +429,15 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < 8; i++)
         {
-            loc[i] = Integer.toString(i+1);
-            prof[i] = Integer.toString(i+1);
-            ispressed[i] = false;
+            game_state.loc[i] = Integer.toString(i+1);
+            game_state.prof[i] = Integer.toString(i+1);
+            game_state.ispressed[i] = false;
         }
 
-        dataConfig = readFile(path+"/config");
-        String configPath = path+"/config";
+        game_state.dataConfig = readFile(game_state.path+"/config");
+        String configPath = game_state.path+"/config";
 
-        if(dataConfig == null)
+        if(game_state.dataConfig == null)
         {
             //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
             File buff = new File(configPath);
@@ -437,11 +445,11 @@ public class MainActivity extends AppCompatActivity {
                 buff.createNewFile();
                 if(writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8"))
                 {
-                    dataConfig = readFile(configPath);
+                    game_state.dataConfig = readFile(configPath);
                     Toast.makeText(getApplicationContext(), "Файл настроек создан" , Toast.LENGTH_SHORT).show();
-                    if(dataConfig != null)
+                    if(game_state.dataConfig != null)
                     {
-                        if(!parseConfig(dataConfig))
+                        if(!parseConfig(game_state.dataConfig))
                             parseConfig(readFile(configPath));
                     }else{
                         Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек" , Toast.LENGTH_SHORT).show();
@@ -455,12 +463,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }else{
             //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
-            if(!parseConfig(dataConfig))
+            if(!parseConfig(game_state.dataConfig))
                 parseConfig(readFile(configPath));
         }
 
-        parseConfig(dataConfig);
-        prestartGamers = gamers;
+        parseConfig(game_state.dataConfig);
+        game_state.prestartGamers = game_state.gamers;
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
@@ -499,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
                     //deprecated in API 26
                     vi.vibrate(100);
                 }
-                isNeedPoolLoc = true;
+                game_state.isNeedPoolLoc = true;
                 updateLocCounter();
                 return true;
             }
@@ -513,14 +521,14 @@ public class MainActivity extends AppCompatActivity {
 //                button_start.startAnimation(scaleUp);
                 refresh_loc_list();
 
-                if(is_game_worked)
+                if(game_state.is_game_worked)
                 {
-                    if(gamers > 2)
+                    if(game_state.gamers > 2)
                     {
-                        boolean is_started = game_prepare(gamers, spys);
+                        boolean is_started = game_prepare(game_state.gamers, game_state.spys);
                         if(is_started)
                         {
-                            game_started = true;
+                            game_state.game_started = true;
                             button_start.setVisibility(View.GONE);
                             //Toast.makeText(getApplicationContext(), "Запущена игра на " + gamers + " игроков" , Toast.LENGTH_SHORT).show();
                         }else{
@@ -529,18 +537,18 @@ public class MainActivity extends AppCompatActivity {
 
                     }else{
                         //Toast.makeText(getApplicationContext(), "Мало игроков для начала игры" , Toast.LENGTH_SHORT).show();
-                        if(gamers > 2){
-                            boolean is_started = game_prepare(gamers, spys);
+                        if(game_state.gamers > 2){
+                            boolean is_started = game_prepare(game_state.gamers, game_state.spys);
                             if(is_started)
                             {
-                                game_started = true;
+                                game_state.game_started = true;
                                 button_start.setVisibility(View.GONE);
                                 //Toast.makeText(getApplicationContext(), "Запущена игра на " + gamers + " игроков" , Toast.LENGTH_SHORT).show();
                             }else{
                                 //
                             }
                         }else{
-                            Toast.makeText(getApplicationContext(), "Мало игроков: " + String.valueOf(gamers) , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Мало игроков: " + String.valueOf(game_state.gamers) , Toast.LENGTH_SHORT).show();
                         }
                     }
                 }else{
@@ -570,19 +578,19 @@ public class MainActivity extends AppCompatActivity {
 
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
 
-                        devCode %= 1000;
-                        devCode *= 10;
-                        devCode += finalI+1;
+                        game_state.devCode %= 1000;
+                        game_state.devCode *= 10;
+                        game_state.devCode += finalI+1;
 
-                        if(devCode == DEV_PASSCODE){
+                        if(game_state.devCode == DEV_PASSCODE){
 //                            Toast.makeText(getApplicationContext(), "DEV" , Toast.LENGTH_SHORT).show();
-                            isDevOn = true;
+                            game_state.isDevOn = true;
                             menuBox.findItem(R.id.info_bar).setVisible(true);
                         }
                     }
 
 
-                    if (game_started) { // Действие кнопки во время игры
+                    if (game_state.game_started) { // Действие кнопки во время игры
                         if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                             textViewLoc.setText("Локация");
                             textViewProf.setText("Профессия");
@@ -591,32 +599,32 @@ public class MainActivity extends AppCompatActivity {
                             hideSpy();
                         }
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                            ispressed[finalI] = true;
+                            game_state.ispressed[finalI] = true;
                             tryAddLocToPool(finalI);
-                            textViewLoc.setText(loc[finalI]);
-                            textViewProf.setText(prof[finalI]);
+                            textViewLoc.setText(game_state.loc[finalI]);
+                            textViewProf.setText(game_state.prof[finalI]);
                             buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
                             button_reset.setVisibility(View.GONE);
 
-                            showSpy(prof[finalI]);
+                            showSpy(game_state.prof[finalI]);
                         }
                     } else if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) { // Выбор количества игроков до начала игры
-                        if (isPrestartGamers) {
+                        if (game_state.isPrestartGamers) {
 
-                            if (prestartGamers == finalI+1) {
+                            if (game_state.prestartGamers == finalI+1) {
                                 for (int j = 0; j < 8; j++) {
                                     buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
                                 }
-                                isPrestartGamers = false;
-                                gamers = gamersFromConfig;
+                                game_state.isPrestartGamers = false;
+                                game_state.gamers = game_state.gamersFromConfig;
                             } else {
                                 for (int j = 0; j < 8; j++) {
                                     buttons[j].setBackground(getDrawable(R.drawable.button_back_default));
                                 }
 
                                 buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
-                                prestartGamers = finalI + 1;
-                                gamers = prestartGamers;
+                                game_state.prestartGamers = finalI + 1;
+                                game_state.gamers = game_state.prestartGamers;
                             }
 
                         } else {
@@ -625,9 +633,9 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
-                            prestartGamers = finalI + 1;
-                            isPrestartGamers = true;
-                            gamers = prestartGamers;
+                            game_state.prestartGamers = finalI + 1;
+                            game_state.isPrestartGamers = true;
+                            game_state.gamers = game_state.prestartGamers;
                         }
                     }
 
@@ -663,16 +671,16 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (!text.isEmpty()) {
-                        logString += "!!! TEXT !!!: " + text + "\n";
+                        game_state.logString += "!!! TEXT !!!: " + text + "\n";
 
                         String fileName = uri.getPath();
                         fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
 
                         if (uri != null) {
-                            logString += "!!! Filename: " + fileName + "\n";
-                            logString += "Path: " + path + "\n";
+                            game_state.logString += "!!! Filename: " + fileName + "\n";
+                            game_state.logString += "Path: " + game_state.path + "\n";
 
-                            writeFile(path + "/" + fileName, text);
+                            writeFile(game_state.path + "/" + fileName, text);
 
 //                        Toast.makeText(getApplicationContext(), "Локация загружена", Toast.LENGTH_SHORT).show();
                             refresh_loc_list();
@@ -697,16 +705,16 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         if (!text.isEmpty()) {
-            logString += "!!! TEXT !!!: " + text + "\n";
+            game_state.logString += "!!! TEXT !!!: " + text + "\n";
 
             String fileName = textdata.getPath();
             fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
 
             if (textdata != null) {
-                logString += "!!! Filename: " + fileName + "\n";
-                logString += "Path: " + path + "\n";
+                game_state.logString += "!!! Filename: " + fileName + "\n";
+                game_state.logString += "Path: " + game_state.path + "\n";
 
-                writeFile(path + "/" + fileName, text);
+                writeFile(game_state.path + "/" + fileName, text);
 
                 Toast.makeText(getApplicationContext(), "Локация загружена", Toast.LENGTH_SHORT).show();
                 refresh_loc_list();
@@ -731,7 +739,7 @@ public class MainActivity extends AppCompatActivity {
     private void refresh_loc_list() {
 
             //Log.d("Files", "Path: " + path);
-            File directory = new File(path);
+            File directory = new File(game_state.path);
             boolean dir_exist = directory.exists();
             boolean is_dir_good = false;
 
@@ -748,7 +756,7 @@ public class MainActivity extends AppCompatActivity {
                     is_dir_good = true;
                 }else{
                     Toast.makeText(getApplicationContext(), "Директория Spyfall не может быть создана" , Toast.LENGTH_SHORT).show();
-                    is_game_worked = false;
+                    game_state.is_game_worked = false;
                 }
             }
 
@@ -761,15 +769,15 @@ public class MainActivity extends AppCompatActivity {
 
             if(is_dir_good)
             {
-                lastLocs = 0;
+                game_state.lastLocs = 0;
                 File[] files = directory.listFiles(filter);
-                str_list = new String[files.length];
+                game_state.str_list = new String[files.length];
                 for (int i = 0; i < files.length; i++)
                 {
                     if(files[i].isFile())
                     {
-                        str_list[i] = files[i].getName();
-                        String buf = readFile(path+"/"+str_list[i]);
+                        game_state.str_list[i] = files[i].getName();
+                        String buf = readFile(game_state.path+"/"+game_state.str_list[i]);
                         if(!buf.startsWith("+") && !buf.startsWith("-"))
                         {
                             buf = "-" + buf;
@@ -777,10 +785,10 @@ public class MainActivity extends AppCompatActivity {
 
                         if(buf.startsWith("-"))
                         {
-                            lastLocs++;
+                            game_state.lastLocs++;
                         }
 
-                        writeFile(path+"/"+str_list[i], buf);
+                        writeFile(game_state.path+"/"+game_state.str_list[i], buf);
                     }
                 }
 
@@ -790,11 +798,11 @@ public class MainActivity extends AppCompatActivity {
                     {
                         for (int j = 0;  j < (files.length - i - 1) ; j++)
                         {
-                            if(str_list[j].compareTo(str_list[j+1]) > 0)
+                            if(game_state.str_list[j].compareTo(game_state.str_list[j+1]) > 0)
                             {
-                                String buf = str_list[j];
-                                str_list[j] = str_list[j+1];
-                                str_list[j+1] = buf;
+                                String buf = game_state.str_list[j];
+                                game_state.str_list[j] = game_state.str_list[j+1];
+                                game_state.str_list[j+1] = buf;
                             }
 
                         }
@@ -811,29 +819,29 @@ public class MainActivity extends AppCompatActivity {
 
     boolean game_prepare (int gamers_v, int spys_v)
     {
-        if(isPrestartGamers){
-            gamers_v = prestartGamers;
+        if(game_state.isPrestartGamers){
+            gamers_v = game_state.prestartGamers;
         }
 
         if(spys_v > gamers_v)
             spys_v = gamers_v;
 
-        if(str_list.length == 0)
+        if(game_state.str_list.length == 0)
         {
             Toast.makeText(getApplicationContext(), "Отсутствуют файлы локаций" , Toast.LENGTH_SHORT).show();
             return false;
         }else{
 
             int locs = 0;
-            for (String s : str_list) {
-                if (readFile(path + "/" + s).startsWith("-")) {
+            for (String s : game_state.str_list) {
+                if (readFile(game_state.path + "/" + s).startsWith("-")) {
                     locs += 1;
                 }
             }
             String[] str_list_for_game = new String[locs];
             int j = 0;
-            for (String s : str_list) {
-                if (readFile(path + "/" + s).startsWith("-")) {
+            for (String s : game_state.str_list) {
+                if (readFile(game_state.path + "/" + s).startsWith("-")) {
                     str_list_for_game[j] = s;
                     j++;
                 }
@@ -844,7 +852,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Отсутствуют неотыгранные локации ", Toast.LENGTH_SHORT).show();
                 return false;
             }else{
-                lastLocs = locs;
+                game_state.lastLocs = locs;
                 updateLocCounter();
             }
 
@@ -853,16 +861,16 @@ public class MainActivity extends AppCompatActivity {
 
             int loc_num = ((int)(Math.random()*1000))%(str_list_for_game.length);
             String loc_name = str_list_for_game[loc_num];
-            locToPool = loc_name;
+            game_state.locToPool = loc_name;
 
-            String res = readFile(path+"/"+loc_name).replaceAll("\r","");
+            String res = readFile(game_state.path+"/"+loc_name).replaceAll("\r","");
             String []res_list = res.split("\n");
 
             if(res_list.length<8)
             {
                 Toast.makeText(getApplicationContext(), "Неверный формат файла "+loc_name , Toast.LENGTH_SHORT).show();
                 tryAddLocToPool(0);
-                isNeedPoolLoc = true;
+                game_state.isNeedPoolLoc = true;
                 updateLocCounter();
                 resetGameButtons();
                 return false;
@@ -888,14 +896,14 @@ public class MainActivity extends AppCompatActivity {
                 final_list.add("Шпион");
             Collections.shuffle(final_list);
 
-            spyList.clear();
+            game_state.spyList.clear();
             for(int i = 0; i < final_list.size(); i++) {
-                loc[i] = res_list[0].substring(1);
-                prof[i] = (String) final_list.get(i);
-                if (prof[i].equals("Шпион")) {
+                game_state.loc[i] = res_list[0].substring(1);
+                game_state.prof[i] = (String) final_list.get(i);
+                if (game_state.prof[i].equals("Шпион")) {
                     //Toast.makeText(getApplicationContext(), Integer.toString(i) , Toast.LENGTH_SHORT).show();
-                    spyList.add(i);
-                    loc[i] = "Узнай, где мы";
+                    game_state.spyList.add(i);
+                    game_state.loc[i] = "Узнай, где мы";
                 }
             }
 
@@ -906,18 +914,18 @@ public class MainActivity extends AppCompatActivity {
 
     boolean tryAddLocToPool(int id)
     {
-        if(isNeedPoolLoc && !(spyList.contains(id)))
+        if(game_state.isNeedPoolLoc && !(game_state.spyList.contains(id)))
         {
             //Toast.makeText(getApplicationContext(), "Локация помечена как отыгранная " + spyList.toString() , Toast.LENGTH_SHORT).show();
-            lastLocs --;
-            isNeedPoolLoc = false;
+            game_state.lastLocs --;
+            game_state.isNeedPoolLoc = false;
 
-            String res = readFile(path+"/"+locToPool);
+            String res = readFile(game_state.path+"/"+game_state.locToPool);
             res = "+" + res.substring(1);
-            writeFile(path+"/"+locToPool, res);
+            writeFile(game_state.path+"/"+game_state.locToPool, res);
         }
 
-        if(gamers == countPressed())
+        if(game_state.gamers == countPressed())
             updateLocCounter();
         return true;
     }
@@ -927,7 +935,7 @@ public class MainActivity extends AppCompatActivity {
         int res = 0;
         for(int i=0; i<8; i++)
         {
-            if(ispressed[i])
+            if(game_state.ispressed[i])
                 res++;
         }
         return res;
@@ -935,17 +943,17 @@ public class MainActivity extends AppCompatActivity {
 
     void updateLocCounter()
     {
-        locsWithoutPool.setText(Integer.toString(lastLocs));
+        locsWithoutPool.setText(Integer.toString(game_state.lastLocs));
     }
 
     void resetGameButtons()
     {
         for (int i = 0; i < 8; i++) {
             buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
-            if( (i+1 == prestartGamers) && isPrestartGamers)
+            if( (i+1 == game_state.prestartGamers) && game_state.isPrestartGamers)
                 buttons[i].setBackground(getDrawable(R.drawable.button_back_off));
         }
-        game_started = false;
+        game_state.game_started = false;
         button_start.setVisibility(View.VISIBLE);
 
         for(int i = 0; i<8; i++)
@@ -955,7 +963,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0; i<8; i++)
         {
-            ispressed[i] = false;
+            game_state.ispressed[i] = false;
         }
     }
 
@@ -1153,7 +1161,7 @@ public class MainActivity extends AppCompatActivity {
             resetConfig();
             return false;
         }
-        spys = Integer.parseInt(dataList[0]);
+        game_state.spys = Integer.parseInt(dataList[0]);
 
         String name;
         for (int i = 0; i < 8; i++)
@@ -1170,16 +1178,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         int idx = 0;
-        gamersFromConfig = 0;
+        game_state.gamersFromConfig = 0;
         for(int i = 1; i < 9; i++)
         {
             if(dataList[i].startsWith("+")) {
                 buttons[idx].setText(dataList[i].substring(1));
                 idx++;
-                gamersFromConfig++;
+                game_state.gamersFromConfig++;
             }
         }
-        gamers = gamersFromConfig;
+        game_state.gamers = game_state.gamersFromConfig;
 
         for(int i = idx+1; i < 9; i++)
         {
@@ -1192,7 +1200,7 @@ public class MainActivity extends AppCompatActivity {
 
     boolean resetConfig()
     {
-        writeFile(path, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8");
+        writeFile(game_state.path, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8");
         Toast.makeText(getApplicationContext(), "В файле настроек обнаружена критическая ошибка. Файл настроек пересоздан" , Toast.LENGTH_SHORT).show();
         return true;
     }
