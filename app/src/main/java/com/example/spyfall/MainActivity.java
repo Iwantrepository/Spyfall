@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+    //Класс состояния игры
     class GameState {
         public int mData = 0;
         String logString;
@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         int gamers = 0;
         int spys = 1;
         int lastLocs = 0;
+        int presentedLocs = 0;
         int gamersFromConfig = 0;
 
         boolean isNeedPoolLoc = true;
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     buttons[i].setBackground(getDrawable(R.drawable.button_back_on));
                 }
-                if(i > game_state.gamers) {
+                if(i+1 > game_state.gamers) {
                     buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
                     buttons[i].setEnabled(false);
                 }
@@ -204,8 +205,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            parseConfig(game_state.dataConfig);
         }
+        parseConfig(game_state.dataConfig);
+        refresh_loc_list();
     }
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -438,7 +440,6 @@ public class MainActivity extends AppCompatActivity {
 
         locsWithoutPool = (TextView) findViewById(R.id.locsWithoutPool);
 
-        refresh_loc_list();
 
         Toolbar toolbar;
         toolbar = findViewById(R.id.toolbar);
@@ -461,6 +462,8 @@ public class MainActivity extends AppCompatActivity {
             //
         }else {
             Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
+
+            refresh_loc_list();
 
             for (int i = 0; i < 8; i++) {
                 buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
@@ -825,6 +828,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                if(game_state.game_started == false) {
+                    game_state.presentedLocs = game_state.lastLocs;
+                    Log.i("Locs", "presentedLocs = lastLocs");
+                    Log.i("Locs", game_state.game_started?"true":"false");
+                }else{
+                    Log.i("Locs", "presentedLocs != lastLocs");
+                    Log.i("Locs", game_state.game_started?"true":"false");
+                }
+
                 if(files.length>2)
                 {
                     for (int i = 0; i < files.length-1; i++)
@@ -854,6 +866,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if(game_state.isPrestartGamers){
             gamers_v = game_state.prestartGamers;
+            game_state.gamers = game_state.prestartGamers;
         }
 
         if(spys_v > gamers_v)
@@ -886,6 +899,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }else{
                 game_state.lastLocs = locs;
+                game_state.presentedLocs = locs;
                 updateLocCounter();
             }
 
@@ -958,8 +972,10 @@ public class MainActivity extends AppCompatActivity {
             writeFile(game_state.path+"/"+game_state.locToPool, res);
         }
 
-        if(game_state.gamers == countPressed())
+        if(game_state.gamers == countPressed()) {
+            game_state.presentedLocs = game_state.lastLocs;
             updateLocCounter();
+        }
         return true;
     }
 
@@ -976,7 +992,7 @@ public class MainActivity extends AppCompatActivity {
 
     void updateLocCounter()
     {
-        locsWithoutPool.setText(Integer.toString(game_state.lastLocs));
+        locsWithoutPool.setText(Integer.toString(game_state.presentedLocs));
     }
 
     void resetGameButtons()
