@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -133,9 +134,14 @@ public class MainActivity extends AppCompatActivity {
     Button button_reset;
     Button button_start;
 
+    Button buttonTimer;
+
 
 
     ImageView spyImage;
+
+    CountDownTimer timer;
+    boolean isInTimer = false;
 
 
 
@@ -462,6 +468,8 @@ public class MainActivity extends AppCompatActivity {
         button_reset = (Button) findViewById(R.id.button_reset);
         button_start = (Button) findViewById(R.id.button_start);
 
+        buttonTimer = (Button) findViewById(R.id.buttonTimer);
+
 
         if (savedInstanceState != null){
             //
@@ -551,6 +559,40 @@ public class MainActivity extends AppCompatActivity {
                 game_state.isNeedPoolLoc = true;
                 updateLocCounter();
                 return true;
+            }
+        });
+
+
+        //Timer
+        buttonTimer.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v){
+
+                if(isInTimer){
+                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+                    timer.cancel();
+                    timer.onFinish();
+                    isInTimer = false;
+                }else {
+                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+                    isInTimer = true;
+                    timer = new CountDownTimer(600000, 1000) {
+
+
+                        public void onTick(long millisUntilFinished) {
+                            int sec = (int) (millisUntilFinished / 1000);
+                            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+
+                        }
+
+                        public void onFinish() {
+                            buttonTimer.setText(getResources().getString(R.string.timer));
+                            isInTimer = false;
+
+                        }
+                    };
+                    timer.start();
+                }
+
             }
         });
 

@@ -20,4 +20,7 @@
     <string name="upload_locations">Подгрузить локации</string>
     <string name="party_config">Настройка партии</string>
     <string name="info_bar">***DEV***</string>
+
+
+    <string name="timer">" Таймер"</string>
 </resources>
