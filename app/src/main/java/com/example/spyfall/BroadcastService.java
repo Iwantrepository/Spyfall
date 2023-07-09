@@ -30,6 +30,7 @@ public class BroadcastService extends Service {
             public void onTick(long millisUntilFinished) {
                 Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
                 intent.putExtra("countdown",millisUntilFinished);
+                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 sendBroadcast(intent);
             }
 

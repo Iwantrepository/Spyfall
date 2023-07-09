@@ -172,35 +172,37 @@ public class infoBar extends AppCompatActivity {
 
     public void playSound(View view) {
 
-        if(isInTimer){
-            timer.cancel();
-            timer.onFinish();
-            isInTimer = false;
-            soundPool.autoPause();
-        }else {
-            isInTimer = true;
+        soundPool.play(sound, 1, 1, 0, 0, 1);
 
-            soundPool.play(sound, 1, 1, 0, -1, 1);
-            timer = new CountDownTimer(5000, 1000) {
-
-                Button button = (Button) findViewById(R.id.buttonSound);
-
-                public void onTick(long millisUntilFinished) {
-                    button.setText("Осталось: "
-                            + millisUntilFinished / 1000);
-
-                }
-
-                public void onFinish() {
-                    button.setText("SOUND");
-                    isInTimer = false;
-                    soundPool.stop(sound);
-
-
-                }
-            };
-            timer.start();
-        }
+//        if(isInTimer){
+//            timer.cancel();
+//            timer.onFinish();
+//            isInTimer = false;
+//            soundPool.autoPause();
+//        }else {
+//            isInTimer = true;
+//
+//            soundPool.play(sound, 1, 1, 0, -1, 1);
+//            timer = new CountDownTimer(5000, 1000) {
+//
+//                Button button = (Button) findViewById(R.id.buttonSound);
+//
+//                public void onTick(long millisUntilFinished) {
+//                    button.setText("Осталось: "
+//                            + millisUntilFinished / 1000);
+//
+//                }
+//
+//                public void onFinish() {
+//                    button.setText("SOUND");
+//                    isInTimer = false;
+//                    soundPool.stop(sound);
+//
+//
+//                }
+//            };
+//            timer.start();
+//        }
     }
 
     @Override
