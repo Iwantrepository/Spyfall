@@ -56,7 +56,7 @@ public class PartyConfig extends AppCompatActivity {
         setContentView(R.layout.activity_party_config);
 
 /***************************** ▼ Timer ▼ *****************************/
-        sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
         long millis = sharedPreferences.getLong("timeSP2", 3000);
         timerVal = millis;
         int sec = (int) (millis / 1000);
@@ -168,7 +168,7 @@ public class PartyConfig extends AppCompatActivity {
                             timerVal -= 30000;
                         }
 
-                        if(millis <= 0){
+                        if(timerVal <= 0){
                             timerVal = 0;
                         }
                         int sec = (int) (timerVal / 1000);
@@ -199,7 +199,7 @@ public class PartyConfig extends AppCompatActivity {
 
 
 
-                    sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+                    sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
                     long millis = timerVal;
                     sharedPreferences.edit().putLong("timeSP2",millis).apply();
 

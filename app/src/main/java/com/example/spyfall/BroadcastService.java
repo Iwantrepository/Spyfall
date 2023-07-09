@@ -22,8 +22,7 @@ public class BroadcastService extends Service {
 
         SharedPreferences sharedPreferences;
 
-        sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
-
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
 
 
         long millis = sharedPreferences.getLong("timeSP2",3000);

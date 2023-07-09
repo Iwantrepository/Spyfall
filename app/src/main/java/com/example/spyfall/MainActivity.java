@@ -402,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if (isInTimer == false){
-                    SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
                     long millis = sharedPreferences.getLong("timeSP2",3000);
                     int sec = (int) (millis / 1000);
                     buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
@@ -432,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
         game_state.devCode = 0;
         game_state.isDevOn = false;
 /***************************** ▼ Timer ▼ *****************************/
-        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
         long millis = sharedPreferences.getLong("timeSP2", 3000);
         int sec = (int) (millis / 1000);
         ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
@@ -812,7 +812,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 isInTimer = true;
             }else {
-                SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
                 long millis = sharedPreferences.getLong("timeSP2",3000);
                 sec = (int) (millis / 1000);
                 buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);

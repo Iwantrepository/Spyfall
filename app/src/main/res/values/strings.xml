@@ -27,4 +27,6 @@
     <string name="buttonTimerMinus"><![CDATA[<]]></string>
     <string name="buttonTimerPlus"><![CDATA[>]]></string>
     <string name="buttonTimerPlusLarge"><![CDATA[>>]]></string>
+
+    <string name="preferenceFileKey">spyfallPreferences</string>
 </resources>
