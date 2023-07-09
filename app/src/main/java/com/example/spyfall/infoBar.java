@@ -3,6 +3,8 @@ package com.example.spyfall;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -12,15 +14,18 @@ import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 public class infoBar extends AppCompatActivity {
 
 
+    int hour, minute;
     String path;
     String pathFromToUpload;
     String logString;
@@ -210,5 +215,29 @@ public class infoBar extends AppCompatActivity {
         super.onDestroy();
         soundPool.release();
         soundPool = null;
+    }
+
+    public void imageButtonCustomTime(View view) {
+
+
+
+        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener()
+        {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute)
+            {
+                hour = selectedHour;
+                minute = selectedMinute;
+                Toast.makeText(getApplicationContext(), String.format(Locale.getDefault(), "%02d:%02d",hour, minute), Toast.LENGTH_LONG).show();
+
+                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+                long millis = hour*60000 + minute*1000;
+                sharedPreferences.edit().putLong("timeSP2",millis).apply();
+            }
+        };
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /*style,*/ onTimeSetListener, hour, minute, true);
+        timePickerDialog.setTitle("Select Time");
+        timePickerDialog.show();
     }
 }
