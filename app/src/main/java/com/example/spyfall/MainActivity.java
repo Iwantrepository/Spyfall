@@ -609,6 +609,8 @@ public class MainActivity extends AppCompatActivity {
                     vi.vibrate(100);
                 }
                 game_state.isNeedPoolLoc = true;
+                
+                refresh_loc_list();
                 updateLocCounter();
                 return true;
             }
