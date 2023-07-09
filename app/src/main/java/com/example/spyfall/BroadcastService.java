@@ -15,21 +15,27 @@ public class BroadcastService extends Service {
     Intent intent = new Intent(COUNTDOWN_BR);
     CountDownTimer countDownTimer = null;
 
-    SharedPreferences sharedPreferences;
+
 
     public void setTimer(){
         Log.i(TAG,"Starting timer..." + getPackageName());
+
+        SharedPreferences sharedPreferences;
+
         sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+
 
 
         long millis = sharedPreferences.getLong("timeSP2",3000);
 
+        Log.i(TAG,"Get Shared : " + millis);
 
         countDownTimer = new CountDownTimer(millis,1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
                 intent.putExtra("countdown",millisUntilFinished);
+                intent.putExtra("isWork",true);
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 sendBroadcast(intent);
             }
@@ -37,11 +43,20 @@ public class BroadcastService extends Service {
             @Override
             public void onFinish() {
                 Log.i(TAG,"Finish");
-                stopSelf();
+                intent.putExtra("isWork",true);
+
+                Log.i(TAG,"Countdown seconds remaining:" + 0);
+                intent.putExtra("countdown",0);
+                intent.putExtra("isWork",false);
+
+                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                sendBroadcast(intent);
+//                stopSelf();
             }
         };
         countDownTimer.start();
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -53,11 +68,13 @@ public class BroadcastService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        Log.i(TAG,"Created! : " + getPackageName());
     }
 
     @Override
     public void onDestroy() {
         countDownTimer.cancel();
+        Log.i(TAG,"Destroyed! : " + getPackageName());
         super.onDestroy();
     }
 

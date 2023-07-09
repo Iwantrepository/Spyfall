@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,17 +40,28 @@ public class PartyConfig extends AppCompatActivity {
 
     EditText[] editTextTextPersonNameButton;
     Switch[] switchButton;
-    TextView[] textViewButton;
+    Button[] timerButtons;
     Button buttonSaveConfig;
 
     Animation scaleUp, scaleDown;
 
-    @SuppressLint("ClickableViewAccessibility")
+    SharedPreferences sharedPreferences;
+
+    long timerVal;
+
+    @SuppressLint({"ClickableViewAccessibility", "SuspiciousIndentation", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_config);
 
+/***************************** ▼ Timer ▼ *****************************/
+        sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+        long millis = sharedPreferences.getLong("timeSP2", 3000);
+        timerVal = millis;
+        int sec = (int) (millis / 1000);
+        ((TextView) findViewById(R.id.textView_Timer)).setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+/***************************** ▲ Timer ▲ *****************************/
         Bundle arguments = getIntent().getExtras();
         if(arguments!=null){
             path = (String) arguments.get("path") + "/config";
@@ -81,20 +93,16 @@ public class PartyConfig extends AppCompatActivity {
         switchButton[6] = (Switch) findViewById(R.id.switchButton7);
         switchButton[7] = (Switch) findViewById(R.id.switchButton8);
 
-        textViewButton = new TextView[8];
-        textViewButton[0] = (TextView) findViewById(R.id.textViewButton1);
-        textViewButton[1] = (TextView) findViewById(R.id.textViewButton2);
-        textViewButton[2] = (TextView) findViewById(R.id.textViewButton3);
-        textViewButton[3] = (TextView) findViewById(R.id.textViewButton4);
-        textViewButton[4] = (TextView) findViewById(R.id.textViewButton5);
-        textViewButton[5] = (TextView) findViewById(R.id.textViewButton6);
-        textViewButton[6] = (TextView) findViewById(R.id.textViewButton7);
-        textViewButton[7] = (TextView) findViewById(R.id.textViewButton8);
 
-        for(int i=0; i<8; i++)
-        {
-            textViewButton[i].setVisibility(View.GONE);
-        }
+        //Кнопки таймера
+        timerButtons = new Button[4];
+        timerButtons[0] = (Button) findViewById(R.id.button_TimerMinusLarge);
+        timerButtons[1] = (Button) findViewById(R.id.button_TimerMinus);
+        timerButtons[2] = (Button) findViewById(R.id.button_TimerPlus);
+        timerButtons[3] = (Button) findViewById(R.id.button_TimerPlusLarge);
+
+
+
 
         buttonSaveConfig = (Button) findViewById(R.id.buttonSaveConfig);
 
@@ -112,7 +120,9 @@ public class PartyConfig extends AppCompatActivity {
                     if(data != null)
                     {
                         if(!parseData(data));
+                        {
                             parseData(readFile(path));
+                        }
                     }else{
                         Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек" , Toast.LENGTH_SHORT).show();
                     }
@@ -126,10 +136,49 @@ public class PartyConfig extends AppCompatActivity {
         }else{
             //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
             if(!parseData(data));
+            {
                 parseData(readFile(path));
+            }
         }
         parceListForButtons();
 
+
+        //Поведение кнопок таймера
+        for (Button bu:timerButtons){
+            bu.setOnTouchListener(new View.OnTouchListener(){
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent){
+                    if(motionEvent.getAction() == MotionEvent.ACTION_UP){
+                        bu.startAnimation(scaleDown);
+                    }
+                    if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                        bu.startAnimation(scaleUp);
+
+
+                        if(bu == findViewById(R.id.button_TimerPlusLarge)){
+                            timerVal += 60000;
+                        }
+                        if(bu == findViewById(R.id.button_TimerPlus)){
+                            timerVal += 30000;
+                        }
+                        if(bu == findViewById(R.id.button_TimerMinusLarge)){
+                            timerVal -= 60000;
+                        }
+                        if(bu == findViewById(R.id.button_TimerMinus)){
+                            timerVal -= 30000;
+                        }
+
+                        if(millis <= 0){
+                            timerVal = 0;
+                        }
+                        int sec = (int) (timerVal / 1000);
+
+                        ((TextView) findViewById(R.id.textView_Timer)).setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                    }
+                    return false;
+                }
+            });
+        }
 
         buttonSaveConfig.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -147,12 +196,22 @@ public class PartyConfig extends AppCompatActivity {
                             res+="\n";
                         }
                     }
+
+
+
+                    sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+                    long millis = timerVal;
+                    sharedPreferences.edit().putLong("timeSP2",millis).apply();
+
+
+
                     Intent intent = new Intent();
                     intent.putExtra("strList", res);
                     writeFile(path, res);
                     setResult(RESULT_OK, intent);
 
                     Toast.makeText(getApplicationContext(), "Настройки сохранены" , Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 return false;
             }
@@ -233,20 +292,6 @@ public class PartyConfig extends AppCompatActivity {
     }
 
     void parceListForButtons(){
-        int idx = 0;
-        for(int i = 1; i < 9; i++)
-        {
-            if(dataList[i].startsWith("+")) {
-                textViewButton[idx].setText(dataList[i].substring(1));
-                idx++;
-            }
-        }
-
-        for(int i = idx+1; i < 9; i++)
-        {
-            textViewButton[i-1].setText(Integer.toString(i));
-            textViewButton[i-1].setText("");
-        }
     }
 
     boolean parseData(String data) {
@@ -273,7 +318,6 @@ public class PartyConfig extends AppCompatActivity {
             }
             name = name.substring(1);
             editTextTextPersonNameButton[i].setText(name);
-            textViewButton[i].setText(name);
         }
         return true;
     }

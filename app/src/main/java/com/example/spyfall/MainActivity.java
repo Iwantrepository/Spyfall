@@ -397,6 +397,17 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), strList , Toast.LENGTH_SHORT).show();
                 game_state.dataConfig = strList;
                 parseConfig(strList);
+
+
+
+
+                if (isInTimer == false){
+                    SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+                    long millis = sharedPreferences.getLong("timeSP2",3000);
+                    int sec = (int) (millis / 1000);
+                    buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                }
+
             break;
         }
     }
@@ -415,13 +426,17 @@ public class MainActivity extends AppCompatActivity {
 //        intentDisassembler(intent2);
 
 
-/*******************************************************/
+/***************************** ▼ DEV ▼ *****************************/
         game_state = new GameState();
         game_state.logString = "";
         game_state.devCode = 0;
         game_state.isDevOn = false;
+/***************************** ▼ Timer ▼ *****************************/
+        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+        long millis = sharedPreferences.getLong("timeSP2", 3000);
+        int sec = (int) (millis / 1000);
+        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
 /*******************************************************/
-
 
         scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
         scaleUp = AnimationUtils.loadAnimation(this,R.anim.scale_up);
@@ -578,18 +593,25 @@ public class MainActivity extends AppCompatActivity {
 
                 if(isInTimer){
                     stopService(new Intent(getApplicationContext(), BroadcastService.class));
+                    Log.i(TAG,"Stopped service");
                     buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+
+                    long millis = sharedPreferences.getLong("timeSP2",3000);
+                    int sec = (int) (millis / 1000);
+                    buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
                     isInTimer = false;
                 }else{
-//                    SharedPreferences sharedPreferences;
-//                    sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-//                    sharedPreferences.edit().putLong("timeSP2", 30000).apply();
-//                    Log.i(TAG, "Shared long: " + sharedPreferences.getLong("timeSP2", 9));
+
+
+
+                    Log.i(TAG, "Shared long: " + sharedPreferences.getLong("timeSP2", 0));
 
                     Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+
+
                     startService(intent);
-                    Log.i(TAG, "" + intent);
-                    Log.i(TAG, "Started Service" + getPackageName());
+//                    Log.i(TAG, "" + intent);
+                    Log.i(TAG, "Started Service " + getPackageName());
                     isInTimer = true;
                     buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 }
@@ -748,7 +770,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        registerReceiver(broadcastReceiver,new IntentFilter(BroadcastService.COUNTDOWN_BR));
 
         ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
         Log.i(TAG,"Registered broadcast receiver");
@@ -773,26 +794,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(new Intent(this,BroadcastService.class));
-        Log.i(TAG,"Stopped service");
+//        stopService(new Intent(this,BroadcastService.class));
+//        Log.i(TAG,"Stopped service");
         super.onDestroy();
     }
 
     private void updateGUI(Intent intent) {
         if (intent.getExtras() != null) {
             long millisUntilFinished = intent.getLongExtra("countdown",90000);
-
-            Log.i(TAG,"" + intent);
-            Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
-
-//            buttonTimer.setText("" + millisUntilFinished / 1000);
+            boolean isWork = intent.getBooleanExtra("isWork",false);
 
             int sec = (int) (millisUntilFinished / 1000);
-            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
 
-            SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
-
-            sharedPreferences.edit().putLong("time",millisUntilFinished).apply();
+            if(isWork){
+                Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
+                buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+                isInTimer = true;
+            }else {
+                SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(),MODE_PRIVATE);
+                long millis = sharedPreferences.getLong("timeSP2",3000);
+                sec = (int) (millis / 1000);
+                buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+                isInTimer = false;
+            }
         }
     }
 /*============================================================================*/
