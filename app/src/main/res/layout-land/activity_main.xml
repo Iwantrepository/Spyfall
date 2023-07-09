@@ -49,12 +49,30 @@
             android:textSize="36sp" />
 
         <Button
+            android:id="@+id/buttonTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button_reset"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_others"
+            android:drawableLeft="@drawable/ic_timer_off"
+            android:padding="10dp"
+            android:text="@string/timer" />
+
+        <Button
             android:id="@+id/button_reset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
             android:layout_alignParentEnd="true"
-            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/button_others"
             android:drawableLeft="@drawable/ic_cycle"
             android:padding="10dp"
@@ -79,11 +97,15 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:translationY="-10dp"
-            android:translationX="-10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/button_others"
             android:padding="10dp"
-            android:text="Начать игру" />
+            android:text="Начать игру"
+            android:translationX="-10dp"
+            android:translationY="-10dp" />
     </RelativeLayout>
 
 

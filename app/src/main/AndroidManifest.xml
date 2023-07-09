@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
 
     <application
         android:allowBackup="true"
@@ -16,6 +20,10 @@
         android:roundIcon="@mipmap/ic_spy2_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+
+
+
         <activity android:name=".infoBar" />
         <activity android:name=".PartyConfig" />
         <activity android:name=".new_location_form" />
@@ -42,6 +50,15 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+
+        <service android:name=".BroadcastService"
+            android:process=":jk"
+            />
+
+        <receiver android:name=".BroadcastService"
+            android:process=":ff"
+            />
+
     </application>
 
 </manifest>

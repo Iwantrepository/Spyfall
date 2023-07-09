@@ -2,22 +2,41 @@ package com.example.spyfall;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 
 public class infoBar extends AppCompatActivity {
 
 
+    int hour, minute;
     String path;
     String pathFromToUpload;
     String logString;
 
+    CountDownTimer timer;
+
+    SoundPool soundPool;
+    int sound;
+    boolean isInTimer = false;
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +57,21 @@ public class infoBar extends AppCompatActivity {
                 "Version: " + BuildConfig.VERSION_NAME+"\n"
                 +"▼ LOG ▼"+ "\n" + logString+"\n"
         );
+
+
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+//                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_GAME)
+//                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(1)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        sound = soundPool.load(this, R.raw.joke, 1);
     }
 
     boolean writeFile(String filename, String input) {
@@ -139,5 +173,71 @@ public class infoBar extends AppCompatActivity {
         writeFile(path+"/starter_pack_4.txt", "Форум в интернете\nНедовольный комментатор\nМодератор\nЗадает глупые вопросы\nРугается с модератором\nПытается красиво оформить топик\nШибко умный участник форума\nТот, кто начал этот тред");
         writeFile(path+"/starter_pack_5.txt", "Рок-концерт\nСтоит у самой колонки\nПытается прыгнуть в толпу\nПодпевает (кричит)\nГлавный голос сцены\nБэквокалист\nЗабытый за кулисами клавишник\nПьяный фанат");
         writeFile(path+"/starter_pack_6.txt", "Церквушка окутанная коррупцией\nПоп\nНедовольный прихожанин\nТорговец свечками\nПлакальщица\nНелегально продает свечки\nОдержимая религией мать\nРебенок одержимой матери");
+    }
+
+    public void playSound(View view) {
+
+        soundPool.play(sound, 1, 1, 0, 0, 1);
+
+//        if(isInTimer){
+//            timer.cancel();
+//            timer.onFinish();
+//            isInTimer = false;
+//            soundPool.autoPause();
+//        }else {
+//            isInTimer = true;
+//
+//            soundPool.play(sound, 1, 1, 0, -1, 1);
+//            timer = new CountDownTimer(5000, 1000) {
+//
+//                Button button = (Button) findViewById(R.id.buttonSound);
+//
+//                public void onTick(long millisUntilFinished) {
+//                    button.setText("Осталось: "
+//                            + millisUntilFinished / 1000);
+//
+//                }
+//
+//                public void onFinish() {
+//                    button.setText("SOUND");
+//                    isInTimer = false;
+//                    soundPool.stop(sound);
+//
+//
+//                }
+//            };
+//            timer.start();
+//        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        soundPool.release();
+        soundPool = null;
+    }
+
+    public void imageButtonCustomTime(View view) {
+
+
+
+        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener()
+        {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute)
+            {
+                hour = selectedHour;
+                minute = selectedMinute;
+                Toast.makeText(getApplicationContext(), String.format(Locale.getDefault(), "%02d:%02d",hour, minute), Toast.LENGTH_LONG).show();
+
+                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+                long millis = hour*60000 + minute*1000;
+                sharedPreferences.edit().putLong("timeSP2",millis).apply();
+            }
+        };
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /*style,*/ onTimeSetListener, hour, minute, true);
+        timePickerDialog.setTitle("Select Time");
+        timePickerDialog.show();
     }
 }

@@ -3,14 +3,20 @@ package com.example.spyfall;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -33,6 +39,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -78,15 +85,22 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    SoundPool soundPool;
+    int sound;
+
 
     Animation scaleUp, scaleDown;
 
     Menu menuBox;
 
+    Intent intentTimer;
+    String TAG = "Timer";
 
+    SharedPreferences sharedPreferences;
 
     //Класс состояния игры
     class GameState {
+
         public int mData = 0;
         String logString;
 
@@ -133,9 +147,14 @@ public class MainActivity extends AppCompatActivity {
     Button button_reset;
     Button button_start;
 
+    Button buttonTimer;
+
 
 
     ImageView spyImage;
+
+    CountDownTimer timer;
+    boolean isInTimer = false;
 
 
 
@@ -385,6 +404,17 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), strList , Toast.LENGTH_SHORT).show();
                 game_state.dataConfig = strList;
                 parseConfig(strList);
+
+
+
+
+                if (isInTimer == false){
+                    SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+                    long millis = sharedPreferences.getLong("timeSP2",3000);
+                    int sec = (int) (millis / 1000);
+                    buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                }
+
             break;
         }
     }
@@ -403,14 +433,33 @@ public class MainActivity extends AppCompatActivity {
 //        intentDisassembler(intent2);
 
 
-
-/*******************************************************/
+/***************************** ▼ DEV ▼ *****************************/
         game_state = new GameState();
         game_state.logString = "";
         game_state.devCode = 0;
         game_state.isDevOn = false;
-/*******************************************************/
+/***************************** ▼ Timer ▼ *****************************/
 
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+//        long millis = sharedPreferences.getLong("timeSP2", 3000);
+//        int sec = (int) (millis / 1000);
+//        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
+        timerViewRefresh();
+/***************************** ▼ Sounds ▼ *****************************/
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+//                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setUsage(AudioAttributes.USAGE_GAME)
+//                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(1)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        sound = soundPool.load(this, R.raw.alarm, 1);
+/*******************************************************/
 
         scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
         scaleUp = AnimationUtils.loadAnimation(this,R.anim.scale_up);
@@ -461,6 +510,8 @@ public class MainActivity extends AppCompatActivity {
 
         button_reset = (Button) findViewById(R.id.button_reset);
         button_start = (Button) findViewById(R.id.button_start);
+
+        buttonTimer = (Button) findViewById(R.id.buttonTimer);
 
 
         if (savedInstanceState != null){
@@ -551,6 +602,43 @@ public class MainActivity extends AppCompatActivity {
                 game_state.isNeedPoolLoc = true;
                 updateLocCounter();
                 return true;
+            }
+        });
+
+
+
+
+        //Timer
+        buttonTimer.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitPrefEdits")
+            public void onClick(View v){
+
+
+                if(isInTimer){
+                    stopService(new Intent(getApplicationContext(), BroadcastService.class));
+                    Log.i(TAG,"Stopped service");
+                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+
+                    long millis = sharedPreferences.getLong("timeSP2",3000);
+                    int sec = (int) (millis / 1000);
+                    buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                    isInTimer = false;
+                }else{
+
+
+
+                    Log.i(TAG, "Shared long: " + sharedPreferences.getLong("timeSP2", 0));
+
+                    Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+
+
+                    startService(intent);
+//                    Log.i(TAG, "" + intent);
+                    Log.i(TAG, "Started Service " + getPackageName());
+                    isInTimer = true;
+                    buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+                }
+
             }
         });
 
@@ -689,6 +777,98 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
+
+/*============================================================================*/
+
+    void timerViewRefresh(){
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        boolean isWork = sharedPreferences.getBoolean("isWork", false);
+
+        if(isWork){
+            //
+        }else{
+            Log.i(TAG, "timerViewRefresh: ISNT WORK");
+            buttonTimer = (Button) findViewById(R.id.buttonTimer);
+
+            isInTimer = false;
+            long millis = sharedPreferences.getLong("timeSP2",3000);
+            int sec = (int) (millis / 1000);
+            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+            buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+        }
+
+        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
+        Log.i(TAG,"Registered broadcast receiver");
+    }
+
+
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Update GUI
+            updateGUI(intent);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timerViewRefresh();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+        Log.i(TAG,"Unregistered broadcast receiver");
+    }
+
+    @Override
+    protected void onStop() {
+        try {
+            unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
+            // Receiver was probably already
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+//        stopService(new Intent(this,BroadcastService.class));
+//        Log.i(TAG,"Stopped service");
+        super.onDestroy();
+    }
+
+    private void updateGUI(Intent intent) {
+        if (intent.getExtras() != null) {
+            long millisUntilFinished = intent.getLongExtra("countdown",90000);
+            boolean isWork = intent.getBooleanExtra("isWork",false);
+
+            int sec = (int) (millisUntilFinished / 1000);
+
+            if(isWork){
+                Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
+                buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+                isInTimer = true;
+            }else {
+                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+                long millis = sharedPreferences.getLong("timeSP2",3000);
+                sec = (int) (millis / 1000);
+                buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+                buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+                isInTimer = false;
+
+
+
+                soundPool.play(sound, 1, 1, 0, 0, 1);
+//                Toast.makeText(getApplicationContext(), "!!!" , Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+/*============================================================================*/
 
     private void handleMutlipleTextData(Intent intent) {
         ArrayList <Uri> texDataArray = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
@@ -867,8 +1047,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    boolean game_prepare (int gamers_v, int spys_v)
-    {
+    boolean game_prepare (int gamers_v, int spys_v) {
         if(game_state.isPrestartGamers){
             gamers_v = game_state.prestartGamers;
             game_state.gamers = game_state.prestartGamers;
@@ -964,8 +1143,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    boolean tryAddLocToPool(int id)
-    {
+    boolean tryAddLocToPool(int id) {
         if(game_state.isNeedPoolLoc && !(game_state.spyList.contains(id)))
         {
             //Toast.makeText(getApplicationContext(), "Локация помечена как отыгранная " + spyList.toString() , Toast.LENGTH_SHORT).show();
@@ -984,8 +1162,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    int countPressed()
-    {
+    int countPressed() {
         int res = 0;
         for(int i=0; i<8; i++)
         {
@@ -995,13 +1172,11 @@ public class MainActivity extends AppCompatActivity {
         return res;
     }
 
-    void updateLocCounter()
-    {
+    void updateLocCounter() {
         locsWithoutPool.setText(Integer.toString(game_state.presentedLocs));
     }
 
-    void resetGameButtons()
-    {
+    void resetGameButtons() {
         for (int i = 0; i < 8; i++) {
             buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
             if( (i+1 == game_state.prestartGamers) && game_state.isPrestartGamers)
@@ -1090,8 +1265,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    boolean isExternalStorageReadable()
-    {
+    boolean isExternalStorageReadable() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState());
     }
