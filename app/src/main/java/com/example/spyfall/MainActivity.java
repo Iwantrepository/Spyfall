@@ -9,10 +9,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
+import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +31,7 @@ import android.os.PersistableBundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.OpenableColumns;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,6 +42,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -796,6 +805,7 @@ public class MainActivity extends AppCompatActivity {
             int sec = (int) (millis / 1000);
             buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
             buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+            drawTimer(0,0);
         }
 
         ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
@@ -842,15 +852,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateGUI(Intent intent) {
+
+
         if (intent.getExtras() != null) {
             long millisUntilFinished = intent.getLongExtra("countdown",90000);
             boolean isWork = intent.getBooleanExtra("isWork",false);
+            long timerMax = intent.getLongExtra("timeSP2",0);
 
             int sec = (int) (millisUntilFinished / 1000);
 
             if(isWork){
                 Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
                 buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+
+                drawTimer(millisUntilFinished, timerMax);
+
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 isInTimer = true;
             }else {
@@ -861,12 +877,92 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
                 isInTimer = false;
 
-
+                drawTimer(0, 0);
 
                 soundPool.play(sound, 1, 1, 0, 0, 1);
 //                Toast.makeText(getApplicationContext(), "!!!" , Toast.LENGTH_SHORT).show();
             }
+
         }
+    }
+
+    void drawTimer(long millis, long millisMax){
+
+        Paint paint = new Paint();
+        ImageView iV = findViewById(R.id.imageViewTimer);
+
+
+        if(iV.getWidth() == 0
+        || iV.getHeight() == 0
+        ){
+            return;
+        }
+
+        Bitmap bg = Bitmap.createBitmap(iV.getWidth(),iV.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bg);
+
+
+//        paint.setColor(Color.parseColor("#CD5C5C"));
+        paint.setColor(getColor(R.color.timerColor));
+
+        int left = 0; // initial start position of rectangles (50 pixels from left)
+        int top = 0; // 50 pixels from the top
+        int width = iV.getWidth();
+        int height = iV.getHeight();
+
+
+
+
+
+        float center_x, center_y;
+        center_x = (left + width)/2;
+        center_y = (top + height)/2;
+
+
+        int orientation = getApplication().getResources().getConfiguration().orientation;
+
+
+        paint.setStyle(Paint.Style.STROKE);
+
+
+        float radius;
+        if (Configuration.ORIENTATION_PORTRAIT == orientation){
+            radius = width/2.5f;
+            paint.setStrokeWidth(80f);
+        }else{
+            radius = height/2.5f;
+            paint.setStrokeWidth(60f);
+        }
+
+//        textViewLoc.setText("" + millis / (float)millisMax );
+
+
+        final RectF oval = new RectF();
+
+        float arcStopAngle = (360*((float)millis / (float)millisMax));
+
+        oval.set(center_x - radius,
+                center_y - radius,
+                center_x + radius,
+                center_y + radius);
+        canvas.drawArc(oval, -90, arcStopAngle , false, paint);
+
+
+        if (Configuration.ORIENTATION_PORTRAIT == orientation){
+            paint.setStrokeWidth(80f * 1.5f);
+        }else{
+            paint.setStrokeWidth(60f * 1.5f);
+        }
+
+        paint.setColor(getColor(R.color.timerArrowColor));
+        int arw = 6;
+        oval.set(center_x - radius,
+                center_y - radius,
+                center_x + radius,
+                center_y + radius);
+        canvas.drawArc(oval, arcStopAngle + arw/2 -90, -arw, false, paint);
+
+        iV.setImageBitmap(bg);
     }
 /*============================================================================*/
 

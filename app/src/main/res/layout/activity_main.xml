@@ -24,6 +24,16 @@
         android:gravity="center"
         />
 
+    <ImageView
+        android:id="@+id/imageViewTimer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Buttons"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center" />
+
     <TextView
         android:id="@+id/locsWithoutPool"
         android:layout_width="wrap_content"

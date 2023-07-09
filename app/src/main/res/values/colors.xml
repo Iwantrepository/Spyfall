@@ -10,4 +10,9 @@
     <color name="colorButtonPlayOpened">#ff8080</color>
     <color name="colorButtonPlayClosed">#80ff82</color>
 
+
+    <color name="timerColor">#31FF0000</color>
+    <color name="timerArrowColor">#0A5F00</color>
+
+
 </resources>

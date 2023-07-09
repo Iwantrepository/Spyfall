@@ -40,12 +40,13 @@ public class BroadcastService extends Service {
 
         Log.i(TAG,"Get Shared : " + millis);
 
-        countDownTimer = new CountDownTimer(millis,1000) {
+        countDownTimer = new CountDownTimer(millis,100) {
             @Override
             public void onTick(long millisUntilFinished) {
                 Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
                 intent.putExtra("countdown",millisUntilFinished);
                 intent.putExtra("isWork",true);
+                intent.putExtra("timeSP2",millis);
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 sendBroadcast(intent);
             }
