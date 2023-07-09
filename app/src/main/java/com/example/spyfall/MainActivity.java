@@ -11,6 +11,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -83,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    SoundPool soundPool;
+    int sound;
+
 
     Animation scaleUp, scaleDown;
 
@@ -90,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
 
     Intent intentTimer;
     String TAG = "Timer";
+
+    SharedPreferences sharedPreferences;
 
     //Класс состояния игры
     class GameState {
@@ -432,10 +439,26 @@ public class MainActivity extends AppCompatActivity {
         game_state.devCode = 0;
         game_state.isDevOn = false;
 /***************************** ▼ Timer ▼ *****************************/
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
-        long millis = sharedPreferences.getLong("timeSP2", 3000);
-        int sec = (int) (millis / 1000);
-        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
+
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+//        long millis = sharedPreferences.getLong("timeSP2", 3000);
+//        int sec = (int) (millis / 1000);
+//        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
+        timerViewRefresh();
+/***************************** ▼ Sounds ▼ *****************************/
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+//                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setUsage(AudioAttributes.USAGE_GAME)
+//                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(1)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        sound = soundPool.load(this, R.raw.alarm, 1);
 /*******************************************************/
 
         scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
@@ -758,6 +781,27 @@ public class MainActivity extends AppCompatActivity {
 
 /*============================================================================*/
 
+    void timerViewRefresh(){
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        boolean isWork = sharedPreferences.getBoolean("isWork", false);
+
+        if(isWork){
+            //
+        }else{
+            Log.i(TAG, "timerViewRefresh: ISNT WORK");
+            buttonTimer = (Button) findViewById(R.id.buttonTimer);
+
+            isInTimer = false;
+            long millis = sharedPreferences.getLong("timeSP2",3000);
+            int sec = (int) (millis / 1000);
+            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+            buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
+        }
+
+        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
+        Log.i(TAG,"Registered broadcast receiver");
+    }
+
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -770,9 +814,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
-        Log.i(TAG,"Registered broadcast receiver");
+        timerViewRefresh();
     }
 
     @Override
@@ -818,6 +860,11 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
                 isInTimer = false;
+
+
+
+                soundPool.play(sound, 1, 1, 0, 0, 1);
+//                Toast.makeText(getApplicationContext(), "!!!" , Toast.LENGTH_SHORT).show();
             }
         }
     }
