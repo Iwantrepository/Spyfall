@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.PersistableBundle;
@@ -679,8 +680,15 @@ public class MainActivity extends AppCompatActivity {
                     buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
                     isInTimer = false;
 
-                    drawTimer(0,0);
-                    // TODO Иногда отрабатывает с ошибкой. Не останавливает таймер
+
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            drawTimer(0,0);
+                        }
+                    }, 300);
+                    // TODO Это полтора интервала. Интервал нужно перенести в глобальное место
+
                 }else{
 
 

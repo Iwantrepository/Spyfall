@@ -93,7 +93,8 @@ public class ForegroundTimer extends Service {
 
             Log.i(TAG,"Get Shared : " + millis);
 
-            countDownTimer = new CountDownTimer(millis,100) {
+            countDownTimer = new CountDownTimer(millis,200) {
+                // TODO Перенести интервал куда-то в глобальное место
                 @Override
                 public void onTick(long millisUntilFinished) {
                     Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
