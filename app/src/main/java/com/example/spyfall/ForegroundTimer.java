@@ -16,6 +16,7 @@ import android.media.AudioAttributes;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -99,9 +100,14 @@ public class ForegroundTimer extends Service {
                     Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
                     intentBR.putExtra("countdown",millisUntilFinished);
                     intentBR.putExtra("isWork",true);
-                    sharedPreferences.edit().putLong("countdown", millisUntilFinished).apply();
                     intentBR.putExtra("timeSP2",millis);
                     intentBR.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+
+
+                    builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
+                    builder.setContentText("Countdown: " + millisUntilFinished / 1000);
+                    notificationManager.notify(notificationId, builder.build());
+
                     sendBroadcast(intentBR);
                 }
 
@@ -119,6 +125,15 @@ public class ForegroundTimer extends Service {
 
                     sharedPreferences.edit().putBoolean("isWork", false).apply();
                     soundPool.play(sound, 1, 1, 0, 0, 1);
+
+
+
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            stopSelf();
+                        }
+                    }, 5000);
                 }
             };
             countDownTimer.start();
@@ -194,7 +209,7 @@ public class ForegroundTimer extends Service {
             NotificationChannel channel;
             channel = new NotificationChannel(
                     notificationChannelId,
-                    "asd",
+                    "SP2Timer",
                     NotificationManager.IMPORTANCE_LOW
             );
             channel.setDescription("Endless Service channel");
@@ -221,7 +236,7 @@ public class ForegroundTimer extends Service {
         builder.setContentIntent(pendingIntent);
         builder.setSmallIcon(R.drawable.ic_notification);
         builder.setOngoing(true);
-        builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
+        builder.setPriority(Notification.PRIORITY_MAX); // for under android 26 compatibility
 
         Notification not = builder.build();
 

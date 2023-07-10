@@ -450,12 +450,6 @@ public class MainActivity extends AppCompatActivity {
 /***************************** ▼ Timer ▼ *****************************/
 
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
-//        sharedPreferences.edit().clear().apply();
-        long timeSP2 = sharedPreferences.getLong("timeSP2", 0);
-        long countdown = sharedPreferences.getLong("countdown", 0);
-
-        Toast.makeText(getApplicationContext(), "First time " + (timeSP2-countdown)/1000f, Toast.LENGTH_SHORT).show();
-
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
