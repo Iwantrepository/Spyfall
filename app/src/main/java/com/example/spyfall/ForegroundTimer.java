@@ -24,6 +24,8 @@ public class ForegroundTimer extends Service {
     PowerManager.WakeLock wakeLock = null;
     private boolean isServiceStarted = false;
 
+    CountDownTimer countDownTimer = null;
+
     String TAG = "ForegroundTimer";
 
     @Nullable
@@ -37,26 +39,40 @@ public class ForegroundTimer extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-        Log.i(TAG, "onStartCommand executed with startId: " + startId);
-        if (intent != null) {
-            startService(intent);
+        if (isServiceStarted){
+            //
+        }else {
 
-            String action = intent.getAction();
-            Log.i(TAG, "using an intent with action " + action);
+            Log.i(TAG, "Starting the foreground service task");
+            Toast.makeText(this, "Service starting its task", Toast.LENGTH_SHORT).show();
+            isServiceStarted = true;
 
-//            switch (action){
-//                case "START":
-//                    startService();
-//                    break;
-//                case "STOP":
-//                    stopService();
-//                    break;
-//                default:
-//                    Log.i(TAG, "Unexpected value: " + action);
-//            }
-        } else {
-            Log.i(TAG, "with a null intent. It has been probably restarted by the system");
+
+//        setServiceState(this, ServiceState.STARTED);
+
+
+            // we need this lock so our service gets not affected by Doze Mode
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.wakeLockKey));
+            wakeLock.acquire(1000*60*30);
+
+
+            // we're starting a loop in a coroutine
+
+            long time = 1000*60*30;
+            countDownTimer = new CountDownTimer(time, 1000) {
+                public void onFinish() {
+                    // When timer is finished
+                    // Execute your code here
+                }
+
+                public void onTick(long millisUntilFinished) {
+                    Log.i(TAG, "The service working ".toUpperCase() + (time - millisUntilFinished)/1000f);
+                }
+            }.start();
         }
+
+//        return super.startService(service);
 
         return START_STICKY;
     }
@@ -75,55 +91,6 @@ public class ForegroundTimer extends Service {
     @Override
     public void onDestroy() {
 
-        Log.i(TAG, "The service has been destroyed".toUpperCase());
-        Toast.makeText(this, "Service destroyed", Toast.LENGTH_SHORT).show();
-
-        super.onDestroy();
-    }
-
-    @Nullable
-    @Override
-    public ComponentName startService(Intent service) {
-
-
-        if (isServiceStarted){
-
-        }else {
-
-            Log.i(TAG, "Starting the foreground service task");
-            Toast.makeText(this, "Service starting its task", Toast.LENGTH_SHORT).show();
-            isServiceStarted = true;
-
-
-//        setServiceState(this, ServiceState.STARTED);
-
-
-            // we need this lock so our service gets not affected by Doze Mode
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.wakeLockKey));
-            wakeLock.acquire();
-
-
-            // we're starting a loop in a coroutine
-
-            new CountDownTimer(60000, 1000) {
-                public void onFinish() {
-                    // When timer is finished
-                    // Execute your code here
-                }
-
-                public void onTick(long millisUntilFinished) {
-                    Log.i(TAG, "The service working".toUpperCase());
-                }
-            }.start();
-        }
-
-        return super.startService(service);
-    }
-
-    @Override
-    public boolean stopService(Intent name) {
-
         Log.i(TAG, "Stopping the foreground service");
         Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show();
 
@@ -140,8 +107,13 @@ public class ForegroundTimer extends Service {
         isServiceStarted = false;
 
 //        setServiceState(this, ServiceState.STOPPED)
-        return super.stopService(name);
+
+        countDownTimer.cancel();
+
+        super.onDestroy();
     }
+
+
 
     Notification createNotification()  {
         String notificationChannelId = "ENDLESS SERVICE CHANNEL";
