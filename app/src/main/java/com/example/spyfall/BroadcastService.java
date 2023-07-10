@@ -46,6 +46,7 @@ public class BroadcastService extends Service {
                 Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
                 intent.putExtra("countdown",millisUntilFinished);
                 intent.putExtra("isWork",true);
+                sharedPreferences.edit().putLong("countdown", millisUntilFinished).apply();
                 intent.putExtra("timeSP2",millis);
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 sendBroadcast(intent);

@@ -450,7 +450,12 @@ public class MainActivity extends AppCompatActivity {
 /***************************** ▼ Timer ▼ *****************************/
 
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
-//        long millis = sharedPreferences.getLong("timeSP2", 3000);
+//        sharedPreferences.edit().clear().apply();
+        long timeSP2 = sharedPreferences.getLong("timeSP2", 0);
+        long countdown = sharedPreferences.getLong("countdown", 0);
+
+        Toast.makeText(getApplicationContext(), "First time " + (timeSP2-countdown)/1000f, Toast.LENGTH_SHORT).show();
+
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
@@ -609,7 +614,7 @@ public class MainActivity extends AppCompatActivity {
                     vi.vibrate(100);
                 }
                 game_state.isNeedPoolLoc = true;
-                
+
                 refresh_loc_list();
                 updateLocCounter();
                 return true;
@@ -634,6 +639,9 @@ public class MainActivity extends AppCompatActivity {
                     int sec = (int) (millis / 1000);
                     buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
                     isInTimer = false;
+
+                    drawTimer(0,0);
+                    // TODO Иногда отрабатывает с ошибкой. Не останавливает таймер
                 }else{
 
 
