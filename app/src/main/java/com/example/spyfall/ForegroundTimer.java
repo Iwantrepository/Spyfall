@@ -1,5 +1,6 @@
 package com.example.spyfall;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,7 +9,11 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -17,16 +22,33 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class ForegroundTimer extends Service {
 
 
+    boolean isNotifyAllowed = false;
     PowerManager.WakeLock wakeLock = null;
     private boolean isServiceStarted = false;
 
     CountDownTimer countDownTimer = null;
 
+    NotificationCompat.Builder builder;
+    NotificationManager notificationManager;
+
+    PendingIntent pendingIntent;
+
+    public static final String COUNTDOWN_BR = "com.example.spyfall.COUNTDOWN_BR";
+    Intent intentBR = new Intent(COUNTDOWN_BR);
+
     String TAG = "ForegroundTimer";
+
+    SoundPool soundPool;
+    int sound;
+
+    int notificationId = 2999;
 
     @Nullable
     @Override
@@ -39,9 +61,9 @@ public class ForegroundTimer extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-        if (isServiceStarted){
+        if (isServiceStarted) {
             //
-        }else {
+        } else {
 
             Log.i(TAG, "Starting the foreground service task");
             Toast.makeText(this, "Service starting its task", Toast.LENGTH_SHORT).show();
@@ -54,22 +76,52 @@ public class ForegroundTimer extends Service {
             // we need this lock so our service gets not affected by Doze Mode
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.wakeLockKey));
-            wakeLock.acquire(1000*60*30);
+            wakeLock.acquire(1000 * 60 * 30);
 
 
             // we're starting a loop in a coroutine
 
-            long time = 1000*60*30;
-            countDownTimer = new CountDownTimer(time, 1000) {
-                public void onFinish() {
-                    // When timer is finished
-                    // Execute your code here
+            Log.i(TAG,"Starting timer..." + getPackageName());
+
+            SharedPreferences sharedPreferences;
+
+            sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+
+            sharedPreferences.edit().putBoolean("isWork", true).apply();
+
+            long millis = sharedPreferences.getLong("timeSP2",3000);
+
+            Log.i(TAG,"Get Shared : " + millis);
+
+            countDownTimer = new CountDownTimer(millis,100) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
+                    intentBR.putExtra("countdown",millisUntilFinished);
+                    intentBR.putExtra("isWork",true);
+                    sharedPreferences.edit().putLong("countdown", millisUntilFinished).apply();
+                    intentBR.putExtra("timeSP2",millis);
+                    intentBR.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    sendBroadcast(intentBR);
                 }
 
-                public void onTick(long millisUntilFinished) {
-                    Log.i(TAG, "The service working ".toUpperCase() + (time - millisUntilFinished)/1000f);
+                @Override
+                public void onFinish() {
+                    Log.i(TAG,"Finish");
+                    intentBR.putExtra("isWork",true);
+
+                    Log.i(TAG,"Countdown seconds remaining:" + 0);
+                    intentBR.putExtra("countdown",0);
+                    intentBR.putExtra("isWork",false);
+
+                    intentBR.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                    sendBroadcast(intentBR);
+
+                    sharedPreferences.edit().putBoolean("isWork", false).apply();
+                    soundPool.play(sound, 1, 1, 0, 0, 1);
                 }
-            }.start();
+            };
+            countDownTimer.start();
         }
 
 //        return super.startService(service);
@@ -82,8 +134,24 @@ public class ForegroundTimer extends Service {
 
         Log.i(TAG, "The service has been created".toUpperCase());
 
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+//                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setUsage(AudioAttributes.USAGE_GAME)
+//                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(1)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        sound = soundPool.load(this, R.raw.alarm, 1);
+
         Notification notification = createNotification();
-        startForeground(1, notification);
+        Log.i(TAG, notification.toString());
+        startForeground(notificationId, notification);
+        isNotifyAllowed = true;
 
         super.onCreate();
     }
@@ -95,7 +163,7 @@ public class ForegroundTimer extends Service {
         Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show();
 
         try {
-            if(wakeLock.isHeld()){
+            if (wakeLock.isHeld()) {
                 wakeLock.release();
             }
             stopForeground(true);
@@ -114,20 +182,20 @@ public class ForegroundTimer extends Service {
     }
 
 
-
-    Notification createNotification()  {
+    @SuppressLint("MissingPermission")
+    Notification createNotification() {
         String notificationChannelId = "ENDLESS SERVICE CHANNEL";
 
         // depending on the Android API that we're dealing with we will have
         // to use a specific method to create the notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
             NotificationChannel channel;
             channel = new NotificationChannel(
                     notificationChannelId,
                     "asd",
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_LOW
             );
             channel.setDescription("Endless Service channel");
             channel.enableLights(true);
@@ -136,29 +204,29 @@ public class ForegroundTimer extends Service {
             notificationManager.createNotificationChannel(channel);
         }
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        Intent notificationIntent = new Intent(this, ForegroundTimer.class);
+        pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
-
-        Notification.Builder builder;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder = new Notification.Builder(this,notificationChannelId);
-        }else {
-            builder = new Notification.Builder(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(this, notificationChannelId);
+        } else {
+            builder = new NotificationCompat.Builder(this);
         }
 
-        builder.setContentTitle("Endless Service");
 
 
-        builder.setContentTitle("Endless Service");
-        builder.setContentText("This is your favorite endless service working");
+        builder.setContentTitle("Spyfall 2 timer");
+        builder.setContentText("Timer start");
         builder.setContentIntent(pendingIntent);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setTicker("Ticker text");
-        builder.setPriority(Notification.PRIORITY_HIGH); // for under android 26 compatibility
+        builder.setSmallIcon(R.drawable.ic_notification);
+        builder.setOngoing(true);
+        builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
 
+        Notification not = builder.build();
 
-        return builder.build();
+        Log.i(TAG, not.toString());
+
+        return not;
     }
 }
