@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     Menu menuBox;
 
     Intent intentTimer;
-    String TAG = "Timer";
+    String TAG = "MainActivity";
 
     SharedPreferences sharedPreferences;
 
@@ -450,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
 /***************************** ▼ Timer ▼ *****************************/
 
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
-//        long millis = sharedPreferences.getLong("timeSP2", 3000);
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
@@ -609,7 +608,7 @@ public class MainActivity extends AppCompatActivity {
                     vi.vibrate(100);
                 }
                 game_state.isNeedPoolLoc = true;
-                
+
                 refresh_loc_list();
                 updateLocCounter();
                 return true;
@@ -626,7 +625,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if(isInTimer){
-                    stopService(new Intent(getApplicationContext(), BroadcastService.class));
+//                    stopService(new Intent(getApplicationContext(), BroadcastService.class));
+                    stopService(new Intent(getApplicationContext(), ForegroundTimer.class));
+
+
                     Log.i(TAG,"Stopped service");
                     buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
 
@@ -634,17 +636,27 @@ public class MainActivity extends AppCompatActivity {
                     int sec = (int) (millis / 1000);
                     buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
                     isInTimer = false;
+
+                    drawTimer(0,0);
+                    // TODO Иногда отрабатывает с ошибкой. Не останавливает таймер
                 }else{
 
 
 
                     Log.i(TAG, "Shared long: " + sharedPreferences.getLong("timeSP2", 0));
 
-                    Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+
+//                    Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+//                    startService(intent);
+
+                    Intent intent = new Intent(getApplicationContext(), ForegroundTimer.class);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent);
+                    }else{
+                        startService(intent);
+                    }
 
 
-                    startService(intent);
-//                    Log.i(TAG, "" + intent);
                     Log.i(TAG, "Started Service " + getPackageName());
                     isInTimer = true;
                     buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
@@ -810,8 +822,8 @@ public class MainActivity extends AppCompatActivity {
             drawTimer(0,0);
         }
 
-        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
-        Log.i(TAG,"Registered broadcast receiver");
+        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(ForegroundTimer.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
+        Log.i(TAG, " timerViewRefresh: Registered broadcast receiver");
     }
 
 

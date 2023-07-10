@@ -29,4 +29,5 @@
     <string name="buttonTimerPlusLarge"><![CDATA[>>]]></string>
 
     <string name="preferenceFileKey">spyfallPreferences</string>
+    <string name="wakeLockKey">EndlessService::lock</string>
 </resources>
