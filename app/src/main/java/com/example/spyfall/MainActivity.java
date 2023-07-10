@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
     GsonBuilder builder;
     int sound;
 
-    boolean isSavedInstanceState = false;
     boolean isFirstStart = true;
 
 
@@ -557,9 +556,63 @@ public class MainActivity extends AppCompatActivity {
         button_start = (Button) findViewById(R.id.button_start);
 
         buttonTimer = (Button) findViewById(R.id.buttonTimer);
+        
 
+        if (savedInstanceState != null){
+            //
+        }else if (isFirstStart){
+//            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
 
-        isSavedInstanceState = (savedInstanceState != null);
+            isFirstStart = false;
+
+            if(!hardRestore()) {
+                refresh_loc_list();
+
+                for (int i = 0; i < 8; i++) {
+                    buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+                }
+
+                for (int i = 0; i < 8; i++) {
+                    game_state.loc[i] = Integer.toString(i + 1);
+                    game_state.prof[i] = Integer.toString(i + 1);
+                    game_state.ispressed[i] = false;
+                }
+
+                game_state.dataConfig = readFile(game_state.path + "/config");
+                String configPath = game_state.path + "/config";
+
+                if (game_state.dataConfig == null) {
+                    //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
+                    File buff = new File(configPath);
+                    try {
+                        buff.createNewFile();
+                        if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
+                            game_state.dataConfig = readFile(configPath);
+                            Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
+                            if (game_state.dataConfig != null) {
+                                if (!parseConfig(game_state.dataConfig))
+                                    parseConfig(readFile(configPath));
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException e) {
+                        Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                } else {
+                    //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
+                    if (!parseConfig(game_state.dataConfig))
+                        parseConfig(readFile(configPath));
+                }
+
+                parseConfig(game_state.dataConfig);
+                game_state.prestartGamers = game_state.gamers;
+
+            }
+        }
 
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
@@ -797,61 +850,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "ONSTART");
 
 
-        if (isSavedInstanceState){
-            //
-        }else if (isFirstStart){
-//            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
 
-            isFirstStart = false;
-
-            if(!hardRestore()) {
-                refresh_loc_list();
-
-                for (int i = 0; i < 8; i++) {
-                    buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
-                }
-
-                for (int i = 0; i < 8; i++) {
-                    game_state.loc[i] = Integer.toString(i + 1);
-                    game_state.prof[i] = Integer.toString(i + 1);
-                    game_state.ispressed[i] = false;
-                }
-
-                game_state.dataConfig = readFile(game_state.path + "/config");
-                String configPath = game_state.path + "/config";
-
-                if (game_state.dataConfig == null) {
-                    //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
-                    File buff = new File(configPath);
-                    try {
-                        buff.createNewFile();
-                        if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
-                            game_state.dataConfig = readFile(configPath);
-                            Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
-                            if (game_state.dataConfig != null) {
-                                if (!parseConfig(game_state.dataConfig))
-                                    parseConfig(readFile(configPath));
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (IOException e) {
-                        Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    }
-                } else {
-                    //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
-                    if (!parseConfig(game_state.dataConfig))
-                        parseConfig(readFile(configPath));
-                }
-
-                parseConfig(game_state.dataConfig);
-                game_state.prestartGamers = game_state.gamers;
-
-            }
-        }
     }
 
 
@@ -908,6 +907,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             // Receiver was probably already
         }
+
+        hardSave(); // TODO Разобраться с тем, где лучше расположить хардсейв
         super.onStop();
     }
 
@@ -916,8 +917,6 @@ public class MainActivity extends AppCompatActivity {
 //        stopService(new Intent(this,BroadcastService.class));
         Log.i(TAG,"Stopped app");
         game_state.logString += "App stopped\n";
-
-        hardSave();
         super.onDestroy();
     }
 
