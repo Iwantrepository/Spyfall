@@ -240,4 +240,9 @@ public class infoBar extends AppCompatActivity {
         timePickerDialog.setTitle("Select Time");
         timePickerDialog.show();
     }
+
+    public void imageButtonClearSharedPrefs(View view) {
+        getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE).edit().clear().apply();
+        Toast.makeText(getApplicationContext(), "Сохранение состояния обнулено", Toast.LENGTH_LONG).show();
+    }
 }

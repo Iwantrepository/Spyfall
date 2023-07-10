@@ -85,7 +85,7 @@ public class ForegroundTimer extends Service {
 
             SharedPreferences sharedPreferences;
 
-            sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+            sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
 
             sharedPreferences.edit().putBoolean("isWork", true).apply();
 

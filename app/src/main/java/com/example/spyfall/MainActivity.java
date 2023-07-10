@@ -95,7 +95,11 @@ public class MainActivity extends AppCompatActivity {
     };
 
     SoundPool soundPool;
+    Gson gson;
+    GsonBuilder builder;
     int sound;
+
+    boolean isFirstStart = true;
 
 
     Animation scaleUp, scaleDown;
@@ -180,11 +184,12 @@ public class MainActivity extends AppCompatActivity {
         game_state.mData++;
 
 
-        GsonBuilder builder = new GsonBuilder().serializeNulls();
-        Gson gson = builder.create();
+        gson = builder.create();
         String json= gson.toJson(game_state).toString();
-        Log.i("JSON > saved", json);
         outState.putString("game_state", json);
+        Log.i("JSON > saved", json);
+
+        game_state.logString += "SAVE INSTANCE > saved\n";
 
 //        Toast.makeText(getApplicationContext(), "Saved " + json, Toast.LENGTH_SHORT).show();
 
@@ -196,18 +201,46 @@ public class MainActivity extends AppCompatActivity {
         String json = savedInstanceState.getString("game_state");
         Log.i("JSON > recieved", json);
 
-        Gson gson = new Gson();
-        game_state = gson.fromJson(json, game_state.getClass());
+//        game_state = gson.fromJson(json, game_state.getClass());
 
+        restoreGameState(gson.fromJson(json, game_state.getClass()));
+
+        game_state.logString += "SAVE INSTANCE > restored\n";
 
 //        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(game_state.mData), Toast.LENGTH_SHORT).show();
         super.onRestoreInstanceState(savedInstanceState);
 
 
+    }
 
+    public void hardSave(){
+        gson = builder.create();
+        game_state.logString = "";
+        String json= gson.toJson(game_state).toString();
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        sharedPreferences.edit().putString("HARDSAVE", json).commit();
+        Log.i("HARDSAVE > saved", sharedPreferences.getString("HARDSAVE", ""));
+    }
 
+    public boolean hardRestore(){
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        String strState = sharedPreferences.getString("HARDSAVE", "");
+        if(strState != ""){
+            restoreGameState(gson.fromJson(strState, game_state.getClass()));
 
+            Log.i("HARDSAVE > restored", strState);
+            game_state.logString += "HARDSAVE > restored\n";
+            return true;
+        }else{
+            Log.i("HARDSAVE > restored", "ERROR");
+            game_state.logString += "HARDSAVE > restore ERROR\n";
+            return false;
+        }
+    }
 
+    public void restoreGameState(GameState _game_state){
+
+        game_state = _game_state;
         // Обработка развертывания
 //        Toast.makeText(getApplicationContext(), "Saved time", Toast.LENGTH_SHORT).show();
         for (int i = 0; i < 8; i++) {
@@ -239,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
             game_state.gamers = game_state.prestartGamers;
         }
         refresh_loc_list();
-
     }
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -418,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if (isInTimer == false){
-                    SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+                    sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
                     long millis = sharedPreferences.getLong("timeSP2",3000);
                     int sec = (int) (millis / 1000);
                     buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
@@ -436,6 +468,9 @@ public class MainActivity extends AppCompatActivity {
 
         verifyStoragePermissions(this);
 
+        gson = new Gson();
+        builder = new GsonBuilder().serializeNulls();
+
 
 //        Intent intent2 = getIntent();
 //        Toast.makeText(getApplicationContext(), intent2.getAction() , Toast.LENGTH_SHORT).show();
@@ -449,7 +484,8 @@ public class MainActivity extends AppCompatActivity {
         game_state.isDevOn = false;
 /***************************** ▼ Timer ▼ *****************************/
 
-        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        Log.i(TAG, sharedPreferences.getString("HARSAVE2",""));
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
@@ -520,58 +556,64 @@ public class MainActivity extends AppCompatActivity {
         button_start = (Button) findViewById(R.id.button_start);
 
         buttonTimer = (Button) findViewById(R.id.buttonTimer);
-
+        
 
         if (savedInstanceState != null){
             //
-        }else {
+        }else if (isFirstStart){
 //            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
 
-            refresh_loc_list();
+            isFirstStart = false;
 
-            for (int i = 0; i < 8; i++) {
-                buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
-            }
+            if(!hardRestore()) {
+                refresh_loc_list();
 
-            for (int i = 0; i < 8; i++) {
-                game_state.loc[i] = Integer.toString(i + 1);
-                game_state.prof[i] = Integer.toString(i + 1);
-                game_state.ispressed[i] = false;
-            }
-
-            game_state.dataConfig = readFile(game_state.path + "/config");
-            String configPath = game_state.path + "/config";
-
-            if (game_state.dataConfig == null) {
-                //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
-                File buff = new File(configPath);
-                try {
-                    buff.createNewFile();
-                    if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
-                        game_state.dataConfig = readFile(configPath);
-                        Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
-                        if (game_state.dataConfig != null) {
-                            if (!parseConfig(game_state.dataConfig))
-                                parseConfig(readFile(configPath));
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+                for (int i = 0; i < 8; i++) {
+                    buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
                 }
-            } else {
-                //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
-                if (!parseConfig(game_state.dataConfig))
-                    parseConfig(readFile(configPath));
-            }
 
-            parseConfig(game_state.dataConfig);
-            game_state.prestartGamers = game_state.gamers;
+                for (int i = 0; i < 8; i++) {
+                    game_state.loc[i] = Integer.toString(i + 1);
+                    game_state.prof[i] = Integer.toString(i + 1);
+                    game_state.ispressed[i] = false;
+                }
+
+                game_state.dataConfig = readFile(game_state.path + "/config");
+                String configPath = game_state.path + "/config";
+
+                if (game_state.dataConfig == null) {
+                    //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
+                    File buff = new File(configPath);
+                    try {
+                        buff.createNewFile();
+                        if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
+                            game_state.dataConfig = readFile(configPath);
+                            Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
+                            if (game_state.dataConfig != null) {
+                                if (!parseConfig(game_state.dataConfig))
+                                    parseConfig(readFile(configPath));
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException e) {
+                        Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                } else {
+                    //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
+                    if (!parseConfig(game_state.dataConfig))
+                        parseConfig(readFile(configPath));
+                }
+
+                parseConfig(game_state.dataConfig);
+                game_state.prestartGamers = game_state.gamers;
+
+            }
         }
+
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
@@ -801,11 +843,21 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Log.i(TAG, "ONSTART");
+
+
+
+    }
+
 
 /*============================================================================*/
 
     void timerViewRefresh(){
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
         boolean isWork = sharedPreferences.getBoolean("isWork", false);
 
         if(isWork){
@@ -855,13 +907,16 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             // Receiver was probably already
         }
+
+        hardSave(); // TODO Разобраться с тем, где лучше расположить хардсейв
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
 //        stopService(new Intent(this,BroadcastService.class));
-//        Log.i(TAG,"Stopped service");
+        Log.i(TAG,"Stopped app");
+        game_state.logString += "App stopped\n";
         super.onDestroy();
     }
 
@@ -884,7 +939,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 isInTimer = true;
             }else {
-                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+                sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
                 long millis = sharedPreferences.getLong("timeSP2",3000);
                 sec = (int) (millis / 1000);
                 buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
