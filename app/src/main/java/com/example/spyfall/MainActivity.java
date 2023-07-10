@@ -556,7 +556,7 @@ public class MainActivity extends AppCompatActivity {
         button_start = (Button) findViewById(R.id.button_start);
 
         buttonTimer = (Button) findViewById(R.id.buttonTimer);
-        
+
 
         if (savedInstanceState != null){
             //
@@ -789,6 +789,7 @@ public class MainActivity extends AppCompatActivity {
                             textViewLoc.setText("Локация");
                             textViewProf.setText("Профессия");
                             button_reset.setVisibility(View.VISIBLE);
+                            buttonTimer.setVisibility(View.VISIBLE);
 
                             hideSpy();
                         }
@@ -799,6 +800,7 @@ public class MainActivity extends AppCompatActivity {
                             textViewProf.setText(game_state.prof[finalI]);
                             buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
                             button_reset.setVisibility(View.GONE);
+                            buttonTimer.setVisibility(View.GONE);
 
                             showSpy(game_state.prof[finalI]);
                         }
