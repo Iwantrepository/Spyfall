@@ -822,8 +822,8 @@ public class MainActivity extends AppCompatActivity {
             drawTimer(0,0);
         }
 
-        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
-        Log.i(TAG,"Registered broadcast receiver");
+        ContextCompat.registerReceiver(getBaseContext(), broadcastReceiver, new IntentFilter(ForegroundTimer.COUNTDOWN_BR), ContextCompat.RECEIVER_EXPORTED);
+        Log.i(TAG, " timerViewRefresh: Registered broadcast receiver");
     }
 
 

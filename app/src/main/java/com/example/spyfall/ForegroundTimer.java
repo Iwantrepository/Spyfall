@@ -67,11 +67,10 @@ public class ForegroundTimer extends Service {
         } else {
 
             Log.i(TAG, "Starting the foreground service task");
-            Toast.makeText(this, "Service starting its task", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Service starting its task", Toast.LENGTH_SHORT).show();
             isServiceStarted = true;
 
 
-//        setServiceState(this, ServiceState.STARTED);
 
 
             // we need this lock so our service gets not affected by Doze Mode
@@ -104,8 +103,10 @@ public class ForegroundTimer extends Service {
                     intentBR.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 
 
+                    long sec = millisUntilFinished / 1000;
+
                     builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
-                    builder.setContentText("Countdown: " + millisUntilFinished / 1000);
+                    builder.setContentText("Countdown: " + sec/60 + ":" + sec%60);
                     notificationManager.notify(notificationId, builder.build());
 
                     sendBroadcast(intentBR);
@@ -175,7 +176,7 @@ public class ForegroundTimer extends Service {
     public void onDestroy() {
 
         Log.i(TAG, "Stopping the foreground service");
-        Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show();
 
         try {
             if (wakeLock.isHeld()) {
