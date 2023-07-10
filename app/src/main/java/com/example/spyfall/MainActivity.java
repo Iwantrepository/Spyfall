@@ -95,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     SoundPool soundPool;
+    Gson gson;
+    GsonBuilder builder;
     int sound;
 
 
@@ -180,11 +182,10 @@ public class MainActivity extends AppCompatActivity {
         game_state.mData++;
 
 
-        GsonBuilder builder = new GsonBuilder().serializeNulls();
-        Gson gson = builder.create();
+        gson = builder.create();
         String json= gson.toJson(game_state).toString();
-        Log.i("JSON > saved", json);
         outState.putString("game_state", json);
+        Log.i("JSON > saved", json);
 
 //        Toast.makeText(getApplicationContext(), "Saved " + json, Toast.LENGTH_SHORT).show();
 
@@ -196,18 +197,38 @@ public class MainActivity extends AppCompatActivity {
         String json = savedInstanceState.getString("game_state");
         Log.i("JSON > recieved", json);
 
-        Gson gson = new Gson();
-        game_state = gson.fromJson(json, game_state.getClass());
+//        game_state = gson.fromJson(json, game_state.getClass());
+
+        restoreGameState(gson.fromJson(json, game_state.getClass()));
 
 
 //        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(game_state.mData), Toast.LENGTH_SHORT).show();
         super.onRestoreInstanceState(savedInstanceState);
 
 
+    }
 
+    public void hardSave(){
+        gson = builder.create();
+        String json= gson.toJson(game_state).toString();
+        sharedPreferences.edit().putString("HARDSAVE", json).apply();
+        Log.i("HARDSAVE > saved", sharedPreferences.getString("HARDSAVE", ""));
+    }
 
+    public void hardRestore(){
+        String strState = sharedPreferences.getString("HARDSAVE", "");
+        if(strState != ""){
+            restoreGameState(gson.fromJson(strState, game_state.getClass()));
 
+            Log.i("HARDSAVE > restored", strState);
+        }else{
+            Log.i("HARDSAVE > restored", "ERROR");
+        }
+    }
 
+    public void restoreGameState(GameState _game_state){
+
+        game_state = _game_state;
         // Обработка развертывания
 //        Toast.makeText(getApplicationContext(), "Saved time", Toast.LENGTH_SHORT).show();
         for (int i = 0; i < 8; i++) {
@@ -239,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
             game_state.gamers = game_state.prestartGamers;
         }
         refresh_loc_list();
-
     }
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -418,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if (isInTimer == false){
-                    SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+                    sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
                     long millis = sharedPreferences.getLong("timeSP2",3000);
                     int sec = (int) (millis / 1000);
                     buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
@@ -436,6 +456,9 @@ public class MainActivity extends AppCompatActivity {
 
         verifyStoragePermissions(this);
 
+        gson = new Gson();
+        builder = new GsonBuilder().serializeNulls();
+
 
 //        Intent intent2 = getIntent();
 //        Toast.makeText(getApplicationContext(), intent2.getAction() , Toast.LENGTH_SHORT).show();
@@ -449,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
         game_state.isDevOn = false;
 /***************************** ▼ Timer ▼ *****************************/
 
-        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
@@ -571,6 +594,9 @@ public class MainActivity extends AppCompatActivity {
 
             parseConfig(game_state.dataConfig);
             game_state.prestartGamers = game_state.gamers;
+
+
+            hardRestore();
         }
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
@@ -805,7 +831,7 @@ public class MainActivity extends AppCompatActivity {
 /*============================================================================*/
 
     void timerViewRefresh(){
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
         boolean isWork = sharedPreferences.getBoolean("isWork", false);
 
         if(isWork){
@@ -861,7 +887,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
 //        stopService(new Intent(this,BroadcastService.class));
-//        Log.i(TAG,"Stopped service");
+        Log.i(TAG,"Stopped app");
+
+        hardSave();
         super.onDestroy();
     }
 
@@ -884,7 +912,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 isInTimer = true;
             }else {
-                SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+                sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
                 long millis = sharedPreferences.getLong("timeSP2",3000);
                 sec = (int) (millis / 1000);
                 buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
