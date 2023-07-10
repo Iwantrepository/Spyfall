@@ -220,7 +220,7 @@ public class ForegroundTimer extends Service {
             notificationManager.createNotificationChannel(channel);
         }
 
-        Intent notificationIntent = new Intent(this, ForegroundTimer.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
