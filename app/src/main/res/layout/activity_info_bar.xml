@@ -55,6 +55,14 @@
             android:onClick="imageButtonCustomTime"
             app:srcCompat="@drawable/ic_timer_on" />
 
+        <ImageButton
+            android:id="@+id/imageButtonClearSharedPrefs"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="imageButtonClearSharedPrefs"
+            app:srcCompat="@drawable/ic_trash" />
+
     </LinearLayout>
 
     <ScrollView

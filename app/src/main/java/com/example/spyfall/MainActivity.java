@@ -99,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
     GsonBuilder builder;
     int sound;
 
+    boolean isSavedInstanceState = false;
+    boolean isFirstStart = true;
+
 
     Animation scaleUp, scaleDown;
 
@@ -187,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("game_state", json);
         Log.i("JSON > saved", json);
 
+        game_state.logString += "SAVE INSTANCE > saved\n";
+
 //        Toast.makeText(getApplicationContext(), "Saved " + json, Toast.LENGTH_SHORT).show();
 
         super.onSaveInstanceState(outState);
@@ -201,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
 
         restoreGameState(gson.fromJson(json, game_state.getClass()));
 
+        game_state.logString += "SAVE INSTANCE > restored\n";
 
 //        Toast.makeText(getApplicationContext(), "Restored " + String.valueOf(game_state.mData), Toast.LENGTH_SHORT).show();
         super.onRestoreInstanceState(savedInstanceState);
@@ -210,19 +216,26 @@ public class MainActivity extends AppCompatActivity {
 
     public void hardSave(){
         gson = builder.create();
+        game_state.logString = "";
         String json= gson.toJson(game_state).toString();
-        sharedPreferences.edit().putString("HARDSAVE", json).apply();
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        sharedPreferences.edit().putString("HARDSAVE", json).commit();
         Log.i("HARDSAVE > saved", sharedPreferences.getString("HARDSAVE", ""));
     }
 
-    public void hardRestore(){
+    public boolean hardRestore(){
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
         String strState = sharedPreferences.getString("HARDSAVE", "");
         if(strState != ""){
             restoreGameState(gson.fromJson(strState, game_state.getClass()));
 
             Log.i("HARDSAVE > restored", strState);
+            game_state.logString += "HARDSAVE > restored\n";
+            return true;
         }else{
             Log.i("HARDSAVE > restored", "ERROR");
+            game_state.logString += "HARDSAVE > restore ERROR\n";
+            return false;
         }
     }
 
@@ -473,6 +486,7 @@ public class MainActivity extends AppCompatActivity {
 /***************************** ▼ Timer ▼ *****************************/
 
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        Log.i(TAG, sharedPreferences.getString("HARSAVE2",""));
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
@@ -545,59 +559,8 @@ public class MainActivity extends AppCompatActivity {
         buttonTimer = (Button) findViewById(R.id.buttonTimer);
 
 
-        if (savedInstanceState != null){
-            //
-        }else {
-//            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
+        isSavedInstanceState = (savedInstanceState != null);
 
-            refresh_loc_list();
-
-            for (int i = 0; i < 8; i++) {
-                buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
-            }
-
-            for (int i = 0; i < 8; i++) {
-                game_state.loc[i] = Integer.toString(i + 1);
-                game_state.prof[i] = Integer.toString(i + 1);
-                game_state.ispressed[i] = false;
-            }
-
-            game_state.dataConfig = readFile(game_state.path + "/config");
-            String configPath = game_state.path + "/config";
-
-            if (game_state.dataConfig == null) {
-                //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
-                File buff = new File(configPath);
-                try {
-                    buff.createNewFile();
-                    if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
-                        game_state.dataConfig = readFile(configPath);
-                        Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
-                        if (game_state.dataConfig != null) {
-                            if (!parseConfig(game_state.dataConfig))
-                                parseConfig(readFile(configPath));
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-            } else {
-                //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
-                if (!parseConfig(game_state.dataConfig))
-                    parseConfig(readFile(configPath));
-            }
-
-            parseConfig(game_state.dataConfig);
-            game_state.prestartGamers = game_state.gamers;
-
-
-            hardRestore();
-        }
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
@@ -827,6 +790,70 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Log.i(TAG, "ONSTART");
+
+
+        if (isSavedInstanceState){
+            //
+        }else if (isFirstStart){
+//            Toast.makeText(getApplicationContext(), "First time", Toast.LENGTH_SHORT).show();
+
+            isFirstStart = false;
+
+            if(!hardRestore()) {
+                refresh_loc_list();
+
+                for (int i = 0; i < 8; i++) {
+                    buttons[i].setBackground(getDrawable(R.drawable.button_back_default));
+                }
+
+                for (int i = 0; i < 8; i++) {
+                    game_state.loc[i] = Integer.toString(i + 1);
+                    game_state.prof[i] = Integer.toString(i + 1);
+                    game_state.ispressed[i] = false;
+                }
+
+                game_state.dataConfig = readFile(game_state.path + "/config");
+                String configPath = game_state.path + "/config";
+
+                if (game_state.dataConfig == null) {
+                    //Toast.makeText(getApplicationContext(), "Файл настроек отсутствует" , Toast.LENGTH_SHORT).show();
+                    File buff = new File(configPath);
+                    try {
+                        buff.createNewFile();
+                        if (writeFile(configPath, "1\n+1\n+2\n+3\n+4\n+5\n+6\n+7\n+8")) {
+                            game_state.dataConfig = readFile(configPath);
+                            Toast.makeText(getApplicationContext(), "Файл настроек создан", Toast.LENGTH_SHORT).show();
+                            if (game_state.dataConfig != null) {
+                                if (!parseConfig(game_state.dataConfig))
+                                    parseConfig(readFile(configPath));
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Ошибка чтения файла настроек", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Ошибка записи файла настроек", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException e) {
+                        Toast.makeText(getApplicationContext(), "Невозможно создать файл настроек", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                } else {
+                    //Toast.makeText(getApplicationContext(), "Файл настроек наден" , Toast.LENGTH_SHORT).show();
+                    if (!parseConfig(game_state.dataConfig))
+                        parseConfig(readFile(configPath));
+                }
+
+                parseConfig(game_state.dataConfig);
+                game_state.prestartGamers = game_state.gamers;
+
+            }
+        }
+    }
+
 
 /*============================================================================*/
 
@@ -888,6 +915,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
 //        stopService(new Intent(this,BroadcastService.class));
         Log.i(TAG,"Stopped app");
+        game_state.logString += "App stopped\n";
 
         hardSave();
         super.onDestroy();
