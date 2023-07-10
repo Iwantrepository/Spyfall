@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     Menu menuBox;
 
     Intent intentTimer;
-    String TAG = "Timer";
+    String TAG = "MainActivity";
 
     SharedPreferences sharedPreferences;
 
@@ -631,7 +631,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if(isInTimer){
-                    stopService(new Intent(getApplicationContext(), BroadcastService.class));
+//                    stopService(new Intent(getApplicationContext(), BroadcastService.class));
+                    stopService(new Intent(getApplicationContext(), ForegroundTimer.class));
+
+
                     Log.i(TAG,"Stopped service");
                     buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_off,0,0,0);
 
@@ -648,11 +651,18 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.i(TAG, "Shared long: " + sharedPreferences.getLong("timeSP2", 0));
 
-                    Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+
+//                    Intent intent = new Intent(getApplicationContext(), BroadcastService.class);
+//                    startService(intent);
+
+                    Intent intent = new Intent(getApplicationContext(), ForegroundTimer.class);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent);
+                    }else{
+                        startService(intent);
+                    }
 
 
-                    startService(intent);
-//                    Log.i(TAG, "" + intent);
                     Log.i(TAG, "Started Service " + getPackageName());
                     isInTimer = true;
                     buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
