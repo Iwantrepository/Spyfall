@@ -686,8 +686,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             drawTimer(0,0);
                         }
-                    }, 300);
-                    // TODO Это полтора интервала. Интервал нужно перенести в глобальное место
+                    }, (long)(ForegroundTimer.TIMER_INTERVAL*1.5f));
 
                 }else{
 
