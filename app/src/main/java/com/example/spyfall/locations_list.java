@@ -13,14 +13,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -61,6 +66,7 @@ public class locations_list extends AppCompatActivity {
 
     ListView listView;
 
+    boolean isHandlerOn = false;
     Button buttonCheckAll;
     Button buttonUncheckAll;
     Button buttonGetFromPool;
@@ -71,6 +77,8 @@ public class locations_list extends AppCompatActivity {
     Button buttonPacks;
 
     String dirName;
+
+    int touchListenerChildId = 0;
 
 
 
@@ -100,7 +108,7 @@ public class locations_list extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +142,8 @@ public class locations_list extends AppCompatActivity {
         }
 
         listView = (ListView) findViewById(R.id.locationsListView);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
 
         listAdapter = new ArrayAdapter<String>(this,
             android.R.layout.simple_list_item_multiple_choice, str_list){ //simple_list_item_multiple_choice //simple_list_item_single_choice
@@ -143,20 +153,114 @@ public class locations_list extends AppCompatActivity {
 
                 View view = super.getView(position, convertView, parent);
 
+
+
                 if(readFile(path+"/"+this.getItem(position)).startsWith("+"))
                 {
                     view.setBackgroundColor(Color.parseColor("#ff8080"));
                 }else{
                     view.setBackgroundColor(getResources().getColor(android.R.color.transparent));
                 }
+
+                view.setClickable(false);
                 return view;
+            }
+
+            @Override
+            public boolean isEnabled(int position) {
+                return false;
             }
         };
 
         listView.setAdapter(listAdapter);
 
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        listView.setItemsCanFocus(true);
+//        listView.setItemsCanFocus(true);
+
+
+
+        final Handler handler = new Handler();
+
+        Runnable mLongPressed = new Runnable() {
+            public void run() {
+                Log.i("", "Long press!");
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+
+                String buf = readFile(path+"/"+str_list.get(touchListenerChildId));
+                String head = buf.substring(1, buf.indexOf("\n"));
+                String body = buf.substring(buf.indexOf("\n"));
+                builder.setTitle(head)
+                        .setMessage(body)
+                ;
+                builder.create().show();
+
+                isHandlerOn = false;
+
+//                listView.getChildAt(touchListenerChildId).setBackgroundDrawable(getDrawable( R.drawable.ic_cycle) );
+            }
+        };
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent motionEvent) {
+
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+
+                    handler.postDelayed(mLongPressed, ViewConfiguration.getLongPressTimeout());
+                    isHandlerOn = true;
+
+                    Rect rect = new Rect();
+                    int childCount = listView.getChildCount();
+                    int[] listViewCoords = new int[2];
+                    listView.getLocationOnScreen(listViewCoords);
+                    int x = (int) motionEvent.getRawX() - listViewCoords[0];
+                    int y = (int) motionEvent.getRawY() - listViewCoords[1];
+                    View child;
+                    for (int i = 0; i < childCount; i++) {
+                        child = listView.getChildAt(i);
+                        child.getHitRect(rect);
+                        if (rect.contains(x, y)) {
+                            // This is your down view
+//                        mDownView = child;
+                            Log.i("LocList", "" + (i + listView.getFirstVisiblePosition()));
+                            touchListenerChildId = i + listView.getFirstVisiblePosition();
+//                            touchListenerChildId = i;
+                            break;
+                        }
+                    }
+                }
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if(isHandlerOn){
+//                        listView.getChildAt(touchListenerChildId).setBackgroundDrawable(getDrawable( R.drawable.ic_cycle) );
+//                        listView.setItemChecked(touchListenerChildId,false);
+
+                        if (listView.isItemChecked(touchListenerChildId)){
+                            listView.setItemChecked(touchListenerChildId,false);
+                        }else{
+                            listView.setItemChecked(touchListenerChildId,true);
+                        }
+                    }
+                }
+                if((motionEvent.getAction() == MotionEvent.ACTION_MOVE)||(motionEvent.getAction() == MotionEvent.ACTION_UP)) {
+
+                    handler.removeCallbacks(mLongPressed);
+
+                    isHandlerOn = false;
+                }
+
+
+
+//                if (mDownView != null) {
+//                    mDownX = motionEvent.getRawX();
+//                    mDownPosition = mListView.getPositionForView(mDownView);
+//
+//                    mVelocityTracker = VelocityTracker.obtain();
+//                    mVelocityTracker.addMovement(motionEvent);
+//                }
+//                view.onTouchEvent(motionEvent);
+                return false;
+            }
+        });
 
 
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -166,27 +270,22 @@ public class locations_list extends AppCompatActivity {
 
 
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
-
-                String buf = readFile(path+"/"+str_list.get(i));
-                String head = buf.substring(1, buf.indexOf("\n"));
-                String body = buf.substring(buf.indexOf("\n"));
-                    builder.setTitle(head)
-                    .setMessage(body)
-//                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-////                                Toast.makeText(locations_list.this,"Нажата кнопка 'OK'",Toast.LENGTH_SHORT).show();
-//                            }
-//                        })
-                ;
-                builder.create().show();
+//                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+//
+//                String buf = readFile(path+"/"+str_list.get(i));
+//                String head = buf.substring(1, buf.indexOf("\n"));
+//                String body = buf.substring(buf.indexOf("\n"));
+//                    builder.setTitle(head)
+//                    .setMessage(body)
+//                ;
+//                builder.create().show();
 
 
-                if (listView.isItemChecked(i)){
-                    listView.setItemChecked(i,false);
-                }else{
-                    listView.setItemChecked(i,true);
-                }
+//                if (listView.isItemChecked(i)){
+//                    listView.setItemChecked(i,false);
+//                }else{
+//                    listView.setItemChecked(i,true);
+//                }
 
                 return false;
             }
