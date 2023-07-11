@@ -308,15 +308,31 @@ public class MainActivity extends AppCompatActivity {
         game_state.logString += "\n▼ INTENT ▼\n";
         intentDisassembler(intent);
 
+        Log.i(TAG,"onNewIntent() -------------------------------------------");
 
     }
 
     public void intentDisassembler(Intent intent){
         if (intent!=null){
+
             String action = intent.getAction();
             String type = intent.getType();
 
-            game_state.logString += action + "\n" + type + "\n";
+            if(     (
+                        !Intent.ACTION_SEND.equals(action)
+                        && !Intent.ACTION_SEND_MULTIPLE.equals(action)
+                    )
+                    || type == null){
+                return;
+            }
+
+            Log.i(TAG + "DISASS", type.toString());
+            Log.i(TAG + "DISASS", action.toString());
+
+            game_state.logString += action.toString() + "\n" + type.toString() + "\n";
+//            if(true) {
+//                return;
+//            }
 
             if(Intent.ACTION_SEND.equals(action) && type != null){
                 if(type.equalsIgnoreCase("text/plain")){
@@ -478,11 +494,73 @@ public class MainActivity extends AppCompatActivity {
 //        intentDisassembler(intent2);
 
 
-/***************************** ▼ DEV ▼ *****************************/
+/***************************** ▼ View Bind ▼ ******************************/
+        locsWithoutPool = (TextView) findViewById(R.id.locsWithoutPool);
+
+        Toolbar toolbar;
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        buttons[0] = (Button) findViewById(R.id.button1);
+        buttons[1] = (Button) findViewById(R.id.button2);
+        buttons[2] = (Button) findViewById(R.id.button3);
+        buttons[3] = (Button) findViewById(R.id.button4);
+        buttons[4] = (Button) findViewById(R.id.button5);
+        buttons[5] = (Button) findViewById(R.id.button6);
+        buttons[6] = (Button) findViewById(R.id.button7);
+        buttons[7] = (Button) findViewById(R.id.button8);
+
+        button_reset = (Button) findViewById(R.id.button_reset);
+        button_start = (Button) findViewById(R.id.button_start);
+
+        buttonTimer = (Button) findViewById(R.id.buttonTimer);
+
+        spyImage = (ImageView) findViewById(R.id.imageViewSpy);
+        int imageSpyRes = getResources().getIdentifier("@mipmap/ic_launcher_foreground", null, this.getPackageName());
+        spyImage.setImageResource(imageSpyRes);
+        spyImage.setAlpha((float) 0 );
+
+        textViewLoc = (TextView) findViewById(R.id.textViewLoc);
+        textViewProf = (TextView) findViewById(R.id.textViewProf);
+
+
+/***************************** ▼ DEV ▼ ******************************/
         game_state = new GameState();
         game_state.logString = "";
         game_state.devCode = 0;
         game_state.isDevOn = false;
+
+/***************************** ▼ PATH ▼ ******************************/
+        File dir;
+        String FolderName = "Spyfall";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            dir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+ "/"+FolderName );
+//            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
+            game_state.logString += "StoragePick = DOCUMENT\n";
+        } else {
+            dir = new File(Environment.getExternalStorageDirectory() + "/"+FolderName);
+//            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
+            game_state.logString += "StoragePick = EXTERNAL\n";
+        }
+        dir.mkdirs();
+
+        game_state.pathToEx = dir.toString();
+        game_state.path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";
+        game_state.pathFromToUpload = dir.toString();
+
+        game_state.logString += "pathToEx = " + game_state.pathToEx + "\n";
+        game_state.logString += "path = " + game_state.path + "\n";
+        game_state.logString += "pathFromToUpload = " + game_state.pathFromToUpload + "\n";
+
+/***************************** ▼ INTENT ▼ ******************************/
+        Intent intent2 = getIntent();
+        if(intent2 != null) {
+//            Log.i(TAG+" INTENT", intent2.getAction().toString());
+            intentDisassembler(intent2);
+        }else{
+//            Log.i(TAG+" INTENT", "NO INTENT");
+        }
 /***************************** ▼ Timer ▼ *****************************/
 
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
@@ -509,54 +587,11 @@ public class MainActivity extends AppCompatActivity {
         scaleDown = AnimationUtils.loadAnimation(this,R.anim.scale_down);
         scaleUp = AnimationUtils.loadAnimation(this,R.anim.scale_up);
 
-        File dir;
-        String FolderName = "Spyfall";
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            dir = new File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+ "/"+FolderName );
-//            Toast.makeText(getApplicationContext(), "DOC", Toast.LENGTH_SHORT).show();
-            game_state.logString += "StoragePick = DOCUMENT\n";
-        } else {
-            dir = new File(Environment.getExternalStorageDirectory() + "/"+FolderName);
-//            Toast.makeText(getApplicationContext(), "EXT", Toast.LENGTH_SHORT).show();
-            game_state.logString += "StoragePick = EXTERNAL\n";
-        }
-        dir.mkdirs();
-
-        game_state.pathToEx = dir.toString();
-        game_state.path = getApplicationContext().getFilesDir().getPath() + "/Spyfall";
-        game_state.pathFromToUpload = dir.toString();
-
-        game_state.logString += "pathToEx = " + game_state.pathToEx + "\n";
-        game_state.logString += "path = " + game_state.path + "\n";
-        game_state.logString += "pathFromToUpload = " + game_state.pathFromToUpload + "\n";
 
 
-        spyImage = (ImageView) findViewById(R.id.imageViewSpy);
-        int imageSpyRes = getResources().getIdentifier("@mipmap/ic_launcher_foreground", null, this.getPackageName());
-        spyImage.setImageResource(imageSpyRes);
-        spyImage.setAlpha((float) 0 );
-
-        locsWithoutPool = (TextView) findViewById(R.id.locsWithoutPool);
 
 
-        Toolbar toolbar;
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        buttons[0] = (Button) findViewById(R.id.button1);
-        buttons[1] = (Button) findViewById(R.id.button2);
-        buttons[2] = (Button) findViewById(R.id.button3);
-        buttons[3] = (Button) findViewById(R.id.button4);
-        buttons[4] = (Button) findViewById(R.id.button5);
-        buttons[5] = (Button) findViewById(R.id.button6);
-        buttons[6] = (Button) findViewById(R.id.button7);
-        buttons[7] = (Button) findViewById(R.id.button8);
-
-        button_reset = (Button) findViewById(R.id.button_reset);
-        button_start = (Button) findViewById(R.id.button_start);
-
-        buttonTimer = (Button) findViewById(R.id.buttonTimer);
 
 
         if (savedInstanceState != null){
@@ -616,8 +651,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        textViewLoc = (TextView) findViewById(R.id.textViewLoc);
-        textViewProf = (TextView) findViewById(R.id.textViewProf);
 
         button_reset.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -859,11 +892,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "ONSTART");
 
 
-
     }
 
 
 /*============================================================================*/
+
 
     void timerViewRefresh(){
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
@@ -900,6 +933,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         timerViewRefresh();
+        Log.i(TAG,"onResume()");
     }
 
     @Override
@@ -1082,10 +1116,11 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         counter++;
-                        refresh_loc_list();
+
                     }
                 }
             }
+            refresh_loc_list(true);
             Toast.makeText(getApplicationContext(), "Загружено локаций: " + String.valueOf(counter), Toast.LENGTH_SHORT).show();
         }
     }
@@ -1112,7 +1147,7 @@ public class MainActivity extends AppCompatActivity {
                 writeFile(game_state.path + "/" + fileName, text);
 
                 Toast.makeText(getApplicationContext(), "Локация загружена", Toast.LENGTH_SHORT).show();
-                refresh_loc_list();
+                refresh_loc_list(true);
             }
         }
     }
@@ -1131,7 +1166,10 @@ public class MainActivity extends AppCompatActivity {
 
 /**=============================================================================================================================**/
 
-    private void refresh_loc_list() {
+    private void refresh_loc_list(){
+        refresh_loc_list(false);
+    }
+    private void refresh_loc_list(boolean forced) {
 
             //Log.d("Files", "Path: " + path);
             File directory = new File(game_state.path);
@@ -1194,6 +1232,10 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     Log.i("Locs", "presentedLocs != lastLocs");
                     Log.i("Locs", game_state.game_started?"true":"false");
+                }
+
+                if(forced){
+                    game_state.presentedLocs = game_state.lastLocs;
                 }
 
                 if(files.length>2)
