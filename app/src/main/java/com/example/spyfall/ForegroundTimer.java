@@ -191,6 +191,10 @@ public class ForegroundTimer extends Service {
         }
         isServiceStarted = false;
 
+        SharedPreferences sharedPreferences;
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean("isWork", false).apply();
+
 //        setServiceState(this, ServiceState.STOPPED)
 
         countDownTimer.cancel();

@@ -82,15 +82,6 @@ public class locations_list extends AppCompatActivity {
 
 
 
-/*      TOOLBAR
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.loc_menu_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -247,17 +238,6 @@ public class locations_list extends AppCompatActivity {
 
                     isHandlerOn = false;
                 }
-
-
-
-//                if (mDownView != null) {
-//                    mDownX = motionEvent.getRawX();
-//                    mDownPosition = mListView.getPositionForView(mDownView);
-//
-//                    mVelocityTracker = VelocityTracker.obtain();
-//                    mVelocityTracker.addMovement(motionEvent);
-//                }
-//                view.onTouchEvent(motionEvent);
                 return false;
             }
         });
@@ -266,26 +246,6 @@ public class locations_list extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                Toast.makeText(getApplicationContext(), readFile(path+"/"+str_list.get(i)) , Toast.LENGTH_SHORT).show();
-
-
-
-//                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
-//
-//                String buf = readFile(path+"/"+str_list.get(i));
-//                String head = buf.substring(1, buf.indexOf("\n"));
-//                String body = buf.substring(buf.indexOf("\n"));
-//                    builder.setTitle(head)
-//                    .setMessage(body)
-//                ;
-//                builder.create().show();
-
-
-//                if (listView.isItemChecked(i)){
-//                    listView.setItemChecked(i,false);
-//                }else{
-//                    listView.setItemChecked(i,true);
-//                }
 
                 return false;
             }
