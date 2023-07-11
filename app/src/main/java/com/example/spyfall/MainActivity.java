@@ -87,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
     public final static int REQUEST_CODE_PARTY_CONFIG = 3;
     public final static int REQUEST_CODE_INFO_BAR = 4;
 
+
+    public final static String HARDSAVE_TAG = "HARDSAVE";
+
     public final static int REQUEST_CODE_UPLOAD_LOCATIONS = 10;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -219,13 +222,13 @@ public class MainActivity extends AppCompatActivity {
         game_state.logString = "";
         String json= gson.toJson(game_state).toString();
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
-        sharedPreferences.edit().putString("HARDSAVE", json).commit();
-        Log.i("HARDSAVE > saved", sharedPreferences.getString("HARDSAVE", ""));
+        sharedPreferences.edit().putString(HARDSAVE_TAG, json).commit();
+        Log.i("HARDSAVE > saved", sharedPreferences.getString(HARDSAVE_TAG, ""));
     }
 
     public boolean hardRestore(){
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
-        String strState = sharedPreferences.getString("HARDSAVE", "");
+        String strState = sharedPreferences.getString(HARDSAVE_TAG, "");
         if(strState != ""){
             restoreGameState(gson.fromJson(strState, game_state.getClass()));
 
@@ -564,7 +567,7 @@ public class MainActivity extends AppCompatActivity {
 /***************************** ▼ Timer ▼ *****************************/
 
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
-        Log.i(TAG, sharedPreferences.getString("HARSAVE2",""));
+        Log.i(TAG, sharedPreferences.getString(HARDSAVE_TAG,""));
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
         timerViewRefresh();
