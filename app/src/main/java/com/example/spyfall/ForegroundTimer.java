@@ -30,6 +30,13 @@ import androidx.core.app.NotificationManagerCompat;
 public class ForegroundTimer extends Service {
 
 
+
+    /* ********** Settings ********** */
+    public static final long TIMER_INTERVAL = 200;
+    public static final long TIMER_FOR_SOUND_DELAY = 5000;
+    public static final String COUNTDOWN_BR = "com.example.spyfall.COUNTDOWN_BR";
+    /* ********** Settings ********** */
+
     boolean isNotifyAllowed = false;
     PowerManager.WakeLock wakeLock = null;
     private boolean isServiceStarted = false;
@@ -41,7 +48,7 @@ public class ForegroundTimer extends Service {
 
     PendingIntent pendingIntent;
 
-    public static final String COUNTDOWN_BR = "com.example.spyfall.COUNTDOWN_BR";
+
     Intent intentBR = new Intent(COUNTDOWN_BR);
 
     String TAG = "ForegroundTimer";
@@ -76,7 +83,7 @@ public class ForegroundTimer extends Service {
             // we need this lock so our service gets not affected by Doze Mode
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getString(R.string.wakeLockKey));
-            wakeLock.acquire(1000 * 60 * 30);
+
 
 
             // we're starting a loop in a coroutine
@@ -93,8 +100,9 @@ public class ForegroundTimer extends Service {
 
             Log.i(TAG,"Get Shared : " + millis);
 
-            countDownTimer = new CountDownTimer(millis,200) {
-                // TODO Перенести интервал куда-то в глобальное место
+            wakeLock.acquire(millis + TIMER_FOR_SOUND_DELAY);
+
+            countDownTimer = new CountDownTimer(millis,TIMER_INTERVAL) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
@@ -135,7 +143,7 @@ public class ForegroundTimer extends Service {
                         public void run() {
                             stopSelf();
                         }
-                    }, 5000);
+                    }, TIMER_FOR_SOUND_DELAY);
                 }
             };
             countDownTimer.start();
@@ -190,6 +198,10 @@ public class ForegroundTimer extends Service {
             Log.e(TAG, "Service stopped without being started: " + e.toString());
         }
         isServiceStarted = false;
+
+        SharedPreferences sharedPreferences;
+        sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean("isWork", false).apply();
 
 //        setServiceState(this, ServiceState.STOPPED)
 
