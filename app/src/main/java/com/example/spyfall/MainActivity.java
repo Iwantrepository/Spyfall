@@ -573,9 +573,7 @@ public class MainActivity extends AppCompatActivity {
         timerViewRefresh();
 /***************************** ▼ Sounds ▼ *****************************/
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
-//                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .setUsage(AudioAttributes.USAGE_GAME)
-//                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .build();
 

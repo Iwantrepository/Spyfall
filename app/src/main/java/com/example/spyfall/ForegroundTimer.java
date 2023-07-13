@@ -115,7 +115,7 @@ public class ForegroundTimer extends Service {
                     long sec = millisUntilFinished / 1000;
 
                     builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
-                    builder.setContentText("Countdown: " + sec/60 + ":" + sec%60);
+                    builder.setContentText("Countdown: " + sec/60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec%60);
                     notificationManager.notify(notificationId, builder.build());
 
                     sendBroadcast(intentBR);
