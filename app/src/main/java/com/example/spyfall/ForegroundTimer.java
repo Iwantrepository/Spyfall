@@ -55,6 +55,7 @@ public class ForegroundTimer extends Service {
 
     SoundPool soundPool;
     int sound;
+    long prevmillis;
 
     int notificationId = 2999;
 
@@ -68,6 +69,14 @@ public class ForegroundTimer extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+
+        if(intent.getAction() == "TIMER_STOP"){
+            Log.i(TAG+" getType", "TIMER_STOP");
+//            countDownTimer.cancel();
+            stopSelf();
+        }else{
+            Log.i(TAG+" getType", "NOPE");
+        }
 
         if (isServiceStarted) {
             //
@@ -102,10 +111,13 @@ public class ForegroundTimer extends Service {
 
             wakeLock.acquire(millis + TIMER_FOR_SOUND_DELAY);
 
+            prevmillis = millis;
             countDownTimer = new CountDownTimer(millis,TIMER_INTERVAL) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     Log.i(TAG,"Countdown seconds remaining:" + millisUntilFinished / 1000);
+
+
                     intentBR.putExtra("countdown",millisUntilFinished);
                     intentBR.putExtra("isWork",true);
                     intentBR.putExtra("timeSP2",millis);
@@ -114,9 +126,14 @@ public class ForegroundTimer extends Service {
 
                     long sec = millisUntilFinished / 1000;
 
-                    builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
-                    builder.setContentText("Countdown: " + sec/60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec%60);
-                    notificationManager.notify(notificationId, builder.build());
+                    if(Math.abs(millisUntilFinished - prevmillis) > 1000){
+                        prevmillis = millisUntilFinished;
+//                        Log.i(TAG,"NOTOFOCATION");
+
+                        builder.setPriority(Notification.PRIORITY_LOW); // for under android 26 compatibility
+                        builder.setContentText("Countdown: " + sec/60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec%60);
+                        notificationManager.notify(notificationId, builder.build());
+                    }
 
                     sendBroadcast(intentBR);
                 }
@@ -203,6 +220,20 @@ public class ForegroundTimer extends Service {
         sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("isWork", false).apply();
 
+
+
+        /* ***** Finish Broadcast ***** */
+        Log.i(TAG,"Finish");
+        intentBR.putExtra("isWork",true);
+        Log.i(TAG,"Countdown seconds remaining:" + 0);
+        intentBR.putExtra("countdown",0);
+        intentBR.putExtra("isWork",false);
+
+        intentBR.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        sendBroadcast(intentBR);
+        /* ***** Finish Broadcast ***** */
+
+
 //        setServiceState(this, ServiceState.STOPPED)
 
         countDownTimer.cancel();
@@ -237,6 +268,7 @@ public class ForegroundTimer extends Service {
         pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = new NotificationCompat.Builder(this, notificationChannelId);
         } else {
@@ -251,6 +283,15 @@ public class ForegroundTimer extends Service {
         builder.setSmallIcon(R.drawable.ic_notification);
         builder.setOngoing(true);
         builder.setPriority(Notification.PRIORITY_MAX); // for under android 26 compatibility
+
+        Intent intent2 = new Intent(this, ForegroundTimer.class);
+        intent2.setType("TIMER_STOP");
+        intent2.setAction("TIMER_STOP");
+        PendingIntent pendingIntent2 = PendingIntent.getService(
+                this, 0, intent2, PendingIntent.FLAG_IMMUTABLE);
+
+        builder.addAction(R.drawable.ic_notification,"STOP", pendingIntent2);
+
 
         Notification not = builder.build();
 

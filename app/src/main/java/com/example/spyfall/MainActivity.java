@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         game_state.logString += "\n▼ INTENT ▼\n";
         intentDisassembler(intent);
 
-        Log.i(TAG,"onNewIntent() -------------------------------------------");
+        Log.i(TAG + "onNewIntent",intent.toString());
 
     }
 
@@ -983,6 +983,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 isInTimer = true;
             }else {
+                Log.i(TAG,"Timer Is Dead");
                 sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
                 long millis = sharedPreferences.getLong("timeSP2",3000);
                 sec = (int) (millis / 1000);
@@ -992,7 +993,7 @@ public class MainActivity extends AppCompatActivity {
 
                 drawTimer(0, 0);
 
-                soundPool.play(sound, 1, 1, 0, 0, 1);
+//                soundPool.play(sound, 1, 1, 0, 0, 1);
 //                Toast.makeText(getApplicationContext(), "!!!" , Toast.LENGTH_SHORT).show();
             }
 
