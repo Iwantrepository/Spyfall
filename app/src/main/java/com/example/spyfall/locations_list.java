@@ -13,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
@@ -50,6 +51,7 @@ import java.io.OutputStreamWriter;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,6 +134,49 @@ public class locations_list extends AppCompatActivity {
             path = (String) arguments.get("path");
             pathExternalStorage = (String) arguments.get("pathFromToUpload");
             pathToEx = (String) arguments.get("pathToEx");
+        }
+
+//        str_list;
+
+        Comparator<String> comparator = new Comparator<String>() {
+
+            @Override
+            public int compare(String lhs, String rhs) {
+                boolean lhsStartsWithLetter = Character.isLetter(lhs.charAt(0));
+                boolean rhsStartsWithLetter = Character.isLetter(rhs.charAt(0));
+
+                int lhs_idx = lhs.replaceAll("[0-9]*[.]txt", "•").lastIndexOf("•");
+                String lhs_head = lhs.substring(0, lhs_idx);
+                String lhs_tail = lhs.substring(lhs_idx, lhs.lastIndexOf("."));
+//                Log.i("COMPARATOR", "RHSA " + lhs + " " + lhs_head + " " + lhs_tail);
+                lhs_idx = Integer.parseInt( (lhs_tail.length() == 0)?"0":lhs_tail );
+
+
+                int rhs_idx = rhs.replaceAll("[0-9]*[.]txt", "•").lastIndexOf("•");
+                String rhs_head = rhs.substring(0, rhs_idx);
+                String rhs_tail = rhs.substring(rhs_idx, rhs.lastIndexOf("."));
+//                Log.i("COMPARATOR", "RHSA " + rhs + " " + rhs_head + " " + rhs_tail);
+                rhs_idx = Integer.parseInt( (rhs_tail.length() == 0)?"0":rhs_tail );
+
+                if(lhs_head.compareTo(rhs_head) == 0){
+                    if(lhs_idx < rhs_idx){
+                        return -1;
+                    }
+                    if(lhs_idx > rhs_idx){
+                        return 1;
+                    }
+                    return 0;
+                }else {
+                    return lhs_head.compareTo(rhs_head);
+                }
+            }
+        };
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+
+        if(sharedPreferences.getBoolean("alphanumericSort", false)) {
+            Collections.sort(str_list, comparator);
         }
 
         listView = (ListView) findViewById(R.id.locationsListView);

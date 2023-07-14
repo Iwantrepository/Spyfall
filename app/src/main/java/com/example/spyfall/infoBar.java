@@ -1,9 +1,11 @@
 package com.example.spyfall;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -242,7 +244,35 @@ public class infoBar extends AppCompatActivity {
     }
 
     public void imageButtonClearSharedPrefs(View view) {
-        getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE).edit().clear().apply();
-        Toast.makeText(getApplicationContext(), "Сохранение состояния обнулено", Toast.LENGTH_LONG).show();
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(infoBar.this, R.style.MyDialogTheme);
+        alert.setTitle("Внимание");
+        alert.setMessage("Вы действительно хотите удалить внутренние настройки?");
+        alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //
+            }
+        });
+        alert.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE).edit().clear().apply();
+                Toast.makeText(getApplicationContext(), "Сохранение состояния обнулено", Toast.LENGTH_LONG).show();
+            }
+        });
+        alert.create();
+        alert.show();
+    }
+
+    public void imageButtonAlphanumeric(View view) {
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        if(sharedPreferences.getBoolean("alphanumericSort", false)){
+            sharedPreferences.edit().putBoolean("alphanumericSort", false).apply();
+            Toast.makeText(getApplicationContext(), "Alphanumeric OFF", Toast.LENGTH_SHORT).show();
+        }else{
+            sharedPreferences.edit().putBoolean("alphanumericSort", true).apply();
+            Toast.makeText(getApplicationContext(), "Alphanumeric ON", Toast.LENGTH_SHORT).show();
+        }
     }
 }
