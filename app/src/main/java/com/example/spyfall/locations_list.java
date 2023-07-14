@@ -185,12 +185,23 @@ public class locations_list extends AppCompatActivity {
                 String filename = str_list.get(touchListenerChildId);
                 String body = buf.substring(buf.indexOf("\n"));
                 body = body.replace("\n","<br>");
-                Log.i("!!!", body);
                 builder.setTitle(filename)
                         .setMessage(HtmlCompat.fromHtml("<b><big>▼"+head+"▼</big></b>"+body, HtmlCompat.FROM_HTML_MODE_LEGACY))
                         .setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // Закрываем диалоговое окно
+
+                                Intent  add_locations = new Intent(getApplicationContext(), new_location_form.class);
+                                add_locations.putExtra("path", path);
+                                add_locations.putExtra("filename", str_list.get(touchListenerChildId));
+                                add_locations.putExtra("locname", head);
+                                add_locations.putExtra("body", buf.substring(buf.indexOf("\n")));
+                                add_locations.setAction("UPDATE");
+                                startActivity(add_locations);
+
+                                listView.getChildAt(touchListenerChildId - listView.getFirstVisiblePosition())
+                                    .setBackgroundColor(getColor(R.color.colorLocUPD));
+
                                 dialog.cancel();
                             }
                         });

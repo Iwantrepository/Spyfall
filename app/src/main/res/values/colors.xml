@@ -14,5 +14,6 @@
     <color name="timerColor">#31FF0000</color>
     <color name="timerArrowColor">#0A5F00</color>
 
+    <color name="colorLocUPD">#00FFEA</color>
 
 </resources>

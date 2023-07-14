@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,10 +22,8 @@ public class new_location_form extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_new_location_form);
-
-
-
 
         Button buttonNewLoc = (Button) findViewById(R.id.buttonNewLoc);
 
@@ -39,65 +38,148 @@ public class new_location_form extends AppCompatActivity {
         final EditText editRole7 = (EditText) findViewById(R.id.editTextPersonName7);
 
 
-        buttonNewLoc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                boolean isEmptyPtEx = false;
-
-                if(editFileName.getText().toString().isEmpty() ||
-                        editLocName.getText().toString().isEmpty() ||
-                        editRole1.getText().toString().isEmpty() ||
-                        editRole2.getText().toString().isEmpty() ||
-                        editRole3.getText().toString().isEmpty() ||
-                        editRole4.getText().toString().isEmpty() ||
-                        editRole5.getText().toString().isEmpty() ||
-                        editRole6.getText().toString().isEmpty() ||
-                        editRole7.getText().toString().isEmpty())
-                    Toast.makeText(getApplicationContext(), "Есть пустые поля" , Toast.LENGTH_SHORT).show();
-                else
-                {
-                    String file = editFileName.getText().toString().replace(".txt", "");
-                    //file = file.replaceAll("[0-9]+", "");
-                    file = file.replaceAll(" ", "");
-                    String result = "";
-                    result += editLocName.getText().toString() + "\n";
-                    result += editRole1.getText().toString() + "\n";
-                    result += editRole2.getText().toString() + "\n";
-                    result += editRole3.getText().toString() + "\n";
-                    result += editRole4.getText().toString() + "\n";
-                    result += editRole5.getText().toString() + "\n";
-                    result += editRole6.getText().toString() + "\n";
-                    result += editRole7.getText().toString();
-
-                    Bundle arguments = getIntent().getExtras();
-                    if(arguments!=null){
-                        path = (String) arguments.get("path");
-                    }
-
-                    file = getNextFileName(file);
-                    //Toast.makeText(getApplicationContext(), "Создание файла "+file , Toast.LENGTH_SHORT).show();
-
-                    writeFile(path + "/" + file + ".txt", result);
 
 
-                    Toast.makeText(getApplicationContext(), file+":\n"+result , Toast.LENGTH_SHORT).show();
 
-                    //editFileName.setText();
-                    editLocName.setText("");
-                    editRole1.setText("");
-                    editRole2.setText("");
-                    editRole3.setText("");
-                    editRole4.setText("");
-                    editRole5.setText("");
-                    editRole6.setText("");
-                    editRole7.setText("");
+        if(getIntent().getAction() != null) {
+            // Вызов из меню локаций
+            Log.i("new_location_form", getIntent().getAction());
 
-                    editLocName.requestFocus();
+            if(getIntent().getAction() == "UPDATE"){
+                Bundle arguments = getIntent().getExtras();
+                if (arguments != null) {
+                    path = (String) arguments.get("path");
+
+                    buttonNewLoc.setText("Изменить локацию");
+
+
+                    String filename = (String) arguments.get("filename");
+                    editFileName.setText(filename);
+                    editFileName.setEnabled(false);
+
+                    String locname = (String) arguments.get("locname");
+                    editLocName.setText(locname);
+
+                    String body = (String) arguments.get("body").toString().substring(1);
+                    String[] bodyarr = body.split("\n");
+//                    Toast.makeText(getApplicationContext(), "" + bodyarr[1], Toast.LENGTH_SHORT).show();
+                    editRole1.setText((bodyarr.length >= 1)?bodyarr[0]:"");
+                    editRole2.setText((bodyarr.length >= 2)?bodyarr[1]:"");
+                    editRole3.setText((bodyarr.length >= 3)?bodyarr[2]:"");
+                    editRole4.setText((bodyarr.length >= 4)?bodyarr[3]:"");
+                    editRole5.setText((bodyarr.length >= 5)?bodyarr[4]:"");
+                    editRole6.setText((bodyarr.length >= 6)?bodyarr[5]:"");
+                    editRole7.setText((bodyarr.length >= 7)?bodyarr[6]:"");
+
+
+
+
+
+
+                    buttonNewLoc.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+
+                            if (editFileName.getText().toString().isEmpty() ||
+                                    editLocName.getText().toString().isEmpty() ||
+                                    editRole1.getText().toString().isEmpty() ||
+                                    editRole2.getText().toString().isEmpty() ||
+                                    editRole3.getText().toString().isEmpty() ||
+                                    editRole4.getText().toString().isEmpty() ||
+                                    editRole5.getText().toString().isEmpty() ||
+                                    editRole6.getText().toString().isEmpty() ||
+                                    editRole7.getText().toString().isEmpty())
+                                Toast.makeText(getApplicationContext(), "Есть пустые поля", Toast.LENGTH_SHORT).show();
+                            else {
+                                String file = editFileName.getText().toString().replace(".txt", "");
+                                //file = file.replaceAll("[0-9]+", "");
+                                file = file.replaceAll(" ", "");
+                                String result = "";
+                                result += "-" + editLocName.getText().toString() + "\n";
+                                result += editRole1.getText().toString() + "\n";
+                                result += editRole2.getText().toString() + "\n";
+                                result += editRole3.getText().toString() + "\n";
+                                result += editRole4.getText().toString() + "\n";
+                                result += editRole5.getText().toString() + "\n";
+                                result += editRole6.getText().toString() + "\n";
+                                result += editRole7.getText().toString();
+
+                                Bundle arguments = getIntent().getExtras();
+                                if (arguments != null) {
+                                    path = (String) arguments.get("path");
+                                }
+
+                                writeFile(path + "/" + file + ".txt", result);
+                                Toast.makeText(getApplicationContext(), file + ".txt Обновлен", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        }
+
+                    });
                 }
             }
+        }else {
+            // Вызов с главного экрана
+            buttonNewLoc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-        });
+                    boolean isEmptyPtEx = false;
+
+                    if (editFileName.getText().toString().isEmpty() ||
+                            editLocName.getText().toString().isEmpty() ||
+                            editRole1.getText().toString().isEmpty() ||
+                            editRole2.getText().toString().isEmpty() ||
+                            editRole3.getText().toString().isEmpty() ||
+                            editRole4.getText().toString().isEmpty() ||
+                            editRole5.getText().toString().isEmpty() ||
+                            editRole6.getText().toString().isEmpty() ||
+                            editRole7.getText().toString().isEmpty())
+                        Toast.makeText(getApplicationContext(), "Есть пустые поля", Toast.LENGTH_SHORT).show();
+                    else {
+                        String file = editFileName.getText().toString().replace(".txt", "");
+                        //file = file.replaceAll("[0-9]+", "");
+                        file = file.replaceAll(" ", "");
+                        String result = "";
+                        result += editLocName.getText().toString() + "\n";
+                        result += editRole1.getText().toString() + "\n";
+                        result += editRole2.getText().toString() + "\n";
+                        result += editRole3.getText().toString() + "\n";
+                        result += editRole4.getText().toString() + "\n";
+                        result += editRole5.getText().toString() + "\n";
+                        result += editRole6.getText().toString() + "\n";
+                        result += editRole7.getText().toString();
+
+                        Bundle arguments = getIntent().getExtras();
+                        if (arguments != null) {
+                            path = (String) arguments.get("path");
+                        }
+
+                        file = getNextFileName(file);
+                        //Toast.makeText(getApplicationContext(), "Создание файла "+file , Toast.LENGTH_SHORT).show();
+
+                        writeFile(path + "/" + file + ".txt", result);
+
+
+                        Toast.makeText(getApplicationContext(), file + ":\n" + result, Toast.LENGTH_SHORT).show();
+
+                        //editFileName.setText();
+                        editLocName.setText("");
+                        editRole1.setText("");
+                        editRole2.setText("");
+                        editRole3.setText("");
+                        editRole4.setText("");
+                        editRole5.setText("");
+                        editRole6.setText("");
+                        editRole7.setText("");
+
+                        editLocName.requestFocus();
+                    }
+                }
+
+            });
+        }
     }
 
     String getNextFileName(String filename){
