@@ -570,7 +570,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, sharedPreferences.getString(HARDSAVE_TAG,""));
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
-        timerViewRefresh();
+//        timerViewRefresh();
 /***************************** ▼ Sounds ▼ *****************************/
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -892,7 +892,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "ONSTART");
 
-
     }
 
 
@@ -904,7 +903,18 @@ public class MainActivity extends AppCompatActivity {
         boolean isWork = sharedPreferences.getBoolean("isWork", false);
 
         if(isWork){
-            //
+            Log.i(TAG, "timerViewRefresh: WORK");
+
+            buttonTimer = (Button) findViewById(R.id.buttonTimer);
+
+            isInTimer = true;
+            long millisMax = sharedPreferences.getLong("timeSP2",30000);
+            long millisCnt = sharedPreferences.getLong("countdown",30000);
+            Log.i(TAG, "timerViewRefresh: " + millisCnt + "/" + millisMax);
+            int sec = (int) (millisCnt / 1000);
+            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+            buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+            drawTimer(millisCnt,millisMax);
         }else{
             Log.i(TAG, "timerViewRefresh: ISNT WORK");
             buttonTimer = (Button) findViewById(R.id.buttonTimer);
