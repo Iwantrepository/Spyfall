@@ -30,4 +30,5 @@
 
     <string name="preferenceFileKey">spyfallPreferences</string>
     <string name="wakeLockKey">EndlessService::lock</string>
+    <string name="button_reset_text">Раздать локацию</string>
 </resources>

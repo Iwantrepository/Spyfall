@@ -1,9 +1,11 @@
 package com.example.spyfall;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -131,7 +133,7 @@ public class infoBar extends AppCompatActivity {
 
     public void SpyFirstLocs(View view) {
 
-        Toast.makeText(getApplicationContext(), "Добавлен набор первого издания ", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Добавлен набор первого издания", Toast.LENGTH_LONG).show();
 
         writeFile(path+"/Spyfall_First1.txt", "Ресторан\nМузыкант\nПосетитель\nВышибала\nМетрдотель\nШеф-Повар\nОфициант\nКритик");
         writeFile(path+"/Spyfall_First2.txt", "Спа-Салон\nКлиент\nСтилист\nМассажист\nВизажист\nМаникюрщик\nКосметолог\nДерматолог");
@@ -242,7 +244,70 @@ public class infoBar extends AppCompatActivity {
     }
 
     public void imageButtonClearSharedPrefs(View view) {
-        getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE).edit().clear().apply();
-        Toast.makeText(getApplicationContext(), "Сохранение состояния обнулено", Toast.LENGTH_LONG).show();
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(infoBar.this, R.style.MyDialogTheme);
+        alert.setTitle("Внимание");
+        alert.setMessage("Вы действительно хотите удалить внутренние настройки?");
+        alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //
+            }
+        });
+        alert.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                getSharedPreferences(getString(R.string.preferenceFileKey),MODE_PRIVATE).edit().clear().apply();
+                Toast.makeText(getApplicationContext(), "Сохранение состояния обнулено", Toast.LENGTH_LONG).show();
+            }
+        });
+        alert.create();
+        alert.show();
+    }
+
+    public void imageButtonAlphanumeric(View view) {
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+        if(sharedPreferences.getBoolean("alphanumericSort", false)){
+            sharedPreferences.edit().putBoolean("alphanumericSort", false).apply();
+            Toast.makeText(getApplicationContext(), "Alphanumeric OFF", Toast.LENGTH_SHORT).show();
+        }else{
+            sharedPreferences.edit().putBoolean("alphanumericSort", true).apply();
+            Toast.makeText(getApplicationContext(), "Alphanumeric ON", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void SpyThirdLocs(View view) {
+        Toast.makeText(getApplicationContext(), "Добавлен набор третьего издания", Toast.LENGTH_LONG).show();
+
+        writeFile(path+"/Spyfall_Third1.txt", "Караван\nТорговец специями\nОхранник\nПопрошайка\nПогонщик\nКупец\nКараванщик\nРазбойник");
+        writeFile(path+"/Spyfall_Third2.txt", "Древнеримский сенат\nИмператор\nКонсул\nСенатор\nСлуга\nПлебей\nЦензор\nПатриций");
+        writeFile(path+"/Spyfall_Third3.txt", "Круг друидов\nДруид\nБард\nИсцеленный кельт\nРимский лазутчик\nУченик друида\nПредсказатель\nОтшельник");
+        writeFile(path+"/Spyfall_Third4.txt", "Древняя олимпиада\nДискобол\nБегун\nБорец\nМетатель копья\nСудья\nПрыгун\nЗритель");
+        writeFile(path+"/Spyfall_Third5.txt", "Троянская война\nАхилл\nПарис\nОдиссей\nГектор\nЕлена Прекрасная\nГомер\nКассандра");
+        writeFile(path+"/Spyfall_Third6.txt", "Строительство пирамид\nФараон\nАрхитектор\nЖрец\nКаменотёс\nНадсмотрщик\nПисец\nРабочий");
+        writeFile(path+"/Spyfall_Third7.txt", "Пещера неандертальцев\nВождь\nШаман\nХудожник\nСтарик\nСвязанный людоед\nРебенок\nОхотник");
+        writeFile(path+"/Spyfall_Third8.txt", "Лагерь повстанцев\nКоманданте\nЖурналист\nЗаключенный\nПовстанец\nПровокатор\nАгент ЦРУ\nПолковник КГБ");
+        writeFile(path+"/Spyfall_Third9.txt", "Танковый бой\nКомандир танка\nВодитель танка\nНаводчик танка\nРадист\nПулеметчик\nРазведчик\nСапёр");
+        writeFile(path+"/Spyfall_Third10.txt", "Подпольный бар\nВышибала\nБармен\nМафиози\nПьяница\nКартёжник\nБутлегер\nПолицейский");
+        writeFile(path+"/Spyfall_Third11.txt", "Дирижабль первой мировой\nКапитан\nРадист\nМетеоролог\nСтрелок\nМеханик\nШтурман\nРадиотелеграфист");
+        writeFile(path+"/Spyfall_Third12.txt", "Лагерь золотоискателей\nРепортер\nСтаратель\nПолицейский\nСкупщик\nИндеец\nВрач\nМошенник");
+        writeFile(path+"/Spyfall_Third13.txt", "Салун\nБармен\nОхотник за головами\nБандит\nШериф\nШулер\nЗолотоискатель\nГробовщик");
+        writeFile(path+"/Spyfall_Third14.txt", "Французская революция\nСолдат\nРеволюционер\nСтудент\nБеспризорник\nРабочий\nЭмигрант\nБуржуа");
+        writeFile(path+"/Spyfall_Third15.txt", "Воздушный шар\nГеограф-англичанин\nМиссионер-итальянец\nЭнтомолог-немец\nБиолог-русский\nПутешественник-американец\nПроводник-эфиоп\nПереводчик-француз");
+        writeFile(path+"/Spyfall_Third16.txt", "Бородинская битва\nНаполеон\nКутузов\nКавалерист\nАртиллерист\nГусар\nПоручик Ржевский\nДворянин");
+        writeFile(path+"/Spyfall_Third17.txt", "Вигвам\nШаман\nВождь\nРебенок\nПленённый ковбой\nЦелитель\nБледнолицый\nСтарик");
+        writeFile(path+"/Spyfall_Third18.txt", "Рота мушкетёров\nКардинал Решельё\nД'Артаньян\nАтос\nПортос\nАрамис\nДе Тревиль\nМиледи");
+        writeFile(path+"/Spyfall_Third19.txt", "Школа ниндзя\nНаставник\nНовичок\nРонин\nКузнец\nМонах\nПосланник сёгуна\nСлуга");
+        writeFile(path+"/Spyfall_Third20.txt", "Турецкий гарем\nСултан\nНаложница\nЕвнух\nМать султана\nСтражник\nВизирь\nЛекарь");
+        writeFile(path+"/Spyfall_Third21.txt", "Испанская инквизиция\nПалач\nСвященник\nСудья\nПленник\nТюремщик\nСекретарь\nЧиновник");
+        writeFile(path+"/Spyfall_Third22.txt", "Остров людоедов\nВождь\nЖрец\nПленённый англичанин\nВоин\nПовар\nРебёнок\nОхотник");
+        writeFile(path+"/Spyfall_Third23.txt", "Мастерская Леонардо\nЛеонардо\nЗаказчик\nПосланник папы\nПодмастерье\nСлуга\nФлорентийский ученый\nБогослов");
+        writeFile(path+"/Spyfall_Third24.txt", "Эпидемия Чёрной смерти\nЧумной доктор\nСмертельно больной\nСвященник\nАптекарь\nМогильщик\nИзвозчик\nСолдат");
+        writeFile(path+"/Spyfall_Third25.txt", "Монастырь Шаолинь\nНастоятель\nПовар\nКаллиграф\nВеликий мастер ушу\nЮный монах\nЕвропейский гость\nЧиновник");
+        writeFile(path+"/Spyfall_Third26.txt", "Рыцарский турнир\nПрекрасная дама\nТорговец\nРыцарь\nДворянин\nПростолюдин\nПаж\nСвященник");
+        writeFile(path+"/Spyfall_Third27.txt", "Отряд Робин Гуда\nРобин Гуд\nБрат Тук\nМаленький Джон\nДева Мариан\nШериф Ноттингемский\nМенестрель\nУилл Скарлет");
+        writeFile(path+"/Spyfall_Third28.txt", "Ладья Викингов\nГребец\nВоин\nВоевода\nЯрл\nЦенный пленник\nСкальд\nБерсерк");
+        writeFile(path+"/Spyfall_Third29.txt", "Лунная станция\nИнопланетянин\nКомандир\nБиолог\nУборщица\nИскуственный интеллект\nПсихолог\nКосмический турист");
+        writeFile(path+"/Spyfall_Third30.txt", "Фестиваль хиппи\nСолист\nГитарист\nХиппи\nВозмущенный фермер\nЖурналист\nМестный житель\nНаркодилер");
     }
 }

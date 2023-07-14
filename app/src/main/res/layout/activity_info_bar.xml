@@ -18,6 +18,13 @@
             android:layout_height="wrap_content"
             android:onClick="SpyFirstLocs"
             android:text="Spy1" />
+
+        <Button
+            android:id="@+id/buttonSpyThirdLocs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="SpyThirdLocs"
+            android:text="SPY3" />
     </LinearLayout>
 
     <LinearLayout
@@ -47,6 +54,21 @@
             android:onClick="buttonOldSixLoc"
             android:text="Стартовый пак" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imageButtonAlphanumeric"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="imageButtonAlphanumeric"
+            app:srcCompat="@android:drawable/ic_menu_report_image" />
+
         <ImageButton
             android:id="@+id/imageButtonCustomTime"
             android:layout_width="wrap_content"
@@ -62,7 +84,6 @@
             android:layout_weight="1"
             android:onClick="imageButtonClearSharedPrefs"
             app:srcCompat="@drawable/ic_trash" />
-
     </LinearLayout>
 
     <ScrollView

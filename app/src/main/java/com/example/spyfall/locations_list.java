@@ -6,18 +6,21 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.core.widget.ListViewCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
@@ -48,6 +51,7 @@ import java.io.OutputStreamWriter;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,6 +136,49 @@ public class locations_list extends AppCompatActivity {
             pathToEx = (String) arguments.get("pathToEx");
         }
 
+//        str_list;
+
+        Comparator<String> comparator = new Comparator<String>() {
+
+            @Override
+            public int compare(String lhs, String rhs) {
+                boolean lhsStartsWithLetter = Character.isLetter(lhs.charAt(0));
+                boolean rhsStartsWithLetter = Character.isLetter(rhs.charAt(0));
+
+                int lhs_idx = lhs.replaceAll("[0-9]*[.]txt", "•").lastIndexOf("•");
+                String lhs_head = lhs.substring(0, lhs_idx);
+                String lhs_tail = lhs.substring(lhs_idx, lhs.lastIndexOf("."));
+//                Log.i("COMPARATOR", "RHSA " + lhs + " " + lhs_head + " " + lhs_tail);
+                lhs_idx = Integer.parseInt( (lhs_tail.length() == 0)?"0":lhs_tail );
+
+
+                int rhs_idx = rhs.replaceAll("[0-9]*[.]txt", "•").lastIndexOf("•");
+                String rhs_head = rhs.substring(0, rhs_idx);
+                String rhs_tail = rhs.substring(rhs_idx, rhs.lastIndexOf("."));
+//                Log.i("COMPARATOR", "RHSA " + rhs + " " + rhs_head + " " + rhs_tail);
+                rhs_idx = Integer.parseInt( (rhs_tail.length() == 0)?"0":rhs_tail );
+
+                if(lhs_head.compareTo(rhs_head) == 0){
+                    if(lhs_idx < rhs_idx){
+                        return -1;
+                    }
+                    if(lhs_idx > rhs_idx){
+                        return 1;
+                    }
+                    return 0;
+                }else {
+                    return lhs_head.compareTo(rhs_head);
+                }
+            }
+        };
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
+
+        if(sharedPreferences.getBoolean("alphanumericSort", false)) {
+            Collections.sort(str_list, comparator);
+        }
+
         listView = (ListView) findViewById(R.id.locationsListView);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
@@ -176,14 +223,34 @@ public class locations_list extends AppCompatActivity {
                 Log.i("", "Long press!");
 
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
 
                 String buf = readFile(path+"/"+str_list.get(touchListenerChildId));
                 String head = buf.substring(1, buf.indexOf("\n"));
-                String body = buf.substring(buf.indexOf("\n"));
-                builder.setTitle(head)
-                        .setMessage(body)
-                ;
+                String filename = str_list.get(touchListenerChildId);
+                String body = buf.substring(buf.indexOf("\n")).trim();
+                body = "• " + body.replace("\n","<br>• ");
+                Log.i("TAG", body);
+                builder.setTitle(filename)
+                        .setMessage(HtmlCompat.fromHtml("<b><big><div style=\"text-align: center\">▼"+head+"▼</div></big></b>" + "<div style=\"text-align: center\"><big>" + body + "</big></div>", HtmlCompat.FROM_HTML_MODE_LEGACY))
+                        .setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // Закрываем диалоговое окно
+
+                                Intent  add_locations = new Intent(getApplicationContext(), new_location_form.class);
+                                add_locations.putExtra("path", path);
+                                add_locations.putExtra("filename", str_list.get(touchListenerChildId));
+                                add_locations.putExtra("locname", head);
+                                add_locations.putExtra("body", buf.substring(buf.indexOf("\n")));
+                                add_locations.setAction("UPDATE");
+                                startActivity(add_locations);
+
+                                listView.getChildAt(touchListenerChildId - listView.getFirstVisiblePosition())
+                                    .setBackgroundColor(getColor(R.color.colorLocUPD));
+
+                                dialog.cancel();
+                            }
+                        });
                 builder.create().show();
 
                 isHandlerOn = false;
@@ -264,11 +331,16 @@ public class locations_list extends AppCompatActivity {
                 for(int i = 0; i < listView.getCount(); i++)
                 {
                     String data = readFile(path+"/"+listView.getItemAtPosition(i));
-                    if(data.startsWith("+"))
-                        listView.setItemChecked(i, true);
+
+
+                    if(data.startsWith("+")){
+                        String buf = readFile(path + "/" + listView.getItemAtPosition(i).toString());
+                        writeFile(path + "/" + listView.getItemAtPosition(i).toString(), "-" + buf.substring(1));
+                    }
                     else
                         listView.setItemChecked(i, false);
                 }
+                listAdapter.notifyDataSetChanged();
             }
         });
 
@@ -315,7 +387,7 @@ public class locations_list extends AppCompatActivity {
                 final SparseBooleanArray checked = listView.getCheckedItemPositions();
                 if(listView.getCheckedItemCount() > 0)
                 {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
                     alert.setTitle("Внимание");
                     alert.setMessage("Вы действительно хотите удалить выбранные локации?\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -382,7 +454,7 @@ public class locations_list extends AppCompatActivity {
                         nameTry++;
                     }
 
-                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
                     alert.setTitle("Создание пака");
                     alert.setMessage("Выбранные локации будут скопированы в /" + dirName + " в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -419,7 +491,7 @@ public class locations_list extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
 
 
                 ArrayList<String> str_list_packs = str_list;
