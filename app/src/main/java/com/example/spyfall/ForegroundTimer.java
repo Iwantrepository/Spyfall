@@ -93,11 +93,19 @@ public class ForegroundTimer extends Service {
             sharedPreferencesPT.edit().putLong("countdown", timer.lastTickMillis).apply();
             timer.cancel();
             paused = true;
+
+            if(wakeLock.isHeld()){
+                wakeLock.release();
+            }
         }
         void resume(){
             timer = new ExtendedTimer(rememberedMillis, countDownInterval, sharedPreferencesPT);
             timer.start();
             paused = false;
+
+            if(!wakeLock.isHeld()){
+                wakeLock.acquire(rememberedMillis + TIMER_FOR_SOUND_DELAY);
+            }
         }
     };
 
