@@ -286,11 +286,16 @@ public class locations_list extends AppCompatActivity {
                 for(int i = 0; i < listView.getCount(); i++)
                 {
                     String data = readFile(path+"/"+listView.getItemAtPosition(i));
-                    if(data.startsWith("+"))
-                        listView.setItemChecked(i, true);
+
+
+                    if(data.startsWith("+")){
+                        String buf = readFile(path + "/" + listView.getItemAtPosition(i).toString());
+                        writeFile(path + "/" + listView.getItemAtPosition(i).toString(), "-" + buf.substring(1));
+                    }
                     else
                         listView.setItemChecked(i, false);
                 }
+                listAdapter.notifyDataSetChanged();
             }
         });
 

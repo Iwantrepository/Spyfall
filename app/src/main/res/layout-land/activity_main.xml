@@ -62,11 +62,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/button_reset"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/button_others"
+            android:background="@drawable/button_timer_right"
             android:drawableLeft="@drawable/ic_timer_off"
             android:padding="10dp"
             android:text="@string/timer" />
@@ -78,10 +77,9 @@
             android:layout_below="@id/button_reset"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:layout_toLeftOf="@id/buttonTimer"
-            android:background="@drawable/button_others"
+            android:background="@drawable/button_timer_left"
             app:srcCompat="@drawable/ic_timer_resume" />
 
         <Button

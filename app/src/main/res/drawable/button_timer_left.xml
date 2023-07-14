@@ -6,7 +6,8 @@
         android:endColor="#FFFDE4"
         android:type="linear"/>
     <corners
-        android:radius="200dp"
+        android:bottomLeftRadius="200dp"
+        android:topLeftRadius="200dp"
         />
     <stroke
         android:color="#81000000"
