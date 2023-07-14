@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.core.widget.ListViewCompat;
 
 import android.annotation.SuppressLint;
@@ -18,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
@@ -180,10 +182,18 @@ public class locations_list extends AppCompatActivity {
 
                 String buf = readFile(path+"/"+str_list.get(touchListenerChildId));
                 String head = buf.substring(1, buf.indexOf("\n"));
+                String filename = str_list.get(touchListenerChildId);
                 String body = buf.substring(buf.indexOf("\n"));
-                builder.setTitle(head)
-                        .setMessage(body)
-                ;
+                body = body.replace("\n","<br>");
+                Log.i("!!!", body);
+                builder.setTitle(filename)
+                        .setMessage(HtmlCompat.fromHtml("<b><big>▼"+head+"▼</big></b>"+body, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                        .setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // Закрываем диалоговое окно
+                                dialog.cancel();
+                            }
+                        });
                 builder.create().show();
 
                 isHandlerOn = false;
