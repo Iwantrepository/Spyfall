@@ -93,27 +93,11 @@ public class ForegroundTimer extends Service {
             sharedPreferencesPT.edit().putLong("countdown", timer.lastTickMillis).apply();
             timer.cancel();
             paused = true;
-
-            intentBR.putExtra("isPaused",true);
-            sendBroadcast(intentBR);
-
-            builder.clearActions();
-            builder.addAction(R.drawable.ic_notification,"STOP", pendingIntentStop);
-            builder.addAction(R.drawable.ic_notification,"START", pendingIntentPause);
-            notificationManager.notify(notificationId, builder.build());
         }
         void resume(){
             timer = new ExtendedTimer(rememberedMillis, countDownInterval, sharedPreferencesPT);
             timer.start();
             paused = false;
-
-            intentBR.putExtra("isPaused",false);
-            sendBroadcast(intentBR);
-
-            builder.clearActions();
-            builder.addAction(R.drawable.ic_notification,"STOP", pendingIntentStop);
-            builder.addAction(R.drawable.ic_notification,"PAUSE", pendingIntentPause);
-            notificationManager.notify(notificationId, builder.build());
         }
     };
 
@@ -197,7 +181,7 @@ public class ForegroundTimer extends Service {
 
         String action = intent.getAction();
 
-        if(action != "") {
+        if(action != "" && isServiceStarted) {
             if (intent.getAction() == "TIMER_STOP") {
                 Log.i(TAG + " getType", "TIMER_STOP");
                 stopSelf();
@@ -207,9 +191,31 @@ public class ForegroundTimer extends Service {
                 if(countDownTimer.paused){
                     countDownTimer.resume();
                     Log.i(TAG + " PAUSETIMER", "RESUME");
+
+
+                    intentBR.putExtra("isPaused",false);
+                    sendBroadcast(intentBR);
+
+                    builder.clearActions();
+                    builder.addAction(R.drawable.ic_notification,"STOP", pendingIntentStop);
+                    builder.addAction(R.drawable.ic_notification,"PAUSE", pendingIntentPause);
+                    notificationManager.notify(notificationId, builder.build());
+
+                    countDownTimer.sharedPreferencesPT.edit().putBoolean("isPaused", false).apply();
                 }else{
                     countDownTimer.pause();
                     Log.i(TAG + " PAUSETIMER", "PAUSE");
+
+
+                    intentBR.putExtra("isPaused",true);
+                    sendBroadcast(intentBR);
+
+                    builder.clearActions();
+                    builder.addAction(R.drawable.ic_notification,"STOP", pendingIntentStop);
+                    builder.addAction(R.drawable.ic_notification,"RESUME", pendingIntentPause);
+                    notificationManager.notify(notificationId, builder.build());
+
+                    countDownTimer.sharedPreferencesPT.edit().putBoolean("isPaused", true).apply();
                 }
 
             } else {
@@ -313,6 +319,7 @@ public class ForegroundTimer extends Service {
         Log.i(TAG,"Countdown seconds remaining:" + 0);
         intentBR.putExtra("countdown",0);
         intentBR.putExtra("isWork",false);
+        intentBR.putExtra("isPaused",true);
 
         intentBR.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         sendBroadcast(intentBR);
@@ -373,7 +380,6 @@ public class ForegroundTimer extends Service {
 
         Intent intentStop;
         intentStop = new Intent(this, ForegroundTimer.class);
-        intentStop.setType("TIMER_STOP");
         intentStop.setAction("TIMER_STOP");
         pendingIntentStop = PendingIntent.getService(
                 this, 0, intentStop, PendingIntent.FLAG_IMMUTABLE);
@@ -383,7 +389,6 @@ public class ForegroundTimer extends Service {
 
         Intent intentPause;
         intentPause = new Intent(this, ForegroundTimer.class);
-        intentPause.setType("TIMER_PAUSE");
         intentPause.setAction("TIMER_PAUSE");
         pendingIntentPause = PendingIntent.getService(
                 this, 0, intentPause, PendingIntent.FLAG_IMMUTABLE);
