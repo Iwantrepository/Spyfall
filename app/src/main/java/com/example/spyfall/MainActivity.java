@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -165,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
     Button button_start;
 
     Button buttonTimer;
+    ImageButton buttonTimerPause;
 
 
 
@@ -311,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
         game_state.logString += "\n▼ INTENT ▼\n";
         intentDisassembler(intent);
 
-        Log.i(TAG,"onNewIntent() -------------------------------------------");
+        Log.i(TAG + "onNewIntent",intent.toString());
 
     }
 
@@ -517,6 +519,8 @@ public class MainActivity extends AppCompatActivity {
         button_start = (Button) findViewById(R.id.button_start);
 
         buttonTimer = (Button) findViewById(R.id.buttonTimer);
+        buttonTimerPause = (ImageButton) findViewById(R.id.imageButtonTimerPause);
+
 
         spyImage = (ImageView) findViewById(R.id.imageViewSpy);
         int imageSpyRes = getResources().getIdentifier("@mipmap/ic_launcher_foreground", null, this.getPackageName());
@@ -525,6 +529,36 @@ public class MainActivity extends AppCompatActivity {
 
         textViewLoc = (TextView) findViewById(R.id.textViewLoc);
         textViewProf = (TextView) findViewById(R.id.textViewProf);
+
+        buttonTimerPause.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+               if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                   buttonTimerPause.startAnimation(scaleUp);
+               }
+
+               if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                   buttonTimerPause.startAnimation(scaleDown);
+               }
+               return false;
+            }
+        });
+
+        buttonTimer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    buttonTimer.startAnimation(scaleUp);
+                }
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    buttonTimer.startAnimation(scaleDown);
+                }
+                return false;
+            }
+        });
 
 
 /***************************** ▼ DEV ▼ ******************************/
@@ -570,7 +604,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, sharedPreferences.getString(HARDSAVE_TAG,""));
 //        int sec = (int) (millis / 1000);
 //        ((Button) findViewById(R.id.buttonTimer)).setText(sec / 60 + ":" + ((sec % 60 < 10) ? "0" : "") + sec % 60);
-        timerViewRefresh();
+//        timerViewRefresh();
 /***************************** ▼ Sounds ▼ *****************************/
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -748,6 +782,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonTimerPause.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(getApplicationContext(), ForegroundTimer.class);
+                intent.setAction("TIMER_PAUSE");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent);
+                }else{
+                    startService(intent);
+                }
+            }
+        });
+
 
         button_start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -831,6 +879,7 @@ public class MainActivity extends AppCompatActivity {
                             textViewProf.setText("Профессия");
                             button_reset.setVisibility(View.VISIBLE);
                             buttonTimer.setVisibility(View.VISIBLE);
+                            buttonTimerPause.setVisibility(View.VISIBLE);
 
                             hideSpy();
                         }
@@ -842,6 +891,7 @@ public class MainActivity extends AppCompatActivity {
                             buttons[finalI].setBackground(getDrawable(R.drawable.button_back_off));
                             button_reset.setVisibility(View.GONE);
                             buttonTimer.setVisibility(View.GONE);
+                            buttonTimerPause.setVisibility(View.GONE);
 
                             showSpy(game_state.prof[finalI]);
                         }
@@ -892,7 +942,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "ONSTART");
 
-
     }
 
 
@@ -904,7 +953,18 @@ public class MainActivity extends AppCompatActivity {
         boolean isWork = sharedPreferences.getBoolean("isWork", false);
 
         if(isWork){
-            //
+            Log.i(TAG, "timerViewRefresh: WORK");
+
+            buttonTimer = (Button) findViewById(R.id.buttonTimer);
+
+            isInTimer = true;
+            long millisMax = sharedPreferences.getLong("timeSP2",30000);
+            long millisCnt = sharedPreferences.getLong("countdown",30000);
+            Log.i(TAG, "timerViewRefresh: " + millisCnt + "/" + millisMax);
+            int sec = (int) (millisCnt / 1000);
+            buttonTimer.setText(sec/60 + ":" + ((sec%60<10)?"0":"") + sec%60);
+            buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
+            drawTimer(millisCnt,millisMax);
         }else{
             Log.i(TAG, "timerViewRefresh: ISNT WORK");
             buttonTimer = (Button) findViewById(R.id.buttonTimer);
@@ -972,6 +1032,14 @@ public class MainActivity extends AppCompatActivity {
             boolean isWork = intent.getBooleanExtra("isWork",false);
             long timerMax = intent.getLongExtra("timeSP2",0);
 
+            boolean isPaused = intent.getBooleanExtra("isPaused",false);
+
+            if(isPaused){
+                buttonTimerPause.setImageDrawable(getDrawable(R.drawable.ic_timer_resume));
+            }else{
+                buttonTimerPause.setImageDrawable(getDrawable(R.drawable.ic_timer_pause));
+            }
+
             int sec = (int) (millisUntilFinished / 1000);
 
             if(isWork){
@@ -983,6 +1051,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonTimer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_timer_on,0,0,0);
                 isInTimer = true;
             }else {
+                Log.i(TAG,"Timer Is Dead");
                 sharedPreferences = getSharedPreferences(getString(R.string.preferenceFileKey),MODE_MULTI_PROCESS);
                 long millis = sharedPreferences.getLong("timeSP2",3000);
                 sec = (int) (millis / 1000);
@@ -992,7 +1061,7 @@ public class MainActivity extends AppCompatActivity {
 
                 drawTimer(0, 0);
 
-                soundPool.play(sound, 1, 1, 0, 0, 1);
+//                soundPool.play(sound, 1, 1, 0, 0, 1);
 //                Toast.makeText(getApplicationContext(), "!!!" , Toast.LENGTH_SHORT).show();
             }
 
