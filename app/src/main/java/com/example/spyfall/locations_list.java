@@ -178,15 +178,16 @@ public class locations_list extends AppCompatActivity {
                 Log.i("", "Long press!");
 
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
 
                 String buf = readFile(path+"/"+str_list.get(touchListenerChildId));
                 String head = buf.substring(1, buf.indexOf("\n"));
                 String filename = str_list.get(touchListenerChildId);
-                String body = buf.substring(buf.indexOf("\n"));
-                body = body.replace("\n","<br>");
+                String body = buf.substring(buf.indexOf("\n")).trim();
+                body = "• " + body.replace("\n","<br>• ");
+                Log.i("TAG", body);
                 builder.setTitle(filename)
-                        .setMessage(HtmlCompat.fromHtml("<b><big>▼"+head+"▼</big></b>"+body, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                        .setMessage(HtmlCompat.fromHtml("<b><big><div style=\"text-align: center\">▼"+head+"▼</div></big></b>" + "<div style=\"text-align: center\"><big>" + body + "</big></div>", HtmlCompat.FROM_HTML_MODE_LEGACY))
                         .setPositiveButton("Изменить", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // Закрываем диалоговое окно
@@ -336,7 +337,7 @@ public class locations_list extends AppCompatActivity {
                 final SparseBooleanArray checked = listView.getCheckedItemPositions();
                 if(listView.getCheckedItemCount() > 0)
                 {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
                     alert.setTitle("Внимание");
                     alert.setMessage("Вы действительно хотите удалить выбранные локации?\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -403,7 +404,7 @@ public class locations_list extends AppCompatActivity {
                         nameTry++;
                     }
 
-                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
                     alert.setTitle("Создание пака");
                     alert.setMessage("Выбранные локации будут скопированы в /" + dirName + " в память телефона\n("+listView.getCheckedItemCount()+" локаций)");
                     alert.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -440,7 +441,7 @@ public class locations_list extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(locations_list.this, R.style.MyDialogTheme);
 
 
                 ArrayList<String> str_list_packs = str_list;
